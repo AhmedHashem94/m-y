@@ -4,19 +4,21 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { IProduct, ICompany, ProductGender, ProductCategory } from '@mamy/shared-models';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-storefront',
   standalone: true,
-  imports: [RouterLink, TranslateModule, HlmButton, ...HlmCardImports],
+  imports: [RouterLink, TranslateModule, HlmButton, ...HlmCardImports, ...HlmSelectImports, ...BrnSelectImports],
   template: `
     <!-- Hero Section -->
-    <section class="bg-gradient-to-b from-primary/10 to-background py-12 px-4 text-center">
-      <h1 class="text-4xl font-bold text-foreground mb-2">{{ 'store.hero_title' | translate }}</h1>
-      <p class="text-muted-foreground text-lg mb-8">{{ 'store.hero_subtitle' | translate }}</p>
-      <div class="flex items-center justify-center gap-3">
+    <section class="bg-gradient-to-b from-primary/10 to-background py-8 sm:py-12 px-4 text-center">
+      <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{{ 'store.hero_title' | translate }}</h1>
+      <p class="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8">{{ 'store.hero_subtitle' | translate }}</p>
+      <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
         <button hlmBtn
           [variant]="genderFilter() === 'BOY' ? 'default' : 'outline'"
           (click)="setGender('BOY')">
@@ -37,31 +39,35 @@ import { LanguageService } from '../../services/language.service';
 
     <!-- Filter Bar -->
     <section class="container mx-auto px-4 py-6">
-      <div class="flex flex-wrap items-center gap-3 mb-6">
+      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-6">
         <!-- Category Filter -->
-        <select
-          class="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          [value]="categoryFilter()"
-          (change)="setCategoryFromEvent($event)">
-          <option value="">{{ 'store.all_categories' | translate }}</option>
-          @for (cat of categories; track cat) {
-            <option [value]="cat">{{ 'categories.' + cat | translate }}</option>
-          }
-        </select>
+        <brn-select hlm [value]="categoryFilter()" (valueChange)="setCategoryFilter($event)" [placeholder]="'store.all_categories' | translate">
+          <hlm-select-trigger class="w-full sm:w-45">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content hlmSelectContent>
+            <hlm-option value="">{{ 'store.all_categories' | translate }}</hlm-option>
+            @for (cat of categories; track cat) {
+              <hlm-option [value]="cat">{{ 'categories.' + cat | translate }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
 
         <!-- Brand Filter -->
-        <select
-          class="rounded-md border border-input bg-background px-3 py-2 text-sm"
-          [value]="companyFilter()"
-          (change)="setCompanyFromEvent($event)">
-          <option value="">{{ 'store.all_brands' | translate }}</option>
-          @for (company of companies(); track company.id) {
-            <option [value]="company.id">{{ isAr() ? company.nameAr : company.name }}</option>
-          }
-        </select>
+        <brn-select hlm [value]="companyFilter()" (valueChange)="setCompanyFilter($event)" [placeholder]="'store.all_brands' | translate">
+          <hlm-select-trigger class="w-full sm:w-45">
+            <hlm-select-value />
+          </hlm-select-trigger>
+          <hlm-select-content hlmSelectContent>
+            <hlm-option value="">{{ 'store.all_brands' | translate }}</hlm-option>
+            @for (company of companies(); track company.id) {
+              <hlm-option [value]="company.id">{{ isAr() ? company.nameAr : company.name }}</hlm-option>
+            }
+          </hlm-select-content>
+        </brn-select>
 
         <!-- Results count -->
-        <span class="text-sm text-muted-foreground ms-auto">
+        <span class="text-sm text-muted-foreground sm:ms-auto text-center sm:text-end">
           {{ filteredProducts().length }} {{ 'store.items_count' | translate }}
         </span>
       </div>
@@ -77,7 +83,7 @@ import { LanguageService } from '../../services/language.service';
           <p class="text-sm text-muted-foreground">{{ 'store.try_different_filter' | translate }}</p>
         </div>
       } @else {
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
           @for (product of filteredProducts(); track product.id) {
             <a [routerLink]="['/store/product', product.id]" class="group block">
               <section hlmCard class="overflow-hidden transition-shadow hover:shadow-lg">
@@ -187,12 +193,12 @@ export class StorefrontComponent {
     });
   }
 
-  setCategoryFromEvent(event: Event) {
-    this.categoryFilter.set((event.target as HTMLSelectElement).value);
+  setCategoryFilter(value: string | string[]) {
+    this.categoryFilter.set(Array.isArray(value) ? value[0] ?? '' : value);
   }
 
-  setCompanyFromEvent(event: Event) {
-    this.companyFilter.set((event.target as HTMLSelectElement).value);
+  setCompanyFilter(value: string | string[]) {
+    this.companyFilter.set(Array.isArray(value) ? value[0] ?? '' : value);
   }
 
   getMinPrice(product: IProduct): number {

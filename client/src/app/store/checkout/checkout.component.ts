@@ -16,8 +16,8 @@ import { LanguageService } from '../../services/language.service';
   standalone: true,
   imports: [ReactiveFormsModule, RouterLink, TranslateModule, HlmButton, ...HlmCardImports, HlmInput, HlmLabel],
   template: `
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-2xl font-bold text-foreground mb-6">{{ 'checkout.title' | translate }}</h1>
+    <div class="container mx-auto px-4 py-6 sm:py-8">
+      <h1 class="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">{{ 'checkout.title' | translate }}</h1>
 
       @if (cart.items().length === 0) {
         <div class="flex flex-col items-center justify-center py-20 gap-4">
@@ -27,7 +27,7 @@ import { LanguageService } from '../../services/language.service';
           </a>
         </div>
       } @else {
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <!-- Customer Form -->
           <div class="lg:col-span-2">
             <section hlmCard>

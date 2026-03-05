@@ -35,12 +35,6 @@ export class AuthService {
       .pipe(tap((res) => this.setSession(res)));
   }
 
-  register(name: string, email: string, password: string) {
-    return this.http
-      .post<AuthResponse>('/api/auth/register', { name, email, password })
-      .pipe(tap((res) => this.setSession(res)));
-  }
-
   logout() {
     localStorage.removeItem(TOKEN_KEY);
     localStorage.removeItem(USER_KEY);

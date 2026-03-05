@@ -15,8 +15,8 @@ import { LanguageService } from '../../services/language.service';
   imports: [RouterLink, TranslateModule, NgIcon, HlmIcon, HlmButton, ...HlmCardImports],
   providers: [provideIcons({ lucideMinus, lucidePlus, lucideTrash2, lucideShoppingBag })],
   template: `
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-2xl font-bold text-foreground mb-6">{{ 'cart.title' | translate }}</h1>
+    <div class="container mx-auto px-4 py-6 sm:py-8">
+      <h1 class="text-xl sm:text-2xl font-bold text-foreground mb-4 sm:mb-6">{{ 'cart.title' | translate }}</h1>
 
       @if (cart.items().length === 0) {
         <!-- Empty cart -->
@@ -29,14 +29,14 @@ import { LanguageService } from '../../services/language.service';
           </a>
         </div>
       } @else {
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           <!-- Cart items -->
-          <div class="lg:col-span-2 flex flex-col gap-4">
+          <div class="lg:col-span-2 flex flex-col gap-3 sm:gap-4">
             @for (item of cart.items(); track item.variantId) {
-              <section hlmCard class="p-4">
-                <div class="flex gap-4">
+              <section hlmCard class="p-3 sm:p-4">
+                <div class="flex gap-3 sm:gap-4">
                   <!-- Image -->
-                  <div class="h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted">
+                  <div class="h-20 w-20 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-md bg-muted">
                     @if (item.image) {
                       <img [src]="item.image" [alt]="isAr() ? item.nameAr : item.name"
                         class="h-full w-full object-cover" loading="lazy" />
@@ -57,15 +57,15 @@ import { LanguageService } from '../../services/language.service';
                       }
                     </div>
 
-                    <div class="flex items-center justify-between mt-2">
+                    <div class="flex flex-wrap items-center gap-2 sm:gap-0 sm:justify-between mt-2">
                       <!-- Quantity controls -->
                       <div class="flex items-center gap-1 rounded-md border border-border">
-                        <button hlmBtn variant="ghost" size="icon" class="h-8 w-8"
+                        <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8"
                           (click)="cart.updateQuantity(item.variantId, item.quantity - 1)">
                           <ng-icon hlmIcon size="xs" name="lucideMinus" />
                         </button>
-                        <span class="w-8 text-center text-sm font-medium">{{ item.quantity }}</span>
-                        <button hlmBtn variant="ghost" size="icon" class="h-8 w-8"
+                        <span class="w-7 sm:w-8 text-center text-sm font-medium">{{ item.quantity }}</span>
+                        <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8"
                           (click)="cart.updateQuantity(item.variantId, item.quantity + 1)">
                           <ng-icon hlmIcon size="xs" name="lucidePlus" />
                         </button>
@@ -77,7 +77,7 @@ import { LanguageService } from '../../services/language.service';
                       </span>
 
                       <!-- Remove -->
-                      <button hlmBtn variant="ghost" size="icon" class="h-8 w-8 text-destructive"
+                      <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8 text-destructive"
                         (click)="cart.removeItem(item.variantId)">
                         <ng-icon hlmIcon size="xs" name="lucideTrash2" />
                       </button>

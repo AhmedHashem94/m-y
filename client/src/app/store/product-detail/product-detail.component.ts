@@ -24,14 +24,14 @@ import { LanguageService } from '../../services/language.service';
         <p class="text-muted-foreground">{{ 'common.loading' | translate }}</p>
       </div>
     } @else if (product()) {
-      <div class="container mx-auto px-4 py-8">
+      <div class="container mx-auto px-4 py-6 sm:py-8">
         <!-- Back link -->
-        <a routerLink="/store" class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-6">
+        <a routerLink="/store" class="inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-primary mb-4 sm:mb-6">
           <ng-icon hlmIcon size="xs" name="lucideChevronRight" />
           {{ 'common.back' | translate }}
         </a>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
           <!-- Image Gallery -->
           <div class="flex flex-col gap-3">
             <!-- Main image -->
@@ -53,7 +53,7 @@ import { LanguageService } from '../../services/language.service';
               <div class="flex gap-2 overflow-x-auto pb-2">
                 @for (img of product()!.images; track img; let i = $index) {
                   <button
-                    class="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md border-2 transition-colors"
+                    class="h-14 w-14 sm:h-16 sm:w-16 shrink-0 overflow-hidden rounded-md border-2 transition-colors"
                     [class]="i === activeImageIndex() ? 'border-primary' : 'border-border'"
                     (click)="activeImageIndex.set(i)">
                     <img [src]="img" [alt]="'Image ' + (i + 1)" class="h-full w-full object-cover" loading="lazy" />
@@ -73,7 +73,7 @@ import { LanguageService } from '../../services/language.service';
             }
 
             <!-- Name -->
-            <h1 class="text-2xl font-bold text-foreground">
+            <h1 class="text-xl sm:text-2xl font-bold text-foreground">
               {{ isAr() ? product()!.nameAr : product()!.name }}
             </h1>
 
@@ -148,8 +148,8 @@ import { LanguageService } from '../../services/language.service';
               </section>
 
               <!-- Quantity + Add to cart -->
-              <div class="flex items-center gap-4">
-                <div class="flex items-center gap-2 rounded-md border border-border">
+              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                <div class="flex items-center justify-center gap-2 rounded-md border border-border">
                   <button hlmBtn variant="ghost" size="icon"
                     (click)="decrementQty()"
                     [disabled]="quantity() <= 1">

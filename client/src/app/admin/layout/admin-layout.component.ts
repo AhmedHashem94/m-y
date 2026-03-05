@@ -1,17 +1,40 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideMenu, lucideX } from '@ng-icons/lucide';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { TranslateModule } from '@ngx-translate/core';
 import { AuthService } from '../../services/auth.service';
+import { LanguageService } from '../../services/language.service';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, HlmButton, TranslateModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, HlmButton, NgIcon, HlmIcon, TranslateModule],
+  providers: [provideIcons({ lucideMenu, lucideX })],
   template: `
     <div class="flex min-h-screen">
-      <aside class="w-64 border-e bg-card p-4 flex flex-col">
-        <h2 class="mb-6 text-xl font-bold">{{ 'nav.admin' | translate }}</h2>
+      <!-- Mobile overlay -->
+      @if (sidebarOpen) {
+        <div
+          class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+          (click)="sidebarOpen = false"
+        ></div>
+      }
+
+      <!-- Sidebar -->
+      <aside
+        class="fixed inset-y-0 start-0 z-50 w-64 border-e bg-card p-4 flex flex-col transition-transform duration-200 lg:static lg:translate-x-0"
+        [class.max-lg:-translate-x-full]="!sidebarOpen && isLtr"
+        [class.max-lg:translate-x-full]="!sidebarOpen && !isLtr"
+      >
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-xl font-bold">{{ 'nav.admin' | translate }}</h2>
+          <button hlmBtn variant="ghost" size="icon" class="lg:hidden" (click)="sidebarOpen = false">
+            <ng-icon hlmIcon size="sm" name="lucideX" />
+          </button>
+        </div>
         <nav class="flex flex-col gap-2 flex-1">
           <a
             routerLink="/admin/dashboard"
@@ -19,6 +42,7 @@ import { AuthService } from '../../services/auth.service';
             hlmBtn
             variant="ghost"
             class="justify-start"
+            (click)="sidebarOpen = false"
           >
             {{ 'admin.dashboard' | translate }}
           </a>
@@ -28,6 +52,7 @@ import { AuthService } from '../../services/auth.service';
             hlmBtn
             variant="ghost"
             class="justify-start"
+            (click)="sidebarOpen = false"
           >
             {{ 'admin.companies' | translate }}
           </a>
@@ -37,6 +62,7 @@ import { AuthService } from '../../services/auth.service';
             hlmBtn
             variant="ghost"
             class="justify-start"
+            (click)="sidebarOpen = false"
           >
             {{ 'admin.products' | translate }}
           </a>
@@ -46,6 +72,7 @@ import { AuthService } from '../../services/auth.service';
             hlmBtn
             variant="ghost"
             class="justify-start"
+            (click)="sidebarOpen = false"
           >
             {{ 'admin.orders' | translate }}
           </a>
@@ -69,15 +96,33 @@ import { AuthService } from '../../services/auth.service';
           </button>
         </div>
       </aside>
-      <main class="flex-1 p-6">
-        <router-outlet />
-      </main>
+
+      <!-- Main content -->
+      <div class="flex-1 flex flex-col min-w-0">
+        <!-- Mobile top bar -->
+        <div class="sticky top-0 z-30 flex items-center gap-3 border-b bg-background px-4 py-3 lg:hidden">
+          <button hlmBtn variant="ghost" size="icon" (click)="sidebarOpen = true">
+            <ng-icon hlmIcon size="sm" name="lucideMenu" />
+          </button>
+          <span class="font-bold text-lg">{{ 'nav.admin' | translate }}</span>
+        </div>
+        <main class="flex-1 p-4 md:p-6">
+          <router-outlet />
+        </main>
+      </div>
     </div>
   `,
 })
 export class AdminLayoutComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly lang = inject(LanguageService);
+
+  sidebarOpen = false;
+
+  get isLtr() {
+    return this.lang.currentLang() !== 'ar';
+  }
 
   logout() {
     this.auth.logout();

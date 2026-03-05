@@ -20,7 +20,7 @@ interface TimelineStep {
   imports: [RouterLink, TranslateModule, HlmButton, ...HlmCardImports, NgIcon, HlmIcon],
   providers: [provideIcons({ lucideCheck, lucideCircle, lucidePackage, lucideTruck, lucideHome })],
   template: `
-    <div class="container mx-auto px-4 py-8">
+    <div class="container mx-auto px-4 py-6 sm:py-8">
       @if (loading()) {
         <div class="flex items-center justify-center py-20">
           <p class="text-muted-foreground">{{ 'common.loading' | translate }}</p>
@@ -28,11 +28,11 @@ interface TimelineStep {
       } @else if (order()) {
         <div class="max-w-2xl mx-auto">
           <!-- Confirmation message -->
-          <div class="text-center mb-8">
-            <div class="inline-flex h-16 w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
+          <div class="text-center mb-6 sm:mb-8">
+            <div class="inline-flex h-14 w-14 sm:h-16 sm:w-16 items-center justify-center rounded-full bg-primary/10 mb-4">
               <ng-icon hlmIcon size="lg" name="lucideCheck" class="text-primary" />
             </div>
-            <h1 class="text-2xl font-bold text-foreground mb-2">{{ 'orders.order_confirmed' | translate }}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold text-foreground mb-2">{{ 'orders.order_confirmed' | translate }}</h1>
             <p class="text-muted-foreground">{{ 'orders.track_description' | translate }}</p>
           </div>
 

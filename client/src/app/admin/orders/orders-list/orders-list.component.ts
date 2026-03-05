@@ -3,6 +3,9 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { HlmButton } from '@spartan-ng/helm/button';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
+import { HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd } from '@spartan-ng/helm/table';
 import { TranslateModule } from '@ngx-translate/core';
 import { IOrder, OrderStatus } from '@mamy/shared-models';
 import { DatePipe } from '@angular/common';
@@ -10,24 +13,25 @@ import { DatePipe } from '@angular/common';
 @Component({
   selector: 'app-orders-list',
   standalone: true,
-  imports: [RouterLink, FormsModule, HlmButton, TranslateModule, DatePipe],
+  imports: [RouterLink, FormsModule, HlmButton, ...HlmSelectImports, ...BrnSelectImports, HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, TranslateModule, DatePipe],
   template: `
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">{{ 'admin.orders' | translate }}</h1>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">{{ 'admin.orders' | translate }}</h1>
     </div>
 
     <!-- Filter -->
     <div class="mb-4">
-      <select
-        [ngModel]="statusFilter()"
-        (ngModelChange)="statusFilter.set($event)"
-        class="flex h-10 rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-      >
-        <option value="">{{ 'admin.all_statuses' | translate }}</option>
-        @for (s of statuses; track s) {
-          <option [value]="s">{{ 'orders.status.' + s | translate }}</option>
-        }
-      </select>
+      <brn-select hlm [ngModel]="statusFilter()" (ngModelChange)="statusFilter.set($event)" [placeholder]="'admin.all_statuses' | translate">
+        <hlm-select-trigger class="w-full sm:w-52">
+          <hlm-select-value />
+        </hlm-select-trigger>
+        <hlm-select-content hlmSelectContent>
+          <hlm-option value="">{{ 'admin.all_statuses' | translate }}</hlm-option>
+          @for (s of statuses; track s) {
+            <hlm-option [value]="s">{{ 'orders.status.' + s | translate }}</hlm-option>
+          }
+        </hlm-select-content>
+      </brn-select>
     </div>
 
     @if (loading()) {
@@ -35,27 +39,51 @@ import { DatePipe } from '@angular/common';
     } @else if (filteredOrders().length === 0) {
       <p class="text-muted-foreground">{{ 'admin.no_orders' | translate }}</p>
     } @else {
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="border-b text-start">
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.order_id' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.customer_name' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.items_count' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.total' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.status' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.date' | translate }}</th>
-              <th class="py-3 text-start font-medium text-muted-foreground"></th>
+      <!-- Mobile cards -->
+      <div class="flex flex-col gap-3 lg:hidden">
+        @for (order of filteredOrders(); track order.id) {
+          <a [routerLink]="['/admin/orders', order.id]" class="block rounded-lg border bg-card p-4 hover:bg-accent/50 transition-colors">
+            <div class="flex items-center justify-between mb-2">
+              <span class="font-mono text-xs text-muted-foreground">#{{ order.id.substring(0, 8) }}</span>
+              <span
+                class="rounded-full px-2 py-0.5 text-xs font-medium"
+                [class]="getStatusClass(order.status)"
+              >
+                {{ 'orders.status.' + order.status | translate }}
+              </span>
+            </div>
+            <p class="font-medium text-sm mb-1">{{ order.customerDetails.name }}</p>
+            <div class="flex items-center justify-between text-xs text-muted-foreground">
+              <span>{{ order.items.length }} {{ 'admin.items_count' | translate }}</span>
+              <span class="font-bold text-sm text-foreground">{{ order.total }} {{ 'common.egp' | translate }}</span>
+            </div>
+            <p class="text-xs text-muted-foreground mt-1">{{ order.createdAt | date:'short' }}</p>
+          </a>
+        }
+      </div>
+
+      <!-- Desktop table -->
+      <div hlmTableContainer class="hidden lg:block">
+        <table hlmTable>
+          <thead hlmTHead>
+            <tr hlmTr>
+              <th hlmTh>{{ 'admin.order_id' | translate }}</th>
+              <th hlmTh>{{ 'admin.customer_name' | translate }}</th>
+              <th hlmTh>{{ 'admin.items_count' | translate }}</th>
+              <th hlmTh>{{ 'admin.total' | translate }}</th>
+              <th hlmTh>{{ 'admin.status' | translate }}</th>
+              <th hlmTh>{{ 'admin.date' | translate }}</th>
+              <th hlmTh></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody hlmTBody>
             @for (order of filteredOrders(); track order.id) {
-              <tr class="border-b hover:bg-muted/50 cursor-pointer">
-                <td class="py-3 pe-4 font-mono text-sm">{{ order.id.substring(0, 8) }}</td>
-                <td class="py-3 pe-4">{{ order.customerDetails.name }}</td>
-                <td class="py-3 pe-4">{{ order.items.length }}</td>
-                <td class="py-3 pe-4">{{ order.total }} {{ 'common.egp' | translate }}</td>
-                <td class="py-3 pe-4">
+              <tr hlmTr class="cursor-pointer">
+                <td hlmTd class="font-mono text-sm">{{ order.id.substring(0, 8) }}</td>
+                <td hlmTd>{{ order.customerDetails.name }}</td>
+                <td hlmTd>{{ order.items.length }}</td>
+                <td hlmTd>{{ order.total }} {{ 'common.egp' | translate }}</td>
+                <td hlmTd>
                   <span
                     class="rounded-full px-2 py-1 text-xs font-medium"
                     [class]="getStatusClass(order.status)"
@@ -63,8 +91,8 @@ import { DatePipe } from '@angular/common';
                     {{ 'orders.status.' + order.status | translate }}
                   </span>
                 </td>
-                <td class="py-3 pe-4 text-sm text-muted-foreground">{{ order.createdAt | date:'short' }}</td>
-                <td class="py-3">
+                <td hlmTd class="text-sm text-muted-foreground">{{ order.createdAt | date:'short' }}</td>
+                <td hlmTd>
                   <a [routerLink]="['/admin/orders', order.id]" hlmBtn variant="outline" size="sm">
                     {{ 'orders.detail' | translate }}
                   </a>

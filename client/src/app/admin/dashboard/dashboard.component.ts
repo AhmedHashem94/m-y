@@ -9,16 +9,16 @@ import { IProduct, IOrder } from '@mamy/shared-models';
   standalone: true,
   imports: [...HlmCardImports, TranslateModule],
   template: `
-    <h1 class="text-2xl font-bold mb-6">{{ 'admin.dashboard' | translate }}</h1>
+    <h1 class="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">{{ 'admin.dashboard' | translate }}</h1>
 
-    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div class="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
       <!-- Total Products -->
       <section hlmCard>
         <div hlmCardHeader>
           <h3 hlmCardTitle>{{ 'admin.total_products' | translate }}</h3>
         </div>
         <div hlmCardContent>
-          <p class="text-4xl font-bold text-primary">{{ totalProducts() }}</p>
+          <p class="text-3xl sm:text-4xl font-bold text-primary">{{ totalProducts() }}</p>
         </div>
       </section>
 
@@ -28,7 +28,7 @@ import { IProduct, IOrder } from '@mamy/shared-models';
           <h3 hlmCardTitle>{{ 'admin.total_orders' | translate }}</h3>
         </div>
         <div hlmCardContent>
-          <p class="text-4xl font-bold text-primary">{{ totalOrders() }}</p>
+          <p class="text-3xl sm:text-4xl font-bold text-primary">{{ totalOrders() }}</p>
         </div>
       </section>
 
@@ -38,9 +38,9 @@ import { IProduct, IOrder } from '@mamy/shared-models';
           <h3 hlmCardTitle>{{ 'admin.total_revenue' | translate }}</h3>
         </div>
         <div hlmCardContent>
-          <p class="text-4xl font-bold text-primary">
+          <p class="text-3xl sm:text-4xl font-bold text-primary">
             {{ totalRevenue().toLocaleString() }}
-            <span class="text-lg text-muted-foreground">{{ 'common.egp' | translate }}</span>
+            <span class="text-base sm:text-lg text-muted-foreground">{{ 'common.egp' | translate }}</span>
           </p>
         </div>
       </section>

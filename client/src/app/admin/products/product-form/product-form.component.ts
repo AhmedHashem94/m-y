@@ -12,6 +12,8 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmInput } from '@spartan-ng/helm/input';
 import { HlmLabel } from '@spartan-ng/helm/label';
+import { HlmSelectImports } from '@spartan-ng/helm/select';
+import { BrnSelectImports } from '@spartan-ng/brain/select';
 import { TranslateModule } from '@ngx-translate/core';
 import {
   IProduct,
@@ -31,23 +33,25 @@ import {
     ...HlmCardImports,
     HlmInput,
     HlmLabel,
+    ...HlmSelectImports,
+    ...BrnSelectImports,
     TranslateModule,
   ],
   template: `
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">
         @if (isEditMode()) {
           {{ 'admin.edit_product' | translate }}
         } @else {
           {{ 'admin.add_product' | translate }}
         }
       </h1>
-      <a routerLink="/admin/products" hlmBtn variant="outline">
+      <a routerLink="/admin/products" hlmBtn variant="outline" size="sm" class="sm:size-default">
         {{ 'common.back' | translate }}
       </a>
     </div>
 
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-8">
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 sm:space-y-8">
       <!-- Product Info Card -->
       <section hlmCard>
         <div hlmCardHeader>
@@ -56,45 +60,48 @@ import {
         <div hlmCardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
           <!-- Company Select -->
           <div class="flex flex-col gap-2">
-            <label hlmLabel for="companyId">{{ 'admin.select_company' | translate }}</label>
-            <select
-              id="companyId"
-              formControlName="companyId"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              <option value="">{{ 'admin.select_company' | translate }}</option>
-              @for (company of companies(); track company.id) {
-                <option [value]="company.id">{{ company.nameAr }} ({{ company.name }})</option>
-              }
-            </select>
+            <label hlmLabel>{{ 'admin.select_company' | translate }}</label>
+            <brn-select hlm formControlName="companyId" [placeholder]="'admin.select_company' | translate">
+              <hlm-select-trigger>
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content hlmSelectContent>
+                <hlm-option value="">{{ 'admin.select_company' | translate }}</hlm-option>
+                @for (company of companies(); track company.id) {
+                  <hlm-option [value]="company.id">{{ company.nameAr }} ({{ company.name }})</hlm-option>
+                }
+              </hlm-select-content>
+            </brn-select>
           </div>
 
           <!-- Category Select -->
           <div class="flex flex-col gap-2">
-            <label hlmLabel for="category">{{ 'admin.select_category' | translate }}</label>
-            <select
-              id="category"
-              formControlName="category"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              @for (cat of categories; track cat) {
-                <option [value]="cat">{{ 'categories.' + cat | translate }}</option>
-              }
-            </select>
+            <label hlmLabel>{{ 'admin.select_category' | translate }}</label>
+            <brn-select hlm formControlName="category" [placeholder]="'admin.select_category' | translate">
+              <hlm-select-trigger>
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content hlmSelectContent>
+                @for (cat of categories; track cat) {
+                  <hlm-option [value]="cat">{{ 'categories.' + cat | translate }}</hlm-option>
+                }
+              </hlm-select-content>
+            </brn-select>
           </div>
 
           <!-- Gender Select -->
           <div class="flex flex-col gap-2">
-            <label hlmLabel for="gender">{{ 'admin.select_gender' | translate }}</label>
-            <select
-              id="gender"
-              formControlName="gender"
-              class="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-            >
-              @for (g of genders; track g) {
-                <option [value]="g">{{ 'gender.' + g | translate }}</option>
-              }
-            </select>
+            <label hlmLabel>{{ 'admin.select_gender' | translate }}</label>
+            <brn-select hlm formControlName="gender" [placeholder]="'admin.select_gender' | translate">
+              <hlm-select-trigger>
+                <hlm-select-value />
+              </hlm-select-trigger>
+              <hlm-select-content hlmSelectContent>
+                @for (g of genders; track g) {
+                  <hlm-option [value]="g">{{ 'gender.' + g | translate }}</hlm-option>
+                }
+              </hlm-select-content>
+            </brn-select>
           </div>
 
           <div class="flex flex-col gap-2">
@@ -187,7 +194,7 @@ import {
                     </button>
                   </div>
 
-                  <div class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                     <div class="flex flex-col gap-2">
                       <label hlmLabel>{{ 'admin.sku' | translate }}</label>
                       <input hlmInput formControlName="sku" dir="ltr" />
@@ -219,12 +226,12 @@ import {
                       </div>
                     }
                   </div>
-                  <div class="flex items-center gap-3">
+                  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
                     <input
                       hlmInput
                       #attrKeyInput
                       [placeholder]="'admin.attribute_key' | translate"
-                      class="w-32"
+                      class="sm:w-32"
                       dir="ltr"
                     />
                     <input

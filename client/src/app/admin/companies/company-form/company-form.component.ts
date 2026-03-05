@@ -22,20 +22,20 @@ import { ICompany } from '@mamy/shared-models';
     TranslateModule,
   ],
   template: `
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">
         @if (isEditMode()) {
           {{ 'admin.edit_company' | translate }}
         } @else {
           {{ 'admin.add_company' | translate }}
         }
       </h1>
-      <a routerLink="/admin/companies" hlmBtn variant="outline">
+      <a routerLink="/admin/companies" hlmBtn variant="outline" size="sm" class="sm:size-default">
         {{ 'common.back' | translate }}
       </a>
     </div>
 
-    <section hlmCard class="max-w-lg">
+    <section hlmCard class="max-w-lg w-full">
       <div hlmCardContent class="pt-6">
         <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
           <div class="flex flex-col gap-2">

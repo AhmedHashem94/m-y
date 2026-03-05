@@ -3,17 +3,18 @@ import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
+import { HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd } from '@spartan-ng/helm/table';
 import { TranslateModule } from '@ngx-translate/core';
 import { ICompany } from '@mamy/shared-models';
 
 @Component({
   selector: 'app-companies-list',
   standalone: true,
-  imports: [RouterLink, HlmButton, ...HlmCardImports, TranslateModule],
+  imports: [RouterLink, HlmButton, ...HlmCardImports, HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd, TranslateModule],
   template: `
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-2xl font-bold">{{ 'admin.companies' | translate }}</h1>
-      <a routerLink="/admin/companies/new" hlmBtn>
+    <div class="flex items-center justify-between mb-4 sm:mb-6">
+      <h1 class="text-xl sm:text-2xl font-bold">{{ 'admin.companies' | translate }}</h1>
+      <a routerLink="/admin/companies/new" hlmBtn size="sm" class="sm:size-default">
         {{ 'admin.add_company' | translate }}
       </a>
     </div>
@@ -23,29 +24,57 @@ import { ICompany } from '@mamy/shared-models';
     } @else if (companies().length === 0) {
       <p class="text-muted-foreground">{{ 'admin.no_companies' | translate }}</p>
     } @else {
-      <div class="overflow-x-auto">
-        <table class="w-full border-collapse">
-          <thead>
-            <tr class="border-b text-start">
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.logo_url' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.name_ar' | translate }}</th>
-              <th class="py-3 pe-4 text-start font-medium text-muted-foreground">{{ 'admin.name_en' | translate }}</th>
-              <th class="py-3 text-start font-medium text-muted-foreground"></th>
+      <!-- Mobile cards -->
+      <div class="flex flex-col gap-3 md:hidden">
+        @for (company of companies(); track company.id) {
+          <div class="rounded-lg border bg-card p-4">
+            <div class="flex items-center gap-3 mb-3">
+              @if (company.logo) {
+                <img [src]="company.logo" [alt]="company.name" class="h-10 w-10 rounded object-cover" />
+              } @else {
+                <div class="h-10 w-10 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">--</div>
+              }
+              <div>
+                <p class="font-medium text-sm">{{ company.nameAr }}</p>
+                <p class="text-xs text-muted-foreground">{{ company.name }}</p>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <a [routerLink]="['/admin/companies', company.id]" hlmBtn variant="outline" size="sm" class="flex-1">
+                {{ 'common.edit' | translate }}
+              </a>
+              <button hlmBtn variant="destructive" size="sm" class="flex-1" (click)="deleteCompany(company)">
+                {{ 'common.delete' | translate }}
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Desktop table -->
+      <div hlmTableContainer class="hidden md:block">
+        <table hlmTable>
+          <thead hlmTHead>
+            <tr hlmTr>
+              <th hlmTh>{{ 'admin.logo_url' | translate }}</th>
+              <th hlmTh>{{ 'admin.name_ar' | translate }}</th>
+              <th hlmTh>{{ 'admin.name_en' | translate }}</th>
+              <th hlmTh></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody hlmTBody>
             @for (company of companies(); track company.id) {
-              <tr class="border-b hover:bg-muted/50">
-                <td class="py-3 pe-4">
+              <tr hlmTr>
+                <td hlmTd>
                   @if (company.logo) {
                     <img [src]="company.logo" [alt]="company.name" class="h-10 w-10 rounded object-cover" />
                   } @else {
                     <div class="h-10 w-10 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">--</div>
                   }
                 </td>
-                <td class="py-3 pe-4 font-medium">{{ company.nameAr }}</td>
-                <td class="py-3 pe-4">{{ company.name }}</td>
-                <td class="py-3">
+                <td hlmTd class="font-medium">{{ company.nameAr }}</td>
+                <td hlmTd>{{ company.name }}</td>
+                <td hlmTd>
                   <div class="flex items-center gap-2">
                     <a [routerLink]="['/admin/companies', company.id]" hlmBtn variant="outline" size="sm">
                       {{ 'common.edit' | translate }}

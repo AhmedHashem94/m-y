@@ -1,12 +1,8 @@
-import {
-  Injectable,
-  UnauthorizedException,
-  ConflictException,
-} from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { SupabaseService } from '../supabase';
-import { RegisterDto, LoginDto } from './dto';
+import { LoginDto } from './dto';
 import { UserRole } from '@mamy/shared-models';
 
 export interface JwtPayload {
@@ -21,40 +17,6 @@ export class AuthService {
     private readonly supabase: SupabaseService,
     private readonly jwtService: JwtService
   ) {}
-
-  async register(dto: RegisterDto) {
-    const client = this.supabase.getClient();
-
-    const { data: existing } = await client
-      .from('users')
-      .select('id')
-      .eq('email', dto.email)
-      .single();
-
-    if (existing) {
-      throw new ConflictException('Email already registered');
-    }
-
-    const hashedPassword = await bcrypt.hash(dto.password, 10);
-
-    const { data: user, error } = await client
-      .from('users')
-      .insert({
-        name: dto.name,
-        email: dto.email,
-        password: hashedPassword,
-        role: dto.role,
-      })
-      .select('id, name, email, role')
-      .single();
-
-    if (error) {
-      throw new ConflictException(error.message);
-    }
-
-    const token = this.signToken(user);
-    return { user, token };
-  }
 
   async login(dto: LoginDto) {
     const client = this.supabase.getClient();

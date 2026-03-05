@@ -42,13 +42,6 @@ export const appRoutes: Route[] = [
       import('./auth/login/login.component').then((m) => m.LoginComponent),
   },
   {
-    path: 'auth/register',
-    loadComponent: () =>
-      import('./auth/register/register.component').then(
-        (m) => m.RegisterComponent
-      ),
-  },
-  {
     path: 'admin',
     canActivate: [adminGuard],
     loadComponent: () =>

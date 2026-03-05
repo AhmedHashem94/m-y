@@ -15,7 +15,12 @@ export class LanguageService {
   init() {
     this.translate.addLangs(['ar', 'en']);
     this.translate.setDefaultLang('ar');
-    this.translate.use(this.currentLang());
+    const lang = this.currentLang();
+    this.translate.use(lang);
+    if (this.isBrowser) {
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    }
   }
 
   switchLang(lang: 'ar' | 'en') {
