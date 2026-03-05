@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "MAMY Store",
-    "tagline": "متجر أزياء نسائية"
+    "tagline": "متجر ملابس أطفال"
   },
   "nav": {
     "home": "الرئيسية",
@@ -35,10 +35,18 @@
     "product_detail": "تفاصيل المنتج",
     "add_to_cart": "أضف إلى السلة",
     "out_of_stock": "نفذ من المخزون",
+    "select_variant": "اختر النوع",
     "price": "السعر",
+    "compare_price": "السعر قبل الخصم",
+    "sku": "كود المنتج",
+    "stock": "المخزون",
     "size": "المقاس",
     "color": "اللون",
-    "category": "الفئة"
+    "brand": "الماركة",
+    "category": "الفئة",
+    "gender": "القسم",
+    "boys_collection": "مجموعة الأولاد",
+    "girls_collection": "مجموعة البنات"
   },
   "cart": {
     "title": "سلة التسوق",
@@ -75,9 +83,18 @@
     "orders": "الطلبات",
     "add_product": "إضافة منتج",
     "edit_product": "تعديل المنتج",
+    "companies": "الماركات",
+    "add_company": "إضافة ماركة",
+    "variants": "المتغيرات",
+    "add_variant": "إضافة متغير",
+    "attributes": "الخصائص",
     "total_orders": "إجمالي الطلبات",
     "total_revenue": "إجمالي الإيرادات",
     "total_products": "عدد المنتجات"
+  },
+  "gender": {
+    "BOY": "أولاد",
+    "GIRL": "بنات"
   },
   "categories": {
     "DRESSES": "فساتين",

@@ -1,4 +1,5 @@
-// Enums
+// ── Enums ──
+
 export enum UserRole {
   ADMIN = 'ADMIN',
   SELLER = 'SELLER',
@@ -12,6 +13,11 @@ export enum OrderStatus {
   CANCELLED = 'CANCELLED',
 }
 
+export enum ProductGender {
+  BOY = 'BOY',
+  GIRL = 'GIRL',
+}
+
 export enum ProductCategory {
   DRESSES = 'DRESSES',
   ABAYAS = 'ABAYAS',
@@ -22,21 +28,56 @@ export enum ProductCategory {
   OTHER = 'OTHER',
 }
 
-// Interfaces
+// ── Company (Brand) ──
+
+export interface ICompany {
+  id: string;
+  name: string;
+  nameAr: string;
+  logo: string;
+  createdAt: string;
+}
+
+// ── Product ──
+
 export interface IProduct {
   id: string;
+  companyId: string;
   name: string;
   nameAr: string;
   description: string;
   descriptionAr: string;
-  price: number;
   images: string[];
   category: ProductCategory;
-  sizes: string[];
-  colors: string[];
-  inStock: boolean;
+  gender: ProductGender;
+  createdAt: string;
+  /** Populated on read — not stored on the product row */
+  company?: ICompany;
+  variants?: IProductVariant[];
+}
+
+// ── Product Variant (SKU-level) ──
+
+/**
+ * Flexible attribute bag stored as JSONB in Supabase.
+ * Common keys: size, color, material, age_group, etc.
+ */
+export type VariantAttributes = Record<string, string>;
+
+export interface IProductVariant {
+  id: string;
+  productId: string;
+  sku: string;
+  price: number;
+  compareAtPrice?: number;
+  stock: number;
+  attributes: VariantAttributes;
+  image?: string;
+  isActive: boolean;
   createdAt: string;
 }
+
+// ── Order ──
 
 export interface ICustomerDetails {
   name: string;
@@ -46,12 +87,13 @@ export interface ICustomerDetails {
 }
 
 export interface IOrderItem {
+  variantId: string;
   productId: string;
   name: string;
+  sku: string;
   quantity: number;
   unitPrice: number;
-  size: string;
-  color: string;
+  attributes: VariantAttributes;
 }
 
 export interface IOrder {
@@ -63,5 +105,6 @@ export interface IOrder {
   createdAt: string;
 }
 
-// Egyptian phone validation
+// ── Validation ──
+
 export const EGYPT_PHONE_RE = /^(?:\+20|0020|0)?1[0125]\d{8}$/;

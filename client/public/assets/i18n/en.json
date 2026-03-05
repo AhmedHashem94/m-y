@@ -1,7 +1,7 @@
 {
   "app": {
     "name": "MAMY Store",
-    "tagline": "Women's Fashion Store"
+    "tagline": "Kids Clothing Store"
   },
   "nav": {
     "home": "Home",
@@ -35,10 +35,18 @@
     "product_detail": "Product Detail",
     "add_to_cart": "Add to Cart",
     "out_of_stock": "Out of Stock",
+    "select_variant": "Select Option",
     "price": "Price",
+    "compare_price": "Compare at",
+    "sku": "SKU",
+    "stock": "Stock",
     "size": "Size",
     "color": "Color",
-    "category": "Category"
+    "brand": "Brand",
+    "category": "Category",
+    "gender": "Collection",
+    "boys_collection": "Boys Collection",
+    "girls_collection": "Girls Collection"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -75,9 +83,18 @@
     "orders": "Orders",
     "add_product": "Add Product",
     "edit_product": "Edit Product",
+    "companies": "Brands",
+    "add_company": "Add Brand",
+    "variants": "Variants",
+    "add_variant": "Add Variant",
+    "attributes": "Attributes",
     "total_orders": "Total Orders",
     "total_revenue": "Total Revenue",
     "total_products": "Total Products"
+  },
+  "gender": {
+    "BOY": "Boys",
+    "GIRL": "Girls"
   },
   "categories": {
     "DRESSES": "Dresses",
