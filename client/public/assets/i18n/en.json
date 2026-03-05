@@ -1,0 +1,103 @@
+{
+  "app": {
+    "name": "MAMY Store",
+    "tagline": "Women's Fashion Store"
+  },
+  "nav": {
+    "home": "Home",
+    "store": "Store",
+    "cart": "Cart",
+    "login": "Login",
+    "register": "Register",
+    "logout": "Logout",
+    "admin": "Admin"
+  },
+  "auth": {
+    "login": "Login",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "name": "Name",
+    "submit_login": "Login",
+    "submit_register": "Create Account",
+    "no_account": "Don't have an account?",
+    "has_account": "Already have an account?",
+    "register_now": "Register now",
+    "login_now": "Login",
+    "loading": "Loading...",
+    "login_failed": "Login failed",
+    "register_failed": "Registration failed",
+    "enter_credentials": "Enter your email and password",
+    "create_account_desc": "Create your account to get started"
+  },
+  "store": {
+    "title": "Store",
+    "product_detail": "Product Detail",
+    "add_to_cart": "Add to Cart",
+    "out_of_stock": "Out of Stock",
+    "price": "Price",
+    "size": "Size",
+    "color": "Color",
+    "category": "Category"
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "total": "Total",
+    "checkout": "Checkout",
+    "remove": "Remove",
+    "quantity": "Quantity"
+  },
+  "checkout": {
+    "title": "Checkout",
+    "customer_name": "Customer Name",
+    "phone": "Phone Number",
+    "address": "Address",
+    "city": "City",
+    "place_order": "Place Order",
+    "phone_invalid": "Invalid phone number"
+  },
+  "orders": {
+    "title": "Orders",
+    "detail": "Order Detail",
+    "tracking": "Track Order",
+    "status": {
+      "PENDING": "Pending",
+      "CONFIRMED": "Confirmed",
+      "SHIPPED": "Shipped",
+      "DELIVERED": "Delivered",
+      "CANCELLED": "Cancelled"
+    }
+  },
+  "admin": {
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "add_product": "Add Product",
+    "edit_product": "Edit Product",
+    "total_orders": "Total Orders",
+    "total_revenue": "Total Revenue",
+    "total_products": "Total Products"
+  },
+  "categories": {
+    "DRESSES": "Dresses",
+    "ABAYAS": "Abayas",
+    "HIJABS": "Hijabs",
+    "ACCESSORIES": "Accessories",
+    "SHOES": "Shoes",
+    "BAGS": "Bags",
+    "OTHER": "Other"
+  },
+  "common": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "loading": "Loading...",
+    "no_results": "No results",
+    "confirm": "Confirm",
+    "back": "Back",
+    "egp": "EGP"
+  }
+}

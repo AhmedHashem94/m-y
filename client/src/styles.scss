@@ -1,1 +1,58 @@
-/* You can add global styles to this file, and also import other style files */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", "Cairo", sans-serif;
+  --radius: 0.5rem;
+
+  /* Zinc grays */
+  --color-background: oklch(1 0 0);
+  --color-foreground: oklch(0.141 0.005 285.823);
+  --color-card: oklch(1 0 0);
+  --color-card-foreground: oklch(0.141 0.005 285.823);
+  --color-popover: oklch(1 0 0);
+  --color-popover-foreground: oklch(0.141 0.005 285.823);
+  --color-muted: oklch(0.967 0.001 286.375);
+  --color-muted-foreground: oklch(0.552 0.016 285.938);
+  --color-border: oklch(0.92 0.004 286.32);
+  --color-input: oklch(0.92 0.004 286.32);
+  --color-ring: oklch(0.541 0.281 293.009);
+
+  /* Violet primary */
+  --color-primary: oklch(0.541 0.281 293.009);
+  --color-primary-foreground: oklch(0.985 0.002 286.375);
+
+  /* Secondary */
+  --color-secondary: oklch(0.967 0.001 286.375);
+  --color-secondary-foreground: oklch(0.141 0.005 285.823);
+
+  /* Accent */
+  --color-accent: oklch(0.967 0.001 286.375);
+  --color-accent-foreground: oklch(0.141 0.005 285.823);
+
+  /* Destructive (Red) */
+  --color-destructive: oklch(0.577 0.245 27.325);
+  --color-destructive-foreground: oklch(0.985 0.002 286.375);
+
+  /* Sidebar */
+  --color-sidebar: oklch(0.985 0.002 286.375);
+  --color-sidebar-foreground: oklch(0.141 0.005 285.823);
+  --color-sidebar-border: oklch(0.92 0.004 286.32);
+  --color-sidebar-ring: oklch(0.541 0.281 293.009);
+  --color-sidebar-accent: oklch(0.967 0.001 286.375);
+  --color-sidebar-accent-foreground: oklch(0.141 0.005 285.823);
+  --color-sidebar-primary: oklch(0.541 0.281 293.009);
+  --color-sidebar-primary-foreground: oklch(0.985 0.002 286.375);
+
+  /* Chart colors */
+  --color-chart-1: oklch(0.646 0.222 41.116);
+  --color-chart-2: oklch(0.6 0.118 184.714);
+  --color-chart-3: oklch(0.398 0.07 227.392);
+  --color-chart-4: oklch(0.828 0.189 84.429);
+  --color-chart-5: oklch(0.769 0.188 70.08);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+}

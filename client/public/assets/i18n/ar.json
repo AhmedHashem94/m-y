@@ -1,0 +1,103 @@
+{
+  "app": {
+    "name": "MAMY Store",
+    "tagline": "متجر أزياء نسائية"
+  },
+  "nav": {
+    "home": "الرئيسية",
+    "store": "المتجر",
+    "cart": "سلة التسوق",
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "logout": "تسجيل الخروج",
+    "admin": "لوحة التحكم"
+  },
+  "auth": {
+    "login": "تسجيل الدخول",
+    "register": "إنشاء حساب",
+    "email": "البريد الإلكتروني",
+    "password": "كلمة المرور",
+    "name": "الاسم",
+    "submit_login": "دخول",
+    "submit_register": "إنشاء حساب",
+    "no_account": "ليس لديك حساب؟",
+    "has_account": "لديك حساب بالفعل؟",
+    "register_now": "سجّل الآن",
+    "login_now": "سجّل دخولك",
+    "loading": "جارٍ التحميل...",
+    "login_failed": "فشل تسجيل الدخول",
+    "register_failed": "فشل إنشاء الحساب",
+    "enter_credentials": "أدخل بريدك الإلكتروني وكلمة المرور",
+    "create_account_desc": "أنشئ حسابك للبدء"
+  },
+  "store": {
+    "title": "المتجر",
+    "product_detail": "تفاصيل المنتج",
+    "add_to_cart": "أضف إلى السلة",
+    "out_of_stock": "نفذ من المخزون",
+    "price": "السعر",
+    "size": "المقاس",
+    "color": "اللون",
+    "category": "الفئة"
+  },
+  "cart": {
+    "title": "سلة التسوق",
+    "empty": "سلة التسوق فارغة",
+    "total": "الإجمالي",
+    "checkout": "إتمام الطلب",
+    "remove": "حذف",
+    "quantity": "الكمية"
+  },
+  "checkout": {
+    "title": "إتمام الطلب",
+    "customer_name": "اسم العميل",
+    "phone": "رقم الهاتف",
+    "address": "العنوان",
+    "city": "المدينة",
+    "place_order": "تأكيد الطلب",
+    "phone_invalid": "رقم الهاتف غير صحيح"
+  },
+  "orders": {
+    "title": "الطلبات",
+    "detail": "تفاصيل الطلب",
+    "tracking": "تتبع الطلب",
+    "status": {
+      "PENDING": "قيد الانتظار",
+      "CONFIRMED": "تم التأكيد",
+      "SHIPPED": "تم الشحن",
+      "DELIVERED": "تم التوصيل",
+      "CANCELLED": "ملغى"
+    }
+  },
+  "admin": {
+    "dashboard": "لوحة المعلومات",
+    "products": "المنتجات",
+    "orders": "الطلبات",
+    "add_product": "إضافة منتج",
+    "edit_product": "تعديل المنتج",
+    "total_orders": "إجمالي الطلبات",
+    "total_revenue": "إجمالي الإيرادات",
+    "total_products": "عدد المنتجات"
+  },
+  "categories": {
+    "DRESSES": "فساتين",
+    "ABAYAS": "عبايات",
+    "HIJABS": "حجاب",
+    "ACCESSORIES": "إكسسوارات",
+    "SHOES": "أحذية",
+    "BAGS": "حقائب",
+    "OTHER": "أخرى"
+  },
+  "common": {
+    "save": "حفظ",
+    "cancel": "إلغاء",
+    "delete": "حذف",
+    "edit": "تعديل",
+    "search": "بحث",
+    "loading": "جارٍ التحميل...",
+    "no_results": "لا توجد نتائج",
+    "confirm": "تأكيد",
+    "back": "رجوع",
+    "egp": "ج.م"
+  }
+}
