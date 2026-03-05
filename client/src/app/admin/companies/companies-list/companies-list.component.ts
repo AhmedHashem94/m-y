@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
@@ -63,14 +63,16 @@ import { ICompany } from '@mamy/shared-models';
     }
   `,
 })
-export class CompaniesListComponent implements OnInit {
+export class CompaniesListComponent {
   private readonly http = inject(HttpClient);
 
   companies = signal<ICompany[]>([]);
   loading = signal(true);
 
-  ngOnInit() {
-    this.loadCompanies();
+  constructor() {
+    afterNextRender(() => {
+      this.loadCompanies();
+    });
   }
 
   loadCompanies() {

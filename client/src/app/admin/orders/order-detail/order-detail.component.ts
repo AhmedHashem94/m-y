@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -142,7 +142,7 @@ import { DatePipe } from '@angular/common';
     }
   `,
 })
-export class OrderDetailComponent implements OnInit {
+export class OrderDetailComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
 
@@ -152,18 +152,20 @@ export class OrderDetailComponent implements OnInit {
   updatingStatus = signal(false);
   statuses = Object.values(OrderStatus);
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.http.get<IOrder>(`/api/orders/${id}`).subscribe({
-        next: (data) => {
-          this.order.set(data);
-          this.selectedStatus.set(data.status);
-          this.loading.set(false);
-        },
-        error: () => this.loading.set(false),
-      });
-    }
+  constructor() {
+    afterNextRender(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.http.get<IOrder>(`/api/orders/${id}`).subscribe({
+          next: (data) => {
+            this.order.set(data);
+            this.selectedStatus.set(data.status);
+            this.loading.set(false);
+          },
+          error: () => this.loading.set(false),
+        });
+      }
+    });
   }
 
   updateStatus() {

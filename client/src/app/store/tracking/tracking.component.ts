@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -109,7 +109,7 @@ interface TimelineStep {
     </div>
   `,
 })
-export class TrackingComponent implements OnInit {
+export class TrackingComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
 
@@ -130,11 +130,13 @@ export class TrackingComponent implements OnInit {
     OrderStatus.DELIVERED,
   ];
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadOrder(id);
-    }
+  constructor() {
+    afterNextRender(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.loadOrder(id);
+      }
+    });
   }
 
   isStepCompleted(status: OrderStatus): boolean {

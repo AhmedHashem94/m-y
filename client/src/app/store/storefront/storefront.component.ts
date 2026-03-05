@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
@@ -129,7 +129,7 @@ import { LanguageService } from '../../services/language.service';
     </section>
   `,
 })
-export class StorefrontComponent implements OnInit {
+export class StorefrontComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -165,16 +165,18 @@ export class StorefrontComponent implements OnInit {
     return result;
   });
 
-  ngOnInit() {
-    // Read gender from query params
-    this.route.queryParams.subscribe((params) => {
-      if (params['gender'] === 'BOY' || params['gender'] === 'GIRL') {
-        this.genderFilter.set(params['gender']);
-      }
-    });
+  constructor() {
+    afterNextRender(() => {
+      // Read gender from query params
+      this.route.queryParams.subscribe((params) => {
+        if (params['gender'] === 'BOY' || params['gender'] === 'GIRL') {
+          this.genderFilter.set(params['gender']);
+        }
+      });
 
-    this.loadProducts();
-    this.loadCompanies();
+      this.loadProducts();
+      this.loadCompanies();
+    });
   }
 
   setGender(gender: string | null) {

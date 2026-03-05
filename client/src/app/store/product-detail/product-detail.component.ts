@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
@@ -181,7 +181,7 @@ import { LanguageService } from '../../services/language.service';
     }
   `,
 })
-export class ProductDetailComponent implements OnInit {
+export class ProductDetailComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly themeService = inject(ThemeService);
@@ -200,11 +200,13 @@ export class ProductDetailComponent implements OnInit {
 
   readonly isAr = computed(() => this.langService.currentLang() === 'ar');
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.loadProduct(id);
-    }
+  constructor() {
+    afterNextRender(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.loadProduct(id);
+      }
+    });
   }
 
   selectVariant(variant: IProductVariant) {

@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, afterNextRender, computed } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -77,7 +77,7 @@ import { DatePipe } from '@angular/common';
     }
   `,
 })
-export class OrdersListComponent implements OnInit {
+export class OrdersListComponent {
   private readonly http = inject(HttpClient);
 
   orders = signal<IOrder[]>([]);
@@ -92,8 +92,10 @@ export class OrdersListComponent implements OnInit {
     return all.filter((o) => o.status === filter);
   });
 
-  ngOnInit() {
-    this.loadOrders();
+  constructor() {
+    afterNextRender(() => {
+      this.loadOrders();
+    });
   }
 
   loadOrders() {

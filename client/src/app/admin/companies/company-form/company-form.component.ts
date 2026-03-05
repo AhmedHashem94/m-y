@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
@@ -80,7 +80,7 @@ import { ICompany } from '@mamy/shared-models';
     </section>
   `,
 })
-export class CompanyFormComponent implements OnInit {
+export class CompanyFormComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -96,22 +96,24 @@ export class CompanyFormComponent implements OnInit {
     logo: new FormControl('', { nonNullable: true }),
   });
 
-  ngOnInit() {
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEditMode.set(true);
-      this.companyId = id;
-      this.http.get<ICompany>(`/api/companies/${id}`).subscribe({
-        next: (company) => {
-          this.form.patchValue({
-            name: company.name,
-            nameAr: company.nameAr,
-            logo: company.logo,
-          });
-        },
-        error: () => this.error.set('Failed to load company'),
-      });
-    }
+  constructor() {
+    afterNextRender(() => {
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.isEditMode.set(true);
+        this.companyId = id;
+        this.http.get<ICompany>(`/api/companies/${id}`).subscribe({
+          next: (company) => {
+            this.form.patchValue({
+              name: company.name,
+              nameAr: company.nameAr,
+              logo: company.logo,
+            });
+          },
+          error: () => this.error.set('Failed to load company'),
+        });
+      }
+    });
   }
 
   onSubmit() {

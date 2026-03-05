@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -269,7 +269,7 @@ import {
     </form>
   `,
 })
-export class ProductFormComponent implements OnInit {
+export class ProductFormComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
@@ -304,40 +304,42 @@ export class ProductFormComponent implements OnInit {
     return this.form.controls.variants;
   }
 
-  ngOnInit() {
-    this.http.get<ICompany[]>('/api/companies').subscribe({
-      next: (data) => this.companies.set(data),
-    });
-
-    const id = this.route.snapshot.paramMap.get('id');
-    if (id) {
-      this.isEditMode.set(true);
-      this.productId = id;
-      this.http.get<IProduct>(`/api/products/${id}`).subscribe({
-        next: (product) => {
-          this.form.patchValue({
-            companyId: product.companyId,
-            name: product.name,
-            nameAr: product.nameAr,
-            description: product.description,
-            descriptionAr: product.descriptionAr,
-            category: product.category,
-            gender: product.gender,
-          });
-
-          this.imagesArray.clear();
-          (product.images || []).forEach((url) => {
-            this.imagesArray.push(new FormControl(url, { nonNullable: true }));
-          });
-
-          this.variantsArray.clear();
-          (product.variants || []).forEach((v) => {
-            this.variantsArray.push(this.createVariantGroup(v));
-          });
-        },
-        error: () => this.error.set('Failed to load product'),
+  constructor() {
+    afterNextRender(() => {
+      this.http.get<ICompany[]>('/api/companies').subscribe({
+        next: (data) => this.companies.set(data),
       });
-    }
+
+      const id = this.route.snapshot.paramMap.get('id');
+      if (id) {
+        this.isEditMode.set(true);
+        this.productId = id;
+        this.http.get<IProduct>(`/api/products/${id}`).subscribe({
+          next: (product) => {
+            this.form.patchValue({
+              companyId: product.companyId,
+              name: product.name,
+              nameAr: product.nameAr,
+              description: product.description,
+              descriptionAr: product.descriptionAr,
+              category: product.category,
+              gender: product.gender,
+            });
+
+            this.imagesArray.clear();
+            (product.images || []).forEach((url) => {
+              this.imagesArray.push(new FormControl(url, { nonNullable: true }));
+            });
+
+            this.variantsArray.clear();
+            (product.variants || []).forEach((v) => {
+              this.variantsArray.push(this.createVariantGroup(v));
+            });
+          },
+          error: () => this.error.set('Failed to load product'),
+        });
+      }
+    });
   }
 
   addImage() {
