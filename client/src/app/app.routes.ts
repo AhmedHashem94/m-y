@@ -65,6 +65,27 @@ export const appRoutes: Route[] = [
           ),
       },
       {
+        path: 'companies',
+        loadComponent: () =>
+          import(
+            './admin/companies/companies-list/companies-list.component'
+          ).then((m) => m.CompaniesListComponent),
+      },
+      {
+        path: 'companies/new',
+        loadComponent: () =>
+          import(
+            './admin/companies/company-form/company-form.component'
+          ).then((m) => m.CompanyFormComponent),
+      },
+      {
+        path: 'companies/:id',
+        loadComponent: () =>
+          import(
+            './admin/companies/company-form/company-form.component'
+          ).then((m) => m.CompanyFormComponent),
+      },
+      {
         path: 'products',
         loadComponent: () =>
           import(

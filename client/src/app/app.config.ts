@@ -27,7 +27,7 @@ export const appConfig: ApplicationConfig = {
       withFetch(),
       withInterceptors([authInterceptor, errorInterceptor])
     ),
-    provideTranslateService({ defaultLanguage: 'ar' }),
+    provideTranslateService({ fallbackLang: 'ar' }),
     provideTranslateHttpLoader({ prefix: './assets/i18n/' }),
   ],
 };

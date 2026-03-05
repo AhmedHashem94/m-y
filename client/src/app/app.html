@@ -1,1 +1,110 @@
-<router-outlet></router-outlet>
+<!-- Sticky Navbar -->
+<header class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+  <nav class="container mx-auto flex items-center justify-between px-4 py-3">
+    <!-- Brand -->
+    <a routerLink="/store" class="text-xl font-bold text-primary tracking-wide">
+      {{ 'app.name' | translate }}
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden md:flex items-center gap-6">
+      <a routerLink="/store" class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+        {{ 'nav.store' | translate }}
+      </a>
+      <a routerLink="/store" [queryParams]="{ gender: 'BOY' }"
+         class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+        {{ 'nav.boys' | translate }}
+      </a>
+      <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }"
+         class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+        {{ 'nav.girls' | translate }}
+      </a>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-2">
+      <!-- Language toggle -->
+      <button hlmBtn variant="ghost" size="icon" (click)="toggleLang()" class="text-sm">
+        {{ lang.currentLang() === 'ar' ? 'EN' : 'AR' }}
+      </button>
+
+      <!-- Cart -->
+      <a routerLink="/cart" class="relative">
+        <button hlmBtn variant="ghost" size="icon">
+          <ng-icon hlmIcon size="sm" name="lucideShoppingCart" />
+        </button>
+        @if (cart.totalItems() > 0) {
+          <span class="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+            {{ cart.totalItems() }}
+          </span>
+        }
+      </a>
+
+      <!-- Auth / Admin -->
+      @if (auth.isLoggedIn()) {
+        @if (auth.isAdmin()) {
+          <a routerLink="/admin" class="hidden md:block">
+            <button hlmBtn variant="ghost" size="icon">
+              <ng-icon hlmIcon size="sm" name="lucideShield" />
+            </button>
+          </a>
+        }
+        <button hlmBtn variant="ghost" size="icon" (click)="logout()" class="hidden md:flex">
+          <ng-icon hlmIcon size="sm" name="lucideLogOut" />
+        </button>
+      } @else {
+        <a routerLink="/auth/login" class="hidden md:block">
+          <button hlmBtn variant="ghost" size="sm">
+            {{ 'nav.login' | translate }}
+          </button>
+        </a>
+      }
+
+      <!-- Mobile menu toggle -->
+      <button hlmBtn variant="ghost" size="icon" class="md:hidden" (click)="mobileMenuOpen = !mobileMenuOpen">
+        @if (mobileMenuOpen) {
+          <ng-icon hlmIcon size="sm" name="lucideX" />
+        } @else {
+          <ng-icon hlmIcon size="sm" name="lucideMenu" />
+        }
+      </button>
+    </div>
+  </nav>
+
+  <!-- Mobile Menu -->
+  @if (mobileMenuOpen) {
+    <div class="border-t border-border bg-background px-4 py-4 md:hidden">
+      <div class="flex flex-col gap-3">
+        <a routerLink="/store" class="text-sm font-medium text-foreground hover:text-primary">
+          {{ 'nav.store' | translate }}
+        </a>
+        <a routerLink="/store" [queryParams]="{ gender: 'BOY' }" class="text-sm font-medium text-foreground hover:text-primary">
+          {{ 'nav.boys' | translate }}
+        </a>
+        <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }" class="text-sm font-medium text-foreground hover:text-primary">
+          {{ 'nav.girls' | translate }}
+        </a>
+        <hr class="border-border" />
+        @if (auth.isLoggedIn()) {
+          @if (auth.isAdmin()) {
+            <a routerLink="/admin" class="text-sm font-medium text-foreground hover:text-primary">
+              {{ 'nav.admin' | translate }}
+            </a>
+          }
+          <button (click)="logout()" class="text-sm font-medium text-start text-destructive hover:underline">
+            {{ 'nav.logout' | translate }}
+          </button>
+        } @else {
+          <a routerLink="/auth/login" class="text-sm font-medium text-foreground hover:text-primary">
+            {{ 'nav.login' | translate }}
+          </a>
+        }
+      </div>
+    </div>
+  }
+</header>
+
+<!-- Main Content -->
+<main class="min-h-screen">
+  <router-outlet></router-outlet>
+</main>

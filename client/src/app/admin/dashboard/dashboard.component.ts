@@ -1,8 +1,75 @@
-import { Component } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { HlmCardImports } from '@spartan-ng/helm/card';
+import { TranslateModule } from '@ngx-translate/core';
+import { IProduct, IOrder } from '@mamy/shared-models';
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  template: `<h1 class="text-2xl font-bold">لوحة المعلومات</h1>`,
+  imports: [...HlmCardImports, TranslateModule],
+  template: `
+    <h1 class="text-2xl font-bold mb-6">{{ 'admin.dashboard' | translate }}</h1>
+
+    <div class="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <!-- Total Products -->
+      <section hlmCard>
+        <div hlmCardHeader>
+          <h3 hlmCardTitle>{{ 'admin.total_products' | translate }}</h3>
+        </div>
+        <div hlmCardContent>
+          <p class="text-4xl font-bold text-primary">{{ totalProducts() }}</p>
+        </div>
+      </section>
+
+      <!-- Total Orders -->
+      <section hlmCard>
+        <div hlmCardHeader>
+          <h3 hlmCardTitle>{{ 'admin.total_orders' | translate }}</h3>
+        </div>
+        <div hlmCardContent>
+          <p class="text-4xl font-bold text-primary">{{ totalOrders() }}</p>
+        </div>
+      </section>
+
+      <!-- Total Revenue -->
+      <section hlmCard>
+        <div hlmCardHeader>
+          <h3 hlmCardTitle>{{ 'admin.total_revenue' | translate }}</h3>
+        </div>
+        <div hlmCardContent>
+          <p class="text-4xl font-bold text-primary">
+            {{ totalRevenue().toLocaleString() }}
+            <span class="text-lg text-muted-foreground">{{ 'common.egp' | translate }}</span>
+          </p>
+        </div>
+      </section>
+    </div>
+  `,
 })
-export class DashboardComponent {}
+export class DashboardComponent implements OnInit {
+  private readonly http = inject(HttpClient);
+
+  totalProducts = signal(0);
+  totalOrders = signal(0);
+  totalRevenue = signal(0);
+
+  ngOnInit() {
+    this.http.get<IProduct[]>('/api/products').subscribe({
+      next: (products) => this.totalProducts.set(products.length),
+      error: () => this.totalProducts.set(0),
+    });
+
+    this.http.get<IOrder[]>('/api/orders').subscribe({
+      next: (orders) => {
+        this.totalOrders.set(orders.length);
+        const revenue = orders.reduce((sum, o) => sum + o.total, 0);
+        this.totalRevenue.set(revenue);
+      },
+      error: () => {
+        this.totalOrders.set(0);
+        this.totalRevenue.set(0);
+      },
+    });
+  }
+}
