@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 120" width="480" height="120">
+  <defs>
+    <linearGradient id="goldMain" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#8a6200"/>
+      <stop offset="35%" stop-color="#c9a227"/>
+      <stop offset="65%" stop-color="#d4af37"/>
+      <stop offset="100%" stop-color="#7a5500"/>
+    </linearGradient>
+    <linearGradient id="goldShine" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#c9a227"/>
+      <stop offset="50%" stop-color="#f0d060"/>
+      <stop offset="100%" stop-color="#a8841e"/>
+    </linearGradient>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fffdf5"/>
+      <stop offset="100%" stop-color="#faf5e4"/>
+    </linearGradient>
+    <filter id="softShadow">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#c9a227" flood-opacity="0.12"/>
+    </filter>
+  </defs>
+
+
+  <!-- ── GEOMETRIC ICON centered vertically at x=60 ── -->
+  <g transform="translate(60,60)" filter="url(#softShadow)">
+    <!-- Outer octagon -->
+    <path d="M0,-38 L27,-27 L38,0 L27,27 L0,38 L-27,27 L-38,0 L-27,-27 Z"
+      fill="none" stroke="url(#goldMain)" stroke-width="1" stroke-linejoin="round" opacity="0.45"/>
+    <!-- Rotated rounded square -->
+    <rect x="-22" y="-22" width="44" height="44" rx="6" ry="6"
+      fill="none" stroke="url(#goldMain)" stroke-width="1.5"
+      transform="rotate(45)"/>
+    <!-- Inner square -->
+    <rect x="-13" y="-13" width="26" height="26" rx="3" ry="3"
+      fill="none" stroke="url(#goldShine)" stroke-width="1"
+      transform="rotate(45)" opacity="0.75"/>
+    <!-- Center diamond -->
+    <rect x="-7" y="-7" width="14" height="14" rx="2" ry="2"
+      fill="url(#goldShine)" transform="rotate(45)"/>
+    <!-- Dots -->
+    <circle cx="0"  cy="-38" r="2" fill="#c9a227" opacity="0.7"/>
+    <circle cx="38" cy="0"   r="2" fill="#c9a227" opacity="0.7"/>
+    <circle cx="0"  cy="38"  r="2" fill="#c9a227" opacity="0.7"/>
+    <circle cx="-38" cy="0" r="2" fill="#c9a227" opacity="0.7"/>
+  </g>
+
+  <!-- Vertical divider -->
+  <line x1="112" y1="24" x2="112" y2="96" stroke="url(#goldMain)" stroke-width="0.8" opacity="0.35"/>
+
+  <!-- ── TEXT BLOCK ── -->
+  <!-- M&Y -->
+  <text x="132" y="68"
+    font-family="'Cormorant Garamond', Georgia, serif"
+    font-size="46" font-weight="600" letter-spacing="8"
+    fill="url(#goldMain)">M&amp;Y</text>
+
+  <!-- Vertical thin divider between M&Y and STORE -->
+  <line x1="256" y1="30" x2="256" y2="90" stroke="url(#goldMain)" stroke-width="0.6" opacity="0.25"/>
+
+  <!-- STORE -->
+  <text x="268" y="56"
+    font-family="'Montserrat', Arial, sans-serif"
+    font-size="11" font-weight="400" letter-spacing="6"
+    fill="#8a7030">STORE</text>
+
+  <!-- malika & younis -->
+  <text x="268" y="76"
+    font-family="'Montserrat', Arial, sans-serif"
+    font-size="9" font-weight="300" letter-spacing="3"
+    fill="#a0894d">malika &amp; younis</text>
+
+</svg>

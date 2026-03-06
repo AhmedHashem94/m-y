@@ -20,7 +20,7 @@ export class ProductsService {
   }): Promise<IProduct[]> {
     let query = this.supabase
       .from('products')
-      .select('*, company:companies(name, name_ar)')
+      .select('*, company:companies(name, name_ar), product_variants(*)')
       .order('created_at', { ascending: false });
 
     if (filters?.gender) {
@@ -112,7 +112,8 @@ export class ProductsService {
   }
 
   async update(id: string, dto: UpdateProductDto): Promise<IProduct> {
-    const row = this.toProductRow(dto);
+    const { variants, ...productDto } = dto;
+    const row = this.toProductRow(productDto);
 
     const { data, error } = await this.supabase
       .from('products')
@@ -125,7 +126,44 @@ export class ProductsService {
       throw new NotFoundException(`Product with id ${id} not found`);
     }
 
-    return this.mapProduct(data);
+    const product = this.mapProduct(data);
+
+    // Sync variants if provided
+    if (variants !== undefined) {
+      const { data: existingRows } = await this.supabase
+        .from('product_variants')
+        .select('id')
+        .eq('product_id', id);
+
+      const existingIds = new Set((existingRows || []).map((r) => r.id));
+      const incomingIds = new Set(
+        variants.filter((v: any) => v.id).map((v: any) => v.id)
+      );
+
+      // Delete removed variants
+      const toDelete = [...existingIds].filter((eid) => !incomingIds.has(eid));
+      if (toDelete.length > 0) {
+        await this.supabase
+          .from('product_variants')
+          .delete()
+          .in('id', toDelete);
+      }
+
+      // Update existing or insert new variants
+      const variantResults: IProductVariant[] = [];
+      for (const v of variants as any[]) {
+        if (v.id && existingIds.has(v.id)) {
+          const updated = await this.updateVariant(v.id, v);
+          variantResults.push(updated);
+        } else {
+          const created = await this.addVariant(id, v);
+          variantResults.push(created);
+        }
+      }
+      product.variants = variantResults;
+    }
+
+    return product;
   }
 
   async remove(id: string): Promise<void> {
@@ -193,6 +231,7 @@ export class ProductsService {
 
   private mapProduct(row: Record<string, unknown>): IProduct {
     const company = row['company'] as Record<string, string> | null;
+    const variantRows = row['product_variants'] as Record<string, unknown>[] | undefined;
     return {
       id: row['id'] as string,
       companyId: row['company_id'] as string,
@@ -204,6 +243,7 @@ export class ProductsService {
       category: row['category'] as IProduct['category'],
       gender: row['gender'] as IProduct['gender'],
       createdAt: row['created_at'] as string,
+      ...(variantRows ? { variants: variantRows.map((v) => this.mapVariant(v)) } : {}),
       ...(company
         ? {
             company: {

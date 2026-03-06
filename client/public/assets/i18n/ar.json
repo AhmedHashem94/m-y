@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "MAMY Store",
+    "name": "M&Y Store",
     "tagline": "متجر ملابس أطفال"
   },
   "nav": {
@@ -34,7 +34,7 @@
   },
   "store": {
     "title": "المتجر",
-    "hero_title": "مرحباً بكم في MAMY",
+    "hero_title": "مرحباً بكم في M&Y",
     "hero_subtitle": "أزياء أطفال مميزة للأولاد والبنات",
     "product_detail": "تفاصيل المنتج",
     "add_to_cart": "أضف إلى السلة",

@@ -49,8 +49,8 @@
   --color-destructive-foreground: oklch(0.985 0.002 286.375);
 
   /* ── Collection-specific palette tokens ── */
-  --color-boy: oklch(0.84 0.08 220);
-  --color-boy-dark: oklch(0.35 0.06 250);
+  --color-boy: oklch(0.86 0.10 210);
+  --color-boy-dark: oklch(0.30 0.08 230);
   --color-girl: oklch(0.62 0.26 293);
   --color-girl-accent: oklch(0.50 0.28 293);
   --color-girl-muted: oklch(0.80 0.10 293);
@@ -78,14 +78,14 @@
  * Baby Blue (#8FD9FB) primary, Dark Navy accent
  */
 [data-theme="boy"] {
-  --color-primary: oklch(0.85 0.08 220);
-  --color-primary-foreground: oklch(0.15 0.03 250);
-  --color-ring: oklch(0.85 0.08 220);
-  --color-accent: oklch(0.93 0.04 220);
-  --color-accent-foreground: oklch(0.35 0.06 250);
-  --color-muted: oklch(0.95 0.03 220);
-  --color-muted-foreground: oklch(0.40 0.05 250);
-  --color-border: oklch(0.88 0.04 220);
+  --color-primary: oklch(0.55 0.12 220);
+  --color-primary-foreground: oklch(0.98 0.01 210);
+  --color-ring: oklch(0.55 0.12 220);
+  --color-accent: oklch(0.93 0.05 210);
+  --color-accent-foreground: oklch(0.30 0.08 230);
+  --color-muted: oklch(0.95 0.03 210);
+  --color-muted-foreground: oklch(0.40 0.06 230);
+  --color-border: oklch(0.88 0.05 210);
 }
 
 /*

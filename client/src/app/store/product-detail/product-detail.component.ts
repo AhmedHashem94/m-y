@@ -43,8 +43,8 @@ import { LanguageService } from '../../services/language.service';
                   class="h-full w-full object-cover"
                 />
               } @else {
-                <div class="flex h-full w-full items-center justify-center text-muted-foreground text-2xl">
-                  {{ 'app.name' | translate }}
+                <div class="flex h-full w-full items-center justify-center bg-muted/50 p-8">
+                  <img src="icons/logo-wide.svg" alt="M&Y Store" class="w-3/4 max-w-60 opacity-40" />
                 </div>
               }
             </div>
@@ -80,8 +80,8 @@ import { LanguageService } from '../../services/language.service';
             <!-- Gender badge -->
             <span class="inline-block w-fit rounded-full px-3 py-1 text-xs font-medium"
               [class]="product()!.gender === 'BOY'
-                ? 'bg-boy/20 text-boy-dark'
-                : 'bg-girl/20 text-girl-muted'">
+                ? 'bg-boy/40 text-boy-dark'
+                : 'bg-girl/30 text-girl-accent'">
               {{ 'gender.' + product()!.gender | translate }}
             </span>
 
@@ -102,7 +102,7 @@ import { LanguageService } from '../../services/language.service';
                     <button
                       class="rounded-md border px-3 py-2 text-sm transition-colors"
                       [class]="variant.id === selectedVariant()?.id
-                        ? 'border-primary bg-primary/10 text-primary'
+                        ? 'border-primary bg-primary text-primary-foreground font-medium'
                         : 'border-border text-foreground hover:border-primary/50'"
                       [disabled]="!variant.isActive || variant.stock <= 0"
                       (click)="selectVariant(variant)">

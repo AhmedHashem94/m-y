@@ -97,15 +97,15 @@ import { LanguageService } from '../../services/language.service';
                       loading="lazy"
                     />
                   } @else {
-                    <div class="flex h-full w-full items-center justify-center text-muted-foreground">
-                      {{ 'app.name' | translate }}
+                    <div class="flex h-full w-full items-center justify-center bg-muted/50 p-6">
+                      <img src="icons/logo-wide.svg" alt="M&Y Store" class="w-3/4 max-w-45 opacity-40" />
                     </div>
                   }
                   <!-- Gender badge -->
                   <span class="absolute top-2 start-2 rounded-full px-2 py-0.5 text-xs font-medium"
                     [class]="product.gender === 'BOY'
-                      ? 'bg-boy/20 text-boy-dark'
-                      : 'bg-girl/20 text-girl-muted'">
+                      ? 'bg-boy/40 text-boy-dark'
+                      : 'bg-girl/30 text-girl-accent'">
                     {{ 'gender.' + product.gender | translate }}
                   </span>
                 </div>

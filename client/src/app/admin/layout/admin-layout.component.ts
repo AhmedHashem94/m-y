@@ -30,7 +30,9 @@ import { LanguageService } from '../../services/language.service';
         [class.max-lg:translate-x-full]="!sidebarOpen && !isLtr"
       >
         <div class="flex items-center justify-between mb-6">
-          <h2 class="text-xl font-bold">{{ 'nav.admin' | translate }}</h2>
+          <a routerLink="/admin/dashboard" class="flex items-center">
+            <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-10 w-auto" />
+          </a>
           <button hlmBtn variant="ghost" size="icon" class="lg:hidden" (click)="sidebarOpen = false">
             <ng-icon hlmIcon size="sm" name="lucideX" />
           </button>
@@ -104,7 +106,7 @@ import { LanguageService } from '../../services/language.service';
           <button hlmBtn variant="ghost" size="icon" (click)="sidebarOpen = true">
             <ng-icon hlmIcon size="sm" name="lucideMenu" />
           </button>
-          <span class="font-bold text-lg">{{ 'nav.admin' | translate }}</span>
+          <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-7 w-auto" />
         </div>
         <main class="flex-1 p-4 md:p-6">
           <router-outlet />

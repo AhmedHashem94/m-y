@@ -1,6 +1,6 @@
 {
   "app": {
-    "name": "MAMY Store",
+    "name": "M&Y Store",
     "tagline": "Kids Clothing Store"
   },
   "nav": {
@@ -34,7 +34,7 @@
   },
   "store": {
     "title": "Store",
-    "hero_title": "Welcome to MAMY",
+    "hero_title": "Welcome to M&Y",
     "hero_subtitle": "Premium kids fashion for boys and girls",
     "product_detail": "Product Detail",
     "add_to_cart": "Add to Cart",
