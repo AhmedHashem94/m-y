@@ -24,12 +24,9 @@ export class LanguageService {
   }
 
   switchLang(lang: 'ar' | 'en') {
-    this.translate.use(lang);
-    this.currentLang.set(lang);
     if (this.isBrowser) {
       localStorage.setItem(LANG_KEY, lang);
-      document.documentElement.lang = lang;
-      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+      window.location.reload();
     }
   }
 

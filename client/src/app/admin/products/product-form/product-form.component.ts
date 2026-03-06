@@ -157,6 +157,8 @@ import {
                 />
                 @if (img.value) {
                   <img [src]="img.value" alt="" class="h-10 w-10 rounded object-cover border" />
+                } @else {
+                  <img src="https://placehold.co/40x40?text=IMG" alt="" class="h-10 w-10 rounded object-cover border opacity-50" />
                 }
                 <button type="button" hlmBtn variant="destructive" size="sm" (click)="removeImage(i)">
                   {{ 'common.delete' | translate }}
@@ -211,6 +213,24 @@ import {
                       <label hlmLabel>{{ 'admin.stock' | translate }}</label>
                       <input hlmInput formControlName="stock" type="number" dir="ltr" />
                     </div>
+                  </div>
+
+                  <!-- Variant Image -->
+                  <div class="flex items-center gap-3">
+                    <div class="flex flex-col gap-2 flex-1">
+                      <label hlmLabel>{{ 'admin.variant_image' | translate }}</label>
+                      <input
+                        hlmInput
+                        formControlName="image"
+                        dir="ltr"
+                        [placeholder]="'admin.image_url' | translate"
+                      />
+                    </div>
+                    @if (getVariantImage(vi)) {
+                      <img [src]="getVariantImage(vi)" alt="" class="h-12 w-12 rounded object-cover border" />
+                    } @else {
+                      <img src="https://placehold.co/48x48?text=IMG" alt="" class="h-12 w-12 rounded object-cover border opacity-50" />
+                    }
                   </div>
 
                   <!-- Attributes -->
@@ -292,7 +312,7 @@ export class ProductFormComponent {
   private productId = '';
 
   form = new FormGroup({
-    companyId: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    companyId: new FormControl('', { nonNullable: true }),
     name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     nameAr: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     description: new FormControl('', { nonNullable: true }),
@@ -365,6 +385,11 @@ export class ProductFormComponent {
     this.variantsArray.removeAt(index);
   }
 
+  getVariantImage(index: number): string {
+    const group = this.variantsArray.at(index);
+    return group.get('image')?.value || '';
+  }
+
   getVariantAttributeKeys(index: number): string[] {
     const group = this.variantsArray.at(index);
     const attrs = group.get('attributes') as FormGroup;
@@ -408,6 +433,7 @@ export class ProductFormComponent {
         price: Number(v.price),
         compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : undefined,
         stock: Number(v.stock),
+        image: v.image?.trim() || undefined,
         attributes: v.attributes || {},
       })),
     };
@@ -439,6 +465,7 @@ export class ProductFormComponent {
       price: new FormControl(variant?.price || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
       compareAtPrice: new FormControl(variant?.compareAtPrice || null),
       stock: new FormControl(variant?.stock || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
+      image: new FormControl(variant?.image || '', { nonNullable: true }),
       attributes: attrsGroup,
     });
   }

@@ -237,13 +237,13 @@ export class ProductsService {
     dto: Partial<CreateProductDto>
   ): Record<string, unknown> {
     const row: Record<string, unknown> = {};
-    if (dto.companyId !== undefined) row['company_id'] = dto.companyId;
+    if (dto.companyId !== undefined) row['company_id'] = dto.companyId || null;
     if (dto.name !== undefined) row['name'] = dto.name;
     if (dto.nameAr !== undefined) row['name_ar'] = dto.nameAr;
-    if (dto.description !== undefined) row['description'] = dto.description;
+    if (dto.description !== undefined) row['description'] = dto.description || '';
     if (dto.descriptionAr !== undefined)
-      row['description_ar'] = dto.descriptionAr;
-    if (dto.images !== undefined) row['images'] = dto.images;
+      row['description_ar'] = dto.descriptionAr || '';
+    if (dto.images !== undefined) row['images'] = dto.images || [];
     if (dto.category !== undefined) row['category'] = dto.category;
     if (dto.gender !== undefined) row['gender'] = dto.gender;
     return row;

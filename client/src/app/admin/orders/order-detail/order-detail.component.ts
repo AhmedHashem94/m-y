@@ -74,7 +74,7 @@ import { DatePipe } from '@angular/common';
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-muted-foreground">{{ 'admin.date' | translate }}</span>
-              <span>{{ order()!.createdAt | date:'short' }}</span>
+              <span>{{ order()!.createdAt | date:'d MMMM yyyy' }}</span>
             </div>
             <div class="flex justify-between">
               <span class="text-sm text-muted-foreground">{{ 'admin.total' | translate }}</span>

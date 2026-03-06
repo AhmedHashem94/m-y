@@ -8,13 +8,15 @@ import {
   IsBoolean,
   Min,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ProductCategory, ProductGender } from '@mamy/shared-models';
 
 export class CreateProductDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  companyId: string;
+  companyId?: string;
 
   @IsString()
   @IsNotEmpty()
@@ -24,23 +26,30 @@ export class CreateProductDto {
   @IsNotEmpty()
   nameAr: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  description: string;
+  description?: string;
 
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  descriptionAr: string;
+  descriptionAr?: string;
 
+  @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  images: string[];
+  images?: string[];
 
   @IsEnum(ProductCategory)
   category: ProductCategory;
 
   @IsEnum(ProductGender)
   gender: ProductGender;
+
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => CreateVariantDto)
+  variants?: CreateVariantDto[];
 }
 
 export class CreateVariantDto {

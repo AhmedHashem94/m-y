@@ -41,10 +41,8 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  create(
-    @Body('product') product: CreateProductDto,
-    @Body('variants') variants: CreateVariantDto[]
-  ) {
+  create(@Body() dto: CreateProductDto) {
+    const { variants, ...product } = dto;
     return this.productsService.create(product, variants || []);
   }
 

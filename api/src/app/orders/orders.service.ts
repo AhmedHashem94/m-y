@@ -1,13 +1,13 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../supabase';
-import { OrderStatus } from '@mamy/shared-models';
+import { IOrder, OrderStatus } from '@mamy/shared-models';
 import { CreateOrderDto } from './dto';
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly supabaseService: SupabaseService) {}
 
-  async findAll(status?: OrderStatus) {
+  async findAll(status?: OrderStatus): Promise<IOrder[]> {
     const client = this.supabaseService.getClient();
     let query = client
       .from('orders')
@@ -20,10 +20,10 @@ export class OrdersService {
 
     const { data, error } = await query;
     if (error) throw error;
-    return data;
+    return (data || []).map((row) => this.mapOrder(row));
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<IOrder> {
     const client = this.supabaseService.getClient();
     const { data, error } = await client
       .from('orders')
@@ -33,10 +33,10 @@ export class OrdersService {
 
     if (error) throw error;
     if (!data) throw new NotFoundException(`Order ${id} not found`);
-    return data;
+    return this.mapOrder(data);
   }
 
-  async create(dto: CreateOrderDto) {
+  async create(dto: CreateOrderDto): Promise<IOrder> {
     const client = this.supabaseService.getClient();
 
     const { data, error } = await client
@@ -72,10 +72,10 @@ export class OrdersService {
       if (updateErr) throw updateErr;
     }
 
-    return data;
+    return this.mapOrder(data);
   }
 
-  async updateStatus(id: string, status: OrderStatus) {
+  async updateStatus(id: string, status: OrderStatus): Promise<IOrder> {
     const client = this.supabaseService.getClient();
     const { data, error } = await client
       .from('orders')
@@ -86,6 +86,17 @@ export class OrdersService {
 
     if (error) throw error;
     if (!data) throw new NotFoundException(`Order ${id} not found`);
-    return data;
+    return this.mapOrder(data);
+  }
+
+  private mapOrder(row: Record<string, unknown>): IOrder {
+    return {
+      id: row['id'] as string,
+      customerDetails: row['customer_details'] as IOrder['customerDetails'],
+      items: row['items'] as IOrder['items'],
+      total: row['total'] as number,
+      status: row['status'] as OrderStatus,
+      createdAt: row['created_at'] as string,
+    };
   }
 }

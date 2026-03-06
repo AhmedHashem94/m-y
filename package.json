@@ -2,7 +2,13 @@
   "name": "@mamy/source",
   "version": "0.0.0",
   "license": "MIT",
-  "scripts": {},
+  "scripts": {
+    "start:api": "npx nx serve api",
+    "start:client": "npx nx serve client --open",
+    "build:api": "npx nx build api",
+    "build:client": "npx nx build client",
+    "build": "npx nx run-many -t build"
+  },
   "private": true,
   "devDependencies": {
     "@angular-devkit/core": "~21.1.0",

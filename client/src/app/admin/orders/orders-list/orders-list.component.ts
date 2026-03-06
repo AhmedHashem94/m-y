@@ -57,7 +57,7 @@ import { DatePipe } from '@angular/common';
               <span>{{ order.items.length }} {{ 'admin.items_count' | translate }}</span>
               <span class="font-bold text-sm text-foreground">{{ order.total }} {{ 'common.egp' | translate }}</span>
             </div>
-            <p class="text-xs text-muted-foreground mt-1">{{ order.createdAt | date:'short' }}</p>
+            <p class="text-xs text-muted-foreground mt-1">{{ order.createdAt | date:'d MMMM yyyy' }}</p>
           </a>
         }
       </div>
@@ -91,7 +91,7 @@ import { DatePipe } from '@angular/common';
                     {{ 'orders.status.' + order.status | translate }}
                   </span>
                 </td>
-                <td hlmTd class="text-sm text-muted-foreground">{{ order.createdAt | date:'short' }}</td>
+                <td hlmTd class="text-sm text-muted-foreground">{{ order.createdAt | date:'d MMMM yyyy' }}</td>
                 <td hlmTd>
                   <a [routerLink]="['/admin/orders', order.id]" hlmBtn variant="outline" size="sm">
                     {{ 'orders.detail' | translate }}

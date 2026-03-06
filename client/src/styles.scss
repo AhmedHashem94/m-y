@@ -5,14 +5,14 @@
  * MAMY Store — Dual-Theme Color System
  *
  * Default: Neutral boutique (gold brand accent)
- * [data-theme="boy"]:  Sky Blue (#AED9E0) + Slate Navy (#4A6075)
- * [data-theme="girl"]: Soft Lavender (#E0BBE4) + Rose Gold (#D4AF37)
+ * [data-theme="boy"]:  Baby Blue (#8FD9FB) + Dark Navy (#1E3A5F)
+ * [data-theme="girl"]: Violet (#8B5CF6) + Deep Purple (#4C1D95)
  *
  * All values in OKLCH for perceptual uniformity.
  */
 
 @theme {
-  --font-sans: "IBM Plex Sans Arabic", sans-serif;
+  --font-sans: "Cairo", sans-serif;
   --radius: 0.5rem;
 
   /* ── Base neutrals (Cloud White + Dark Charcoal) ── */
@@ -49,11 +49,11 @@
   --color-destructive-foreground: oklch(0.985 0.002 286.375);
 
   /* ── Collection-specific palette tokens ── */
-  --color-boy: oklch(0.84 0.06 200);
-  --color-boy-dark: oklch(0.45 0.05 230);
-  --color-girl: oklch(0.82 0.08 320);
-  --color-girl-accent: oklch(0.72 0.12 85);
-  --color-girl-muted: oklch(0.76 0.07 330);
+  --color-boy: oklch(0.84 0.08 220);
+  --color-boy-dark: oklch(0.35 0.06 250);
+  --color-girl: oklch(0.62 0.26 293);
+  --color-girl-accent: oklch(0.50 0.28 293);
+  --color-girl-muted: oklch(0.80 0.10 293);
 
   /* ── Sidebar ── */
   --color-sidebar: oklch(0.985 0.002 250);
@@ -66,41 +66,41 @@
   --color-sidebar-primary-foreground: oklch(1 0 0);
 
   /* ── Chart colors ── */
-  --color-chart-1: oklch(0.84 0.06 200);
-  --color-chart-2: oklch(0.82 0.08 320);
+  --color-chart-1: oklch(0.85 0.08 220);
+  --color-chart-2: oklch(0.55 0.26 293);
   --color-chart-3: oklch(0.72 0.12 85);
-  --color-chart-4: oklch(0.45 0.05 230);
-  --color-chart-5: oklch(0.76 0.07 330);
+  --color-chart-4: oklch(0.35 0.06 250);
+  --color-chart-5: oklch(0.80 0.10 293);
 }
 
 /*
  * ── Boy Theme ──
- * Sky Blue primary, Slate Navy accent
+ * Baby Blue (#8FD9FB) primary, Dark Navy accent
  */
 [data-theme="boy"] {
-  --color-primary: oklch(0.84 0.06 200);
-  --color-primary-foreground: oklch(0.2 0.02 230);
-  --color-ring: oklch(0.84 0.06 200);
-  --color-accent: oklch(0.93 0.03 200);
-  --color-accent-foreground: oklch(0.45 0.05 230);
-  --color-muted: oklch(0.95 0.02 200);
-  --color-muted-foreground: oklch(0.45 0.05 230);
-  --color-border: oklch(0.88 0.03 200);
+  --color-primary: oklch(0.85 0.08 220);
+  --color-primary-foreground: oklch(0.15 0.03 250);
+  --color-ring: oklch(0.85 0.08 220);
+  --color-accent: oklch(0.93 0.04 220);
+  --color-accent-foreground: oklch(0.35 0.06 250);
+  --color-muted: oklch(0.95 0.03 220);
+  --color-muted-foreground: oklch(0.40 0.05 250);
+  --color-border: oklch(0.88 0.04 220);
 }
 
 /*
  * ── Girl Theme ──
- * Soft Lavender primary, Rose Gold accent
+ * Violet (#8B5CF6) primary, Deep Purple accent
  */
 [data-theme="girl"] {
-  --color-primary: oklch(0.82 0.08 320);
-  --color-primary-foreground: oklch(0.2 0.03 320);
-  --color-ring: oklch(0.82 0.08 320);
-  --color-accent: oklch(0.93 0.04 320);
-  --color-accent-foreground: oklch(0.4 0.06 320);
-  --color-muted: oklch(0.95 0.03 330);
-  --color-muted-foreground: oklch(0.5 0.05 330);
-  --color-border: oklch(0.88 0.04 320);
+  --color-primary: oklch(0.55 0.26 293);
+  --color-primary-foreground: oklch(1 0 0);
+  --color-ring: oklch(0.55 0.26 293);
+  --color-accent: oklch(0.92 0.06 293);
+  --color-accent-foreground: oklch(0.40 0.22 293);
+  --color-muted: oklch(0.95 0.04 293);
+  --color-muted-foreground: oklch(0.45 0.12 293);
+  --color-border: oklch(0.87 0.06 293);
 }
 
 @layer base {
