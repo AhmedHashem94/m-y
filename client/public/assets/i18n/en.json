@@ -168,11 +168,27 @@
     "variant_count": "Variants",
     "price_range": "Price Range",
     "uploading": "Uploading",
+    "images_hint": "General product images (e.g. cover photo, packaging). Don't add color images here — each color has its own image in the variants below",
     "drop_images": "Drop images here or click to browse",
     "upload_image": "Upload image",
+    "variant_image_hint": "Image for this color/size — shown when selected in the store",
     "max_size": "Max",
     "save_draft": "Save as Draft",
-    "publish": "Publish"
+    "publish": "Publish",
+    "validation": {
+      "required": "This field is required",
+      "name_en_pattern": "English name must contain Latin characters only",
+      "name_ar_pattern": "Arabic name must contain Arabic characters only",
+      "desc_en_pattern": "English description must contain Latin characters",
+      "desc_ar_pattern": "Arabic description must contain Arabic characters",
+      "min_price": "Price must be greater than zero",
+      "min_stock": "Stock must be zero or more",
+      "category_required": "Please select a category",
+      "gender_required": "Please select a collection",
+      "sku_required": "SKU is required",
+      "variant_required": "At least one variant is required",
+      "fix_errors": "Please fix the errors highlighted above"
+    }
   },
   "product_status": {
     "DRAFT": "Draft",

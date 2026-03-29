@@ -7,9 +7,11 @@ import {
   FormControl,
   FormArray,
   Validators,
+  AbstractControl,
+  ValidationErrors,
 } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideUpload, lucideX, lucideLoader } from '@ng-icons/lucide';
+import { lucideUpload, lucideX, lucideLoader, lucideAlertCircle } from '@ng-icons/lucide';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -27,6 +29,23 @@ import {
   ProductStatus,
 } from '@mamy/shared-models';
 
+// --- Custom Validators ---
+
+const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F]/;
+const LATIN_RE = /[a-zA-Z]/;
+
+function latinOnly(control: AbstractControl): ValidationErrors | null {
+  const val = control.value?.trim();
+  if (!val) return null;
+  return ARABIC_RE.test(val) ? { latinOnly: true } : null;
+}
+
+function arabicOnly(control: AbstractControl): ValidationErrors | null {
+  const val = control.value?.trim();
+  if (!val) return null;
+  return !ARABIC_RE.test(val) || LATIN_RE.test(val) ? { arabicOnly: true } : null;
+}
+
 @Component({
   selector: 'app-product-form',
   standalone: true,
@@ -43,7 +62,7 @@ import {
     ...BrnSelectImports,
     TranslateModule,
   ],
-  providers: [provideIcons({ lucideUpload, lucideX, lucideLoader })],
+  providers: [provideIcons({ lucideUpload, lucideX, lucideLoader, lucideAlertCircle })],
   template: `
     <div class="flex items-center justify-between mb-4 sm:mb-6">
       <h1 class="text-xl sm:text-2xl font-bold">
@@ -82,10 +101,10 @@ import {
           </div>
 
           <!-- Category Select -->
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2" id="field-category">
             <label hlmLabel>{{ 'admin.select_category' | translate }}</label>
             <brn-select hlm formControlName="category" [placeholder]="'admin.select_category' | translate">
-              <hlm-select-trigger>
+              <hlm-select-trigger [class.border-destructive]="showError('category')">
                 <hlm-select-value />
               </hlm-select-trigger>
               <hlm-select-content hlmSelectContent>
@@ -94,13 +113,19 @@ import {
                 }
               </hlm-select-content>
             </brn-select>
+            @if (showError('category')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                {{ 'admin.validation.category_required' | translate }}
+              </span>
+            }
           </div>
 
           <!-- Gender Select -->
-          <div class="flex flex-col gap-2">
+          <div class="flex flex-col gap-2" id="field-gender">
             <label hlmLabel>{{ 'admin.select_gender' | translate }}</label>
             <brn-select hlm formControlName="gender" [placeholder]="'admin.select_gender' | translate">
-              <hlm-select-trigger>
+              <hlm-select-trigger [class.border-destructive]="showError('gender')">
                 <hlm-select-value />
               </hlm-select-trigger>
               <hlm-select-content hlmSelectContent>
@@ -109,19 +134,50 @@ import {
                 }
               </hlm-select-content>
             </brn-select>
+            @if (showError('gender')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                {{ 'admin.validation.gender_required' | translate }}
+              </span>
+            }
           </div>
 
-          <div class="flex flex-col gap-2">
+          <!-- Name EN -->
+          <div class="flex flex-col gap-2" id="field-name">
             <label hlmLabel for="name">{{ 'admin.name_en' | translate }}</label>
-            <input hlmInput id="name" formControlName="name" dir="ltr" />
+            <input hlmInput id="name" formControlName="name" dir="ltr"
+              [class.border-destructive]="showError('name')" />
+            @if (showError('name')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                @if (form.controls.name.errors?.['required']) {
+                  {{ 'admin.validation.required' | translate }}
+                } @else {
+                  {{ 'admin.validation.name_en_pattern' | translate }}
+                }
+              </span>
+            }
           </div>
 
-          <div class="flex flex-col gap-2">
+          <!-- Name AR -->
+          <div class="flex flex-col gap-2" id="field-nameAr">
             <label hlmLabel for="nameAr">{{ 'admin.name_ar' | translate }}</label>
-            <input hlmInput id="nameAr" formControlName="nameAr" />
+            <input hlmInput id="nameAr" formControlName="nameAr"
+              [class.border-destructive]="showError('nameAr')" />
+            @if (showError('nameAr')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                @if (form.controls.nameAr.errors?.['required']) {
+                  {{ 'admin.validation.required' | translate }}
+                } @else {
+                  {{ 'admin.validation.name_ar_pattern' | translate }}
+                }
+              </span>
+            }
           </div>
 
-          <div class="flex flex-col gap-2 md:col-span-2">
+          <!-- Description EN -->
+          <div class="flex flex-col gap-2 md:col-span-2" id="field-description">
             <label hlmLabel for="description">{{ 'admin.description_en' | translate }}</label>
             <textarea
               hlmInput
@@ -130,10 +186,18 @@ import {
               rows="3"
               dir="ltr"
               class="min-h-20 resize-y"
+              [class.border-destructive]="showError('description')"
             ></textarea>
+            @if (showError('description')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                {{ 'admin.validation.desc_en_pattern' | translate }}
+              </span>
+            }
           </div>
 
-          <div class="flex flex-col gap-2 md:col-span-2">
+          <!-- Description AR -->
+          <div class="flex flex-col gap-2 md:col-span-2" id="field-descriptionAr">
             <label hlmLabel for="descriptionAr">{{ 'admin.description_ar' | translate }}</label>
             <textarea
               hlmInput
@@ -141,7 +205,14 @@ import {
               formControlName="descriptionAr"
               rows="3"
               class="min-h-20 resize-y"
+              [class.border-destructive]="showError('descriptionAr')"
             ></textarea>
+            @if (showError('descriptionAr')) {
+              <span class="text-xs text-destructive flex items-center gap-1">
+                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                {{ 'admin.validation.desc_ar_pattern' | translate }}
+              </span>
+            }
           </div>
         </div>
       </section>
@@ -150,6 +221,7 @@ import {
       <section hlmCard>
         <div hlmCardHeader>
           <h2 hlmCardTitle>{{ 'admin.images' | translate }}</h2>
+          <p class="text-sm text-muted-foreground">{{ 'admin.images_hint' | translate }}</p>
         </div>
         <div hlmCardContent>
           <!-- Uploaded images grid -->
@@ -161,7 +233,7 @@ import {
                     <img [src]="img.value" alt="" class="h-full w-full object-cover" />
                   }
                   <button type="button"
-                    class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                    class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
                     (click)="removeImage(i)">
                     <ng-icon hlmIcon size="xs" name="lucideX" />
                   </button>
@@ -194,7 +266,7 @@ import {
       </section>
 
       <!-- Variants Card -->
-      <section hlmCard>
+      <section hlmCard id="field-variants">
         <div hlmCardHeader>
           <div class="flex items-center justify-between">
             <h2 hlmCardTitle>{{ 'admin.variants' | translate }}</h2>
@@ -205,11 +277,15 @@ import {
         </div>
         <div hlmCardContent>
           @if (variantsArray.length === 0) {
-            <p class="text-sm text-muted-foreground">{{ 'admin.add_variant' | translate }}</p>
+            <p class="text-sm text-muted-foreground" [class.text-destructive]="submitted() && variantsArray.length === 0">
+              {{ (submitted() && variantsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_variant' | translate) }}
+            </p>
           } @else {
             <div formArrayName="variants" class="space-y-6">
               @for (variant of variantsArray.controls; track $index; let vi = $index) {
-                <div class="rounded-lg border p-4 space-y-4" [formGroupName]="vi">
+                <div class="rounded-lg border p-4 space-y-4" [formGroupName]="vi"
+                  [class.border-destructive]="submitted() && variant.invalid"
+                  [id]="'field-variant-' + vi">
                   <div class="flex items-center justify-between">
                     <h3 class="font-medium text-sm">{{ 'admin.variants' | translate }} #{{ vi + 1 }}</h3>
                     <button type="button" hlmBtn variant="destructive" size="sm" (click)="removeVariant(vi)">
@@ -220,11 +296,25 @@ import {
                   <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
                     <div class="flex flex-col gap-2">
                       <label hlmLabel>{{ 'admin.sku' | translate }}</label>
-                      <input hlmInput formControlName="sku" dir="ltr" />
+                      <input hlmInput formControlName="sku" dir="ltr"
+                        [class.border-destructive]="showVariantError(vi, 'sku')" />
+                      @if (showVariantError(vi, 'sku')) {
+                        <span class="text-xs text-destructive flex items-center gap-1">
+                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                          {{ 'admin.validation.sku_required' | translate }}
+                        </span>
+                      }
                     </div>
                     <div class="flex flex-col gap-2">
                       <label hlmLabel>{{ 'admin.price' | translate }}</label>
-                      <input hlmInput formControlName="price" type="number" dir="ltr" />
+                      <input hlmInput formControlName="price" type="number" dir="ltr"
+                        [class.border-destructive]="showVariantError(vi, 'price')" />
+                      @if (showVariantError(vi, 'price')) {
+                        <span class="text-xs text-destructive flex items-center gap-1">
+                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                          {{ 'admin.validation.min_price' | translate }}
+                        </span>
+                      }
                     </div>
                     <div class="flex flex-col gap-2">
                       <label hlmLabel>{{ 'admin.compare_at_price' | translate }}</label>
@@ -232,19 +322,27 @@ import {
                     </div>
                     <div class="flex flex-col gap-2">
                       <label hlmLabel>{{ 'admin.stock' | translate }}</label>
-                      <input hlmInput formControlName="stock" type="number" dir="ltr" />
+                      <input hlmInput formControlName="stock" type="number" dir="ltr"
+                        [class.border-destructive]="showVariantError(vi, 'stock')" />
+                      @if (showVariantError(vi, 'stock')) {
+                        <span class="text-xs text-destructive flex items-center gap-1">
+                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                          {{ 'admin.validation.min_stock' | translate }}
+                        </span>
+                      }
                     </div>
                   </div>
 
                   <!-- Variant Image -->
                   <div>
-                    <label hlmLabel class="mb-2 block">{{ 'admin.variant_image' | translate }}</label>
+                    <label hlmLabel class="mb-1 block">{{ 'admin.variant_image' | translate }}</label>
+                    <p class="text-xs text-muted-foreground mb-2">{{ 'admin.variant_image_hint' | translate }}</p>
                     <div class="flex items-center gap-3">
                       @if (getVariantImage(vi)) {
                         <div class="group relative h-16 w-16 shrink-0 rounded-lg border overflow-hidden bg-muted">
                           <img [src]="getVariantImage(vi)" alt="" class="h-full w-full object-cover" />
                           <button type="button"
-                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
                             (click)="clearVariantImage(vi)">
                             <ng-icon hlmIcon size="xs" name="lucideX" />
                           </button>
@@ -317,15 +415,22 @@ import {
         <p class="text-sm text-destructive">{{ error() }}</p>
       }
 
+      @if (submitted() && form.invalid) {
+        <p class="text-sm text-destructive flex items-center gap-1">
+          <ng-icon hlmIcon size="sm" name="lucideAlertCircle" />
+          {{ 'admin.validation.fix_errors' | translate }}
+        </p>
+      }
+
       <div class="flex gap-3">
-        <button hlmBtn type="button" variant="outline" [disabled]="saving() || form.invalid" (click)="onSaveDraft()">
+        <button hlmBtn type="button" variant="outline" [disabled]="saving()" (click)="onSaveDraft()">
           @if (saving()) {
             {{ 'common.loading' | translate }}
           } @else {
             {{ 'admin.save_draft' | translate }}
           }
         </button>
-        <button hlmBtn type="submit" [disabled]="saving() || form.invalid">
+        <button hlmBtn type="submit" [disabled]="saving()">
           @if (saving()) {
             {{ 'common.loading' | translate }}
           } @else {
@@ -347,11 +452,12 @@ export class ProductFormComponent {
   isEditMode = signal(false);
   saving = signal(false);
   error = signal('');
+  submitted = signal(false);
   companies = signal<ICompany[]>([]);
 
   // Upload state
   uploadingProduct = signal(false);
-  uploadingVariant = signal(-1); // -1 = none, otherwise variant index
+  uploadingVariant = signal(-1);
   isDraggingProduct = signal(false);
   isDraggingVariant = signal(-1);
 
@@ -362,12 +468,12 @@ export class ProductFormComponent {
 
   form = new FormGroup({
     companyId: new FormControl('', { nonNullable: true }),
-    name: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    nameAr: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
-    description: new FormControl('', { nonNullable: true }),
-    descriptionAr: new FormControl('', { nonNullable: true }),
-    category: new FormControl<ProductCategory>(ProductCategory.DRESSES, { nonNullable: true }),
-    gender: new FormControl<ProductGender>(ProductGender.BOY, { nonNullable: true }),
+    name: new FormControl('', { nonNullable: true, validators: [Validators.required, latinOnly] }),
+    nameAr: new FormControl('', { nonNullable: true, validators: [Validators.required, arabicOnly] }),
+    description: new FormControl('', { nonNullable: true, validators: [latinOnly] }),
+    descriptionAr: new FormControl('', { nonNullable: true, validators: [arabicOnly] }),
+    category: new FormControl<ProductCategory | ''>('' as any, { nonNullable: true, validators: [Validators.required] }),
+    gender: new FormControl<ProductGender | ''>('' as any, { nonNullable: true, validators: [Validators.required] }),
     status: new FormControl<ProductStatus>(ProductStatus.DRAFT, { nonNullable: true }),
     images: new FormArray<FormControl<string>>([]),
     variants: new FormArray<FormGroup>([]),
@@ -379,6 +485,18 @@ export class ProductFormComponent {
 
   get variantsArray() {
     return this.form.controls.variants;
+  }
+
+  showError(field: string): boolean {
+    if (!this.submitted()) return false;
+    const control = this.form.get(field);
+    return !!control && control.invalid;
+  }
+
+  showVariantError(variantIndex: number, field: string): boolean {
+    if (!this.submitted()) return false;
+    const control = this.variantsArray.at(variantIndex)?.get(field);
+    return !!control && control.invalid;
   }
 
   constructor() {
@@ -418,6 +536,44 @@ export class ProductFormComponent {
         });
       }
     });
+  }
+
+  // --- Validation: scroll to first error ---
+
+  private scrollToFirstError() {
+    // Check top-level fields
+    const fieldOrder = ['category', 'gender', 'name', 'nameAr', 'description', 'descriptionAr'];
+    for (const field of fieldOrder) {
+      const control = this.form.get(field);
+      if (control && control.invalid) {
+        const el = document.getElementById(`field-${field}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+    }
+
+    // Check if no variants
+    if (this.variantsArray.length === 0) {
+      const el = document.getElementById('field-variants');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    }
+
+    // Check variant fields
+    for (let i = 0; i < this.variantsArray.length; i++) {
+      const group = this.variantsArray.at(i);
+      if (group.invalid) {
+        const el = document.getElementById(`field-variant-${i}`);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          return;
+        }
+      }
+    }
   }
 
   // --- Image Upload ---
@@ -505,7 +661,6 @@ export class ProductFormComponent {
 
   private compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
     return new Promise((resolve) => {
-      // Skip non-raster formats or small files
       if (!file.type.startsWith('image/') || file.size < 100 * 1024) {
         resolve(file);
         return;
@@ -522,7 +677,6 @@ export class ProductFormComponent {
           return;
         }
 
-        // Scale down
         const ratio = maxWidth / width;
         width = maxWidth;
         height = Math.round(height * ratio);
@@ -624,7 +778,14 @@ export class ProductFormComponent {
   }
 
   private submitForm() {
-    if (this.form.invalid) return;
+    this.submitted.set(true);
+    this.form.markAllAsTouched();
+
+    if (this.form.invalid || this.variantsArray.length === 0) {
+      this.scrollToFirstError();
+      return;
+    }
+
     this.saving.set(true);
     this.error.set('');
 
@@ -674,7 +835,7 @@ export class ProductFormComponent {
     return new FormGroup({
       id: new FormControl(variant?.id || '', { nonNullable: true }),
       sku: new FormControl(variant?.sku || '', { nonNullable: true, validators: [Validators.required] }),
-      price: new FormControl(variant?.price || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
+      price: new FormControl(variant?.price || 0, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
       compareAtPrice: new FormControl(variant?.compareAtPrice || null),
       stock: new FormControl(variant?.stock || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
       image: new FormControl(variant?.image || '', { nonNullable: true }),
