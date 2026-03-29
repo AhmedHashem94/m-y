@@ -5,7 +5,7 @@ services:
     runtime: node
     plan: free
     buildCommand: NODE_ENV=development npm ci && npx nx build api
-    startCommand: node dist/api/main.js
+    startCommand: node api/dist/main.js
     envVars:
       - key: NODE_ENV
         value: production
