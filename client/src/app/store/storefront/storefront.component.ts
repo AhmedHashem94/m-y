@@ -94,11 +94,21 @@ import { LanguageService } from '../../services/language.service';
                       [src]="product.images[0]"
                       [alt]="isAr() ? product.nameAr : product.name"
                       class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                      [class.grayscale]="isOutOfStock(product)"
+                      [class.opacity-60]="isOutOfStock(product)"
                       loading="lazy"
                     />
                   } @else {
                     <div class="flex h-full w-full items-center justify-center bg-muted/50 p-6">
                       <img src="icons/logo-wide.svg" alt="M&Y Store" class="w-3/4 max-w-45 opacity-40" />
+                    </div>
+                  }
+                  <!-- Out of stock overlay -->
+                  @if (isOutOfStock(product)) {
+                    <div class="absolute inset-0 flex items-center justify-center bg-black/30">
+                      <span class="rounded-full bg-background/90 px-3 py-1 text-xs font-bold text-destructive">
+                        {{ 'store.out_of_stock' | translate }}
+                      </span>
                     </div>
                   }
                   <!-- Gender badge -->
@@ -109,7 +119,7 @@ import { LanguageService } from '../../services/language.service';
                     {{ 'gender.' + product.gender | translate }}
                   </span>
                   <!-- Discount badge -->
-                  @if (getDiscountPercent(product); as discount) {
+                  @if (!isOutOfStock(product) && getDiscountPercent(product); as discount) {
                     <span class="absolute top-2 inset-e-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
                       {{ discount }}% {{ 'store.off' | translate }}
                     </span>
@@ -239,6 +249,11 @@ export class StorefrontComponent {
     if (!compareAt) return null;
     const price = this.getMinPrice(product);
     return Math.round(((compareAt - price) / compareAt) * 100);
+  }
+
+  isOutOfStock(product: IProduct): boolean {
+    if (!product.variants?.length) return true;
+    return product.variants.every((v) => !v.isActive || v.stock <= 0);
   }
 
   private loadProducts() {
