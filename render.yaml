@@ -4,7 +4,7 @@ services:
     name: mamy-api
     runtime: node
     plan: free
-    buildCommand: npm ci && npx nx build api
+    buildCommand: npm install --legacy-peer-deps && npx nx build api
     startCommand: node dist/api/main.js
     envVars:
       - key: NODE_ENV
@@ -25,7 +25,7 @@ services:
     name: mamy-client
     runtime: node
     plan: free
-    buildCommand: npm ci && npx nx build client --configuration=production
+    buildCommand: npm install --legacy-peer-deps && npx nx build client --configuration=production
     startCommand: node dist/client/server/server.mjs
     envVars:
       - key: NODE_ENV
