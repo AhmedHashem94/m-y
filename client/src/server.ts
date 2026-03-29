@@ -7,6 +7,7 @@ import {
 import express from 'express';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { createProxyMiddleware } from 'http-proxy-middleware';
 
 const serverDistFolder = dirname(fileURLToPath(import.meta.url));
 const browserDistFolder = resolve(serverDistFolder, '../browser');
@@ -15,16 +16,21 @@ const app = express();
 const angularApp = new AngularNodeAppEngine();
 
 /**
- * Example Express Rest API endpoints can be defined here.
- * Uncomment and define endpoints as necessary.
- *
- * Example:
- * ```ts
- * app.get('/api/**', (req, res) => {
- *   // Handle API request
- * });
- * ```
+ * Proxy /api requests to the backend API service.
+ * In production, API_URL points to the Render internal URL.
+ * In development, the Angular dev server proxy handles this instead.
  */
+const apiUrl = process.env['API_URL'];
+if (apiUrl) {
+  const target = apiUrl.startsWith('http') ? apiUrl : `http://${apiUrl}`;
+  app.use(
+    '/api',
+    createProxyMiddleware({
+      target,
+      changeOrigin: true,
+    })
+  );
+}
 
 /**
  * Serve static files from /browser
