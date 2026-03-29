@@ -67,6 +67,10 @@ export class CartService {
     this.persist();
   }
 
+  getItemQuantity(variantId: string): number {
+    return this._items().find((i) => i.variantId === variantId)?.quantity ?? 0;
+  }
+
   clearCart() {
     this._items.set([]);
     this.persist();

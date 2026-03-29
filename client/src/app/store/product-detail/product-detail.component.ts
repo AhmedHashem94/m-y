@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, afterNextRender } from '@angular/c
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Meta, Title } from '@angular/platform-browser';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { lucideShoppingCart, lucideMinus, lucidePlus, lucideChevronRight, lucideChevronLeft, lucideChevronDown, lucideX, lucideZoomIn, lucideMaximize } from '@ng-icons/lucide';
 import { HlmIcon } from '@spartan-ng/helm/icon';
@@ -10,7 +10,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion';
 import { BrnAccordionImports } from '@spartan-ng/brain/accordion';
-import { IProduct, IProductVariant, ProductGender } from '@mamy/shared-models';
+import { IProduct, IProductVariant } from '@mamy/shared-models';
 import { ThemeService } from '../../services/theme.service';
 import { CartService } from '../../services/cart.service';
 import { LanguageService } from '../../services/language.service';
@@ -197,33 +197,49 @@ import { LanguageService } from '../../services/language.service';
                 </div>
               </div>
 
-              <!-- Quantity + Add to cart -->
-              <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-                <div class="flex items-center justify-center gap-2 rounded-md border border-border">
-                  <button hlmBtn variant="ghost" size="icon"
-                    (click)="decrementQty()"
-                    [disabled]="quantity() <= 1">
-                    <ng-icon hlmIcon size="xs" name="lucideMinus" />
-                  </button>
-                  <span class="w-8 text-center text-sm font-medium">{{ quantity() }}</span>
-                  <button hlmBtn variant="ghost" size="icon"
-                    (click)="incrementQty()"
-                    [disabled]="quantity() >= selectedVariant()!.stock">
-                    <ng-icon hlmIcon size="xs" name="lucidePlus" />
-                  </button>
+              <!-- Add to cart / Quantity controls -->
+              @if (cartQty() > 0) {
+                <!-- Already in cart — show quantity controls -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                  <div class="flex items-center justify-center gap-2 rounded-md border border-primary">
+                    <button hlmBtn variant="ghost" size="icon"
+                      (click)="updateCartQty(cartQty() - 1)">
+                      <ng-icon hlmIcon size="xs" name="lucideMinus" />
+                    </button>
+                    <span class="w-8 text-center text-sm font-bold text-primary">{{ cartQty() }}</span>
+                    <button hlmBtn variant="ghost" size="icon"
+                      (click)="updateCartQty(cartQty() + 1)"
+                      [disabled]="cartQty() >= selectedVariant()!.stock">
+                      <ng-icon hlmIcon size="xs" name="lucidePlus" />
+                    </button>
+                  </div>
+                  <span class="text-sm text-muted-foreground">{{ 'store.in_cart' | translate }}</span>
                 </div>
+              } @else {
+                <!-- Not in cart — show add button with quantity picker -->
+                <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
+                  <div class="flex items-center justify-center gap-2 rounded-md border border-border">
+                    <button hlmBtn variant="ghost" size="icon"
+                      (click)="decrementQty()"
+                      [disabled]="quantity() <= 1">
+                      <ng-icon hlmIcon size="xs" name="lucideMinus" />
+                    </button>
+                    <span class="w-8 text-center text-sm font-medium">{{ quantity() }}</span>
+                    <button hlmBtn variant="ghost" size="icon"
+                      (click)="incrementQty()"
+                      [disabled]="quantity() >= selectedVariant()!.stock">
+                      <ng-icon hlmIcon size="xs" name="lucidePlus" />
+                    </button>
+                  </div>
 
-                <button hlmBtn class="flex-1"
-                  [disabled]="selectedVariant()!.stock <= 0 || addedToCart()"
-                  (click)="addToCart()">
-                  @if (addedToCart()) {
-                    {{ 'store.added_to_cart' | translate }}
-                  } @else {
+                  <button hlmBtn class="flex-1"
+                    [disabled]="selectedVariant()!.stock <= 0"
+                    (click)="addToCart()">
                     <ng-icon hlmIcon size="sm" name="lucideShoppingCart" class="me-2" />
                     {{ 'store.add_to_cart' | translate }}
-                  }
-                </button>
-              </div>
+                  </button>
+                </div>
+              }
             }
           </div>
         </div>
@@ -292,14 +308,13 @@ export class ProductDetailComponent {
   private readonly langService = inject(LanguageService);
   private readonly title = inject(Title);
   private readonly meta = inject(Meta);
-  private readonly translate = inject(TranslateService);
+  // TranslateService available via TranslateModule in template
 
   readonly product = signal<IProduct | null>(null);
   readonly loading = signal(true);
   readonly activeImageIndex = signal(0);
   readonly selectedVariant = signal<IProductVariant | null>(null);
   readonly quantity = signal(1);
-  readonly addedToCart = signal(false);
 
   // Lightbox state
   readonly lightboxOpen = signal(false);
@@ -307,6 +322,13 @@ export class ProductDetailComponent {
   readonly lightboxZoomed = signal(false);
 
   readonly isAr = computed(() => this.langService.currentLang() === 'ar');
+
+  /** Current quantity of selected variant in cart */
+  readonly cartQty = computed(() => {
+    const v = this.selectedVariant();
+    if (!v) return 0;
+    return this.cartService.getItemQuantity(v.id);
+  });
 
   /** Combines product images + unique variant images into one gallery */
   readonly galleryImages = computed(() => {
@@ -334,7 +356,6 @@ export class ProductDetailComponent {
   selectVariant(variant: IProductVariant) {
     this.selectedVariant.set(variant);
     this.quantity.set(1);
-    this.addedToCart.set(false);
     // Switch to variant image if available
     if (variant.image) {
       const idx = this.galleryImages().indexOf(variant.image);
@@ -448,8 +469,13 @@ export class ProductDetailComponent {
       attributes: variant.attributes,
     });
 
-    this.addedToCart.set(true);
-    setTimeout(() => this.addedToCart.set(false), 2000);
+    this.quantity.set(1);
+  }
+
+  updateCartQty(qty: number) {
+    const variant = this.selectedVariant();
+    if (!variant) return;
+    this.cartService.updateQuantity(variant.id, qty);
   }
 
   private loadProduct(id: string) {
