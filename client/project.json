@@ -25,7 +25,8 @@
         "ssr": {
           "entry": "client/src/server.ts"
         },
-        "outputMode": "server"
+        "outputMode": "server",
+        "serviceWorker": "client/ngsw-config.json"
       },
       "configurations": {
         "production": {

@@ -1,6 +1,7 @@
 import {
   ApplicationConfig,
   provideBrowserGlobalErrorListeners,
+  isDevMode,
   LOCALE_ID,
 } from '@angular/core';
 import { provideRouter } from '@angular/router';
@@ -18,6 +19,7 @@ import {
 } from '@angular/platform-browser';
 import { provideTranslateHttpLoader } from '@ngx-translate/http-loader';
 import { provideTranslateService } from '@ngx-translate/core';
+import { provideServiceWorker } from '@angular/service-worker';
 import { authInterceptor } from './auth/auth.interceptor';
 import { errorInterceptor } from './auth/error.interceptor';
 
@@ -43,5 +45,9 @@ export const appConfig: ApplicationConfig = {
     provideTranslateService({ fallbackLang: 'ar' }),
     provideTranslateHttpLoader({ prefix: './assets/i18n/' }),
     { provide: LOCALE_ID, useFactory: getStoredLocale },
+    provideServiceWorker('ngsw-worker.js', {
+      enabled: !isDevMode(),
+      registrationStrategy: 'registerWhenStable:30000',
+    }),
   ],
 };
