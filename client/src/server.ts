@@ -24,10 +24,10 @@ const apiUrl = process.env['API_URL'];
 if (apiUrl) {
   const target = apiUrl.startsWith('http') ? apiUrl : `http://${apiUrl}`;
   app.use(
-    '/api',
     createProxyMiddleware({
       target,
       changeOrigin: true,
+      pathFilter: '/api',
     })
   );
 }
