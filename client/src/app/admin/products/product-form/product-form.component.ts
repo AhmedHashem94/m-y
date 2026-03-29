@@ -428,7 +428,7 @@ export class ProductFormComponent {
 
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
-  availableSizes = ['0-3M', '3-6M', '6-12M', '1Y', '2Y', '3Y', '4Y', '5Y', '6Y', '7Y', '8Y', '9Y', '10Y', '11Y', '12Y', '14Y', '16Y'];
+  availableSizes = ['2', '4', '6', '8', '10', '12', '14', '16', '18'];
 
   private productId = '';
 
