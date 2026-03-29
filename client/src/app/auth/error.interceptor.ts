@@ -8,7 +8,12 @@ export const errorInterceptor: HttpInterceptorFn = (req, next) => {
 
   return next(req).pipe(
     catchError((error) => {
-      if (error.status === 401 || error.status === 403) {
+      // Only redirect to login for admin API requests, not public ones
+      if (
+        (error.status === 401 || error.status === 403) &&
+        req.url.includes('/api/') &&
+        router.url.startsWith('/admin')
+      ) {
         router.navigate(['/auth/login']);
       }
       return throwError(() => error);
