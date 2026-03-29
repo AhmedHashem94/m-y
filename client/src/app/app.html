@@ -40,7 +40,7 @@
         }
       </a>
 
-      <!-- Auth / Admin -->
+      <!-- Auth / Admin (login hidden — navigate to /auth/login manually) -->
       @if (auth.isLoggedIn()) {
         @if (auth.isAdmin()) {
           <a routerLink="/admin" class="hidden md:block">
@@ -52,12 +52,6 @@
         <button hlmBtn variant="ghost" size="icon" (click)="logout()" class="hidden md:flex">
           <ng-icon hlmIcon size="sm" name="lucideLogOut" />
         </button>
-      } @else {
-        <a routerLink="/auth/login" class="hidden md:block">
-          <button hlmBtn variant="ghost" size="sm">
-            {{ 'nav.login' | translate }}
-          </button>
-        </a>
       }
 
       <!-- Mobile menu toggle -->
@@ -94,10 +88,6 @@
           <button (click)="logout()" class="text-sm font-medium text-start text-destructive hover:underline">
             {{ 'nav.logout' | translate }}
           </button>
-        } @else {
-          <a routerLink="/auth/login" class="text-sm font-medium text-foreground hover:text-primary">
-            {{ 'nav.login' | translate }}
-          </a>
         }
       </div>
     </div>

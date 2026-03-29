@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
-import { IProduct, IProductVariant } from '@mamy/shared-models';
+import { IProduct, IProductVariant, ProductStatus } from '@mamy/shared-models';
 import { CreateProductDto, CreateVariantDto } from './dto/create-product.dto';
 import { UpdateProductDto, UpdateVariantDto } from './dto/update-product.dto';
 
@@ -17,6 +17,7 @@ export class ProductsService {
     gender?: string;
     category?: string;
     companyId?: string;
+    status?: string;
   }): Promise<IProduct[]> {
     let query = this.supabase
       .from('products')
@@ -31,6 +32,9 @@ export class ProductsService {
     }
     if (filters?.companyId) {
       query = query.eq('company_id', filters.companyId);
+    }
+    if (filters?.status) {
+      query = query.eq('status', filters.status);
     }
 
     const { data, error } = await query;
@@ -167,6 +171,39 @@ export class ProductsService {
   }
 
   async remove(id: string): Promise<void> {
+    // Fetch product images and variant images before deletion
+    const { data: productRow } = await this.supabase
+      .from('products')
+      .select('images')
+      .eq('id', id)
+      .single();
+
+    const { data: variantRows } = await this.supabase
+      .from('product_variants')
+      .select('image')
+      .eq('product_id', id);
+
+    // Collect all storage file paths to delete
+    const filePaths: string[] = [];
+    const marker = '/object/public/product-images/';
+
+    const extractPath = (url: string) => {
+      const idx = url.indexOf(marker);
+      if (idx !== -1) filePaths.push(url.substring(idx + marker.length));
+    };
+
+    if (productRow?.images) {
+      for (const url of productRow.images) {
+        extractPath(url);
+      }
+    }
+    if (variantRows) {
+      for (const row of variantRows) {
+        if (row.image) extractPath(row.image);
+      }
+    }
+
+    // Delete the product (cascades to variants via FK)
     const { error } = await this.supabase
       .from('products')
       .delete()
@@ -174,6 +211,11 @@ export class ProductsService {
 
     if (error) {
       throw new Error(error.message);
+    }
+
+    // Clean up storage files (best-effort, don't fail if cleanup fails)
+    if (filePaths.length > 0) {
+      await this.supabase.storage.from('product-images').remove(filePaths);
     }
   }
 
@@ -242,6 +284,7 @@ export class ProductsService {
       images: (row['images'] as string[]) || [],
       category: row['category'] as IProduct['category'],
       gender: row['gender'] as IProduct['gender'],
+      status: (row['status'] as IProduct['status']) || ProductStatus.PUBLISHED,
       createdAt: row['created_at'] as string,
       ...(variantRows ? { variants: variantRows.map((v) => this.mapVariant(v)) } : {}),
       ...(company
@@ -286,6 +329,7 @@ export class ProductsService {
     if (dto.images !== undefined) row['images'] = dto.images || [];
     if (dto.category !== undefined) row['category'] = dto.category;
     if (dto.gender !== undefined) row['gender'] = dto.gender;
+    if (dto.status !== undefined) row['status'] = dto.status;
     return row;
   }
 

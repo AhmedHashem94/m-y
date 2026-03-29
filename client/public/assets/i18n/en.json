@@ -62,7 +62,11 @@
     "product_info": "Product Info",
     "items_count": "items",
     "no_products": "No products found",
-    "try_different_filter": "Try a different filter"
+    "try_different_filter": "Try a different filter",
+    "off": "OFF",
+    "you_save": "You save",
+    "only_left": "Only {{count}} left!",
+    "tap_to_zoom": "Tap to zoom"
   },
   "cart": {
     "title": "Shopping Cart",
@@ -162,7 +166,17 @@
     "all_statuses": "All Statuses",
     "confirm_delete": "Are you sure you want to delete?",
     "variant_count": "Variants",
-    "price_range": "Price Range"
+    "price_range": "Price Range",
+    "uploading": "Uploading",
+    "drop_images": "Drop images here or click to browse",
+    "upload_image": "Upload image",
+    "max_size": "Max",
+    "save_draft": "Save as Draft",
+    "publish": "Publish"
+  },
+  "product_status": {
+    "DRAFT": "Draft",
+    "PUBLISHED": "Published"
   },
   "gender": {
     "BOY": "Boys",

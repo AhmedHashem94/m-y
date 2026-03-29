@@ -46,6 +46,7 @@ module.exports = {
         'passport-jwt',
         'reflect-metadata',
         'rxjs',
+        'multer',
       ],
     }),
   ],

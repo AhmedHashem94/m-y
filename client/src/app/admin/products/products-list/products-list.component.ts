@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd } from '@spartan-ng/helm/table';
 import { TranslateModule } from '@ngx-translate/core';
-import { IProduct } from '@mamy/shared-models';
+import { IProduct, ProductStatus } from '@mamy/shared-models';
 
 @Component({
   selector: 'app-products-list',
@@ -43,6 +43,12 @@ import { IProduct } from '@mamy/shared-models';
                   >
                     {{ 'gender.' + product.gender | translate }}
                   </span>
+                  <span
+                    class="rounded-full px-2 py-0.5 text-xs font-medium"
+                    [class]="product.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+                  >
+                    {{ 'product_status.' + product.status | translate }}
+                  </span>
                 </div>
                 <div class="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
                   <span>{{ product.variants?.length || 0 }} {{ 'admin.variant_count' | translate }}</span>
@@ -71,6 +77,7 @@ import { IProduct } from '@mamy/shared-models';
               <th hlmTh>{{ 'admin.name_ar' | translate }}</th>
               <th hlmTh>{{ 'store.category' | translate }}</th>
               <th hlmTh>{{ 'store.gender' | translate }}</th>
+              <th hlmTh>{{ 'admin.status' | translate }}</th>
               <th hlmTh>{{ 'admin.variant_count' | translate }}</th>
               <th hlmTh>{{ 'admin.price_range' | translate }}</th>
               <th hlmTh></th>
@@ -96,6 +103,14 @@ import { IProduct } from '@mamy/shared-models';
                     [class]="product.gender === 'BOY' ? 'bg-sky-100 text-sky-700' : 'bg-pink-100 text-pink-700'"
                   >
                     {{ 'gender.' + product.gender | translate }}
+                  </span>
+                </td>
+                <td hlmTd>
+                  <span
+                    class="rounded-full px-2 py-1 text-xs font-medium"
+                    [class]="product.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'"
+                  >
+                    {{ 'product_status.' + product.status | translate }}
                   </span>
                 </td>
                 <td hlmTd>{{ product.variants?.length || 0 }}</td>
@@ -132,7 +147,7 @@ export class ProductsListComponent {
 
   loadProducts() {
     this.loading.set(true);
-    this.http.get<IProduct[]>('/api/products').subscribe({
+    this.http.get<IProduct[]>('/api/products/admin').subscribe({
       next: (data) => {
         this.products.set(data);
         this.loading.set(false);

@@ -17,6 +17,11 @@ export enum ProductGender {
   GIRL = 'GIRL',
 }
 
+export enum ProductStatus {
+  DRAFT = 'DRAFT',
+  PUBLISHED = 'PUBLISHED',
+}
+
 export enum ProductCategory {
   DRESSES = 'DRESSES',
   ABAYAS = 'ABAYAS',
@@ -56,6 +61,7 @@ export interface IProduct {
   images: string[];
   category: ProductCategory;
   gender: ProductGender;
+  status: ProductStatus;
   createdAt: string;
   /** Populated on read — not stored on the product row */
   company?: ICompany;

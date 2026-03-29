@@ -62,7 +62,11 @@
     "product_info": "معلومات المنتج",
     "items_count": "منتج",
     "no_products": "لا توجد منتجات",
-    "try_different_filter": "جرّب تصفية مختلفة"
+    "try_different_filter": "جرّب تصفية مختلفة",
+    "off": "خصم",
+    "you_save": "وفّرت",
+    "only_left": "باقي {{count}} فقط!",
+    "tap_to_zoom": "اضغط للتكبير"
   },
   "cart": {
     "title": "سلة التسوق",
@@ -162,7 +166,17 @@
     "all_statuses": "جميع الحالات",
     "confirm_delete": "هل أنت متأكد من الحذف؟",
     "variant_count": "عدد المتغيرات",
-    "price_range": "نطاق السعر"
+    "price_range": "نطاق السعر",
+    "uploading": "جارٍ الرفع",
+    "drop_images": "اسحب الصور هنا أو اضغط للاختيار",
+    "upload_image": "رفع صورة",
+    "max_size": "الحد الأقصى",
+    "save_draft": "حفظ كمسودة",
+    "publish": "نشر"
+  },
+  "product_status": {
+    "DRAFT": "مسودة",
+    "PUBLISHED": "منشور"
   },
   "gender": {
     "BOY": "أولاد",

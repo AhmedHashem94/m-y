@@ -11,7 +11,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { ProductCategory, ProductGender } from '@mamy/shared-models';
+import { ProductCategory, ProductGender, ProductStatus } from '@mamy/shared-models';
 
 export class CreateProductDto {
   @IsOptional()
@@ -44,6 +44,10 @@ export class CreateProductDto {
 
   @IsEnum(ProductGender)
   gender: ProductGender;
+
+  @IsOptional()
+  @IsEnum(ProductStatus)
+  status?: ProductStatus = ProductStatus.DRAFT;
 
   @IsOptional()
   @IsArray()

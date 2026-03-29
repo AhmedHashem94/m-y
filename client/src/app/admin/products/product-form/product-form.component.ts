@@ -8,6 +8,9 @@ import {
   FormArray,
   Validators,
 } from '@angular/forms';
+import { NgIcon, provideIcons } from '@ng-icons/core';
+import { lucideUpload, lucideX, lucideLoader } from '@ng-icons/lucide';
+import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmInput } from '@spartan-ng/helm/input';
@@ -21,6 +24,7 @@ import {
   IProductVariant,
   ProductCategory,
   ProductGender,
+  ProductStatus,
 } from '@mamy/shared-models';
 
 @Component({
@@ -29,6 +33,8 @@ import {
   imports: [
     ReactiveFormsModule,
     RouterLink,
+    NgIcon,
+    HlmIcon,
     HlmButton,
     ...HlmCardImports,
     HlmInput,
@@ -37,6 +43,7 @@ import {
     ...BrnSelectImports,
     TranslateModule,
   ],
+  providers: [provideIcons({ lucideUpload, lucideX, lucideLoader })],
   template: `
     <div class="flex items-center justify-between mb-4 sm:mb-6">
       <h1 class="text-xl sm:text-2xl font-bold">
@@ -145,30 +152,44 @@ import {
           <h2 hlmCardTitle>{{ 'admin.images' | translate }}</h2>
         </div>
         <div hlmCardContent>
-          <div formArrayName="images" class="space-y-3">
-            @for (img of imagesArray.controls; track $index; let i = $index) {
-              <div class="flex items-center gap-3">
-                <input
-                  hlmInput
-                  [formControlName]="i"
-                  dir="ltr"
-                  class="flex-1"
-                  [placeholder]="'admin.image_url' | translate"
-                />
-                @if (img.value) {
-                  <img [src]="img.value" alt="" class="h-10 w-10 rounded object-cover border" />
-                } @else {
-                  <img src="https://placehold.co/40x40?text=IMG" alt="" class="h-10 w-10 rounded object-cover border opacity-50" />
-                }
-                <button type="button" hlmBtn variant="destructive" size="sm" (click)="removeImage(i)">
-                  {{ 'common.delete' | translate }}
-                </button>
-              </div>
+          <!-- Uploaded images grid -->
+          @if (imagesArray.length > 0) {
+            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
+              @for (img of imagesArray.controls; track $index; let i = $index) {
+                <div class="group relative aspect-square rounded-lg border overflow-hidden bg-muted">
+                  @if (img.value) {
+                    <img [src]="img.value" alt="" class="h-full w-full object-cover" />
+                  }
+                  <button type="button"
+                    class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                    (click)="removeImage(i)">
+                    <ng-icon hlmIcon size="xs" name="lucideX" />
+                  </button>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- Drop zone -->
+          <label
+            class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 transition-colors hover:border-primary/50 hover:bg-muted/50"
+            [class.border-primary]="isDraggingProduct()"
+            [class.bg-primary/5]="isDraggingProduct()"
+            (dragover)="onDragOver($event, 'product')"
+            (dragleave)="isDraggingProduct.set(false)"
+            (drop)="onDrop($event, 'product')">
+            @if (uploadingProduct()) {
+              <ng-icon hlmIcon size="lg" name="lucideLoader" class="animate-spin text-muted-foreground" />
+              <span class="text-sm text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
+            } @else {
+              <ng-icon hlmIcon size="lg" name="lucideUpload" class="text-muted-foreground" />
+              <span class="text-sm text-muted-foreground">{{ 'admin.drop_images' | translate }}</span>
+              <span class="text-xs text-muted-foreground/70">JPG, PNG, WebP ({{ 'admin.max_size' | translate }} 5MB)</span>
             }
-          </div>
-          <button type="button" hlmBtn variant="outline" size="sm" class="mt-3" (click)="addImage()">
-            {{ 'admin.add_image' | translate }}
-          </button>
+            <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
+              multiple
+              (change)="onFileSelected($event, 'product')" />
+          </label>
         </div>
       </section>
 
@@ -216,21 +237,36 @@ import {
                   </div>
 
                   <!-- Variant Image -->
-                  <div class="flex items-center gap-3">
-                    <div class="flex flex-col gap-2 flex-1">
-                      <label hlmLabel>{{ 'admin.variant_image' | translate }}</label>
-                      <input
-                        hlmInput
-                        formControlName="image"
-                        dir="ltr"
-                        [placeholder]="'admin.image_url' | translate"
-                      />
+                  <div>
+                    <label hlmLabel class="mb-2 block">{{ 'admin.variant_image' | translate }}</label>
+                    <div class="flex items-center gap-3">
+                      @if (getVariantImage(vi)) {
+                        <div class="group relative h-16 w-16 shrink-0 rounded-lg border overflow-hidden bg-muted">
+                          <img [src]="getVariantImage(vi)" alt="" class="h-full w-full object-cover" />
+                          <button type="button"
+                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-0 transition-opacity group-hover:opacity-100"
+                            (click)="clearVariantImage(vi)">
+                            <ng-icon hlmIcon size="xs" name="lucideX" />
+                          </button>
+                        </div>
+                      }
+                      <label
+                        class="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-border px-4 py-3 transition-colors hover:border-primary/50 hover:bg-muted/50"
+                        [class.border-primary]="isDraggingVariant() === vi"
+                        (dragover)="onDragOver($event, 'variant', vi)"
+                        (dragleave)="isDraggingVariant.set(-1)"
+                        (drop)="onDrop($event, 'variant', vi)">
+                        @if (uploadingVariant() === vi) {
+                          <ng-icon hlmIcon size="sm" name="lucideLoader" class="animate-spin text-muted-foreground" />
+                          <span class="text-xs text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
+                        } @else {
+                          <ng-icon hlmIcon size="sm" name="lucideUpload" class="text-muted-foreground" />
+                          <span class="text-xs text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
+                        }
+                        <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
+                          (change)="onFileSelected($event, 'variant', vi)" />
+                      </label>
                     </div>
-                    @if (getVariantImage(vi)) {
-                      <img [src]="getVariantImage(vi)" alt="" class="h-12 w-12 rounded object-cover border" />
-                    } @else {
-                      <img src="https://placehold.co/48x48?text=IMG" alt="" class="h-12 w-12 rounded object-cover border opacity-50" />
-                    }
                   </div>
 
                   <!-- Attributes -->
@@ -282,14 +318,21 @@ import {
       }
 
       <div class="flex gap-3">
+        <button hlmBtn type="button" variant="outline" [disabled]="saving() || form.invalid" (click)="onSaveDraft()">
+          @if (saving()) {
+            {{ 'common.loading' | translate }}
+          } @else {
+            {{ 'admin.save_draft' | translate }}
+          }
+        </button>
         <button hlmBtn type="submit" [disabled]="saving() || form.invalid">
           @if (saving()) {
             {{ 'common.loading' | translate }}
           } @else {
-            {{ 'common.save' | translate }}
+            {{ 'admin.publish' | translate }}
           }
         </button>
-        <a routerLink="/admin/products" hlmBtn variant="outline">
+        <a routerLink="/admin/products" hlmBtn variant="ghost">
           {{ 'common.cancel' | translate }}
         </a>
       </div>
@@ -306,6 +349,12 @@ export class ProductFormComponent {
   error = signal('');
   companies = signal<ICompany[]>([]);
 
+  // Upload state
+  uploadingProduct = signal(false);
+  uploadingVariant = signal(-1); // -1 = none, otherwise variant index
+  isDraggingProduct = signal(false);
+  isDraggingVariant = signal(-1);
+
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
 
@@ -319,6 +368,7 @@ export class ProductFormComponent {
     descriptionAr: new FormControl('', { nonNullable: true }),
     category: new FormControl<ProductCategory>(ProductCategory.DRESSES, { nonNullable: true }),
     gender: new FormControl<ProductGender>(ProductGender.BOY, { nonNullable: true }),
+    status: new FormControl<ProductStatus>(ProductStatus.DRAFT, { nonNullable: true }),
     images: new FormArray<FormControl<string>>([]),
     variants: new FormArray<FormGroup>([]),
   });
@@ -351,6 +401,7 @@ export class ProductFormComponent {
               descriptionAr: product.descriptionAr,
               category: product.category,
               gender: product.gender,
+              status: product.status || ProductStatus.PUBLISHED,
             });
 
             this.imagesArray.clear();
@@ -369,13 +420,161 @@ export class ProductFormComponent {
     });
   }
 
-  addImage() {
-    this.imagesArray.push(new FormControl('', { nonNullable: true }));
+  // --- Image Upload ---
+
+  onDragOver(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (target === 'product') {
+      this.isDraggingProduct.set(true);
+    } else {
+      this.isDraggingVariant.set(variantIndex ?? -1);
+    }
   }
 
-  removeImage(index: number) {
-    this.imagesArray.removeAt(index);
+  onDrop(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
+    e.preventDefault();
+    e.stopPropagation();
+    this.isDraggingProduct.set(false);
+    this.isDraggingVariant.set(-1);
+
+    const files = e.dataTransfer?.files;
+    if (!files?.length) return;
+
+    if (target === 'product') {
+      this.uploadProductImages(Array.from(files));
+    } else if (variantIndex !== undefined) {
+      this.uploadVariantImage(files[0], variantIndex);
+    }
   }
+
+  onFileSelected(e: Event, target: 'product' | 'variant', variantIndex?: number) {
+    const input = e.target as HTMLInputElement;
+    const files = input.files;
+    if (!files?.length) return;
+
+    if (target === 'product') {
+      this.uploadProductImages(Array.from(files));
+    } else if (variantIndex !== undefined) {
+      this.uploadVariantImage(files[0], variantIndex);
+    }
+
+    input.value = '';
+  }
+
+  private async uploadProductImages(files: File[]) {
+    this.uploadingProduct.set(true);
+    for (const file of files) {
+      try {
+        const compressed = await this.compressImage(file);
+        const url = await this.uploadFile(compressed);
+        this.imagesArray.push(new FormControl(url, { nonNullable: true }));
+      } catch {
+        this.error.set(`Failed to upload ${file.name}`);
+      }
+    }
+    this.uploadingProduct.set(false);
+  }
+
+  private async uploadVariantImage(file: File, variantIndex: number) {
+    this.uploadingVariant.set(variantIndex);
+    try {
+      const compressed = await this.compressImage(file);
+      const url = await this.uploadFile(compressed);
+      const group = this.variantsArray.at(variantIndex);
+      const oldUrl = group.get('image')?.value || '';
+      group.get('image')?.setValue(url);
+      this.deleteFromStorage(oldUrl);
+    } catch {
+      this.error.set(`Failed to upload ${file.name}`);
+    }
+    this.uploadingVariant.set(-1);
+  }
+
+  private uploadFile(file: File): Promise<string> {
+    const formData = new FormData();
+    formData.append('file', file, file.name);
+
+    return new Promise((resolve, reject) => {
+      this.http.post<{ url: string }>('/api/upload/image', formData).subscribe({
+        next: (res) => resolve(res.url),
+        error: (err) => reject(err),
+      });
+    });
+  }
+
+  private compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
+    return new Promise((resolve) => {
+      // Skip non-raster formats or small files
+      if (!file.type.startsWith('image/') || file.size < 100 * 1024) {
+        resolve(file);
+        return;
+      }
+
+      const img = new Image();
+      const url = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(url);
+
+        let { width, height } = img;
+        if (width <= maxWidth) {
+          resolve(file);
+          return;
+        }
+
+        // Scale down
+        const ratio = maxWidth / width;
+        width = maxWidth;
+        height = Math.round(height * ratio);
+
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext('2d')!;
+        ctx.drawImage(img, 0, 0, width, height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              const ext = file.type === 'image/png' ? '.png' : '.webp';
+              resolve(new File([blob], file.name.replace(/\.[^.]+$/, ext), { type: blob.type }));
+            } else {
+              resolve(file);
+            }
+          },
+          file.type === 'image/png' ? 'image/png' : 'image/webp',
+          quality,
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(url);
+        resolve(file);
+      };
+      img.src = url;
+    });
+  }
+
+  // --- Image Management ---
+
+  removeImage(index: number) {
+    const url = this.imagesArray.at(index).value;
+    this.imagesArray.removeAt(index);
+    this.deleteFromStorage(url);
+  }
+
+  clearVariantImage(variantIndex: number) {
+    const group = this.variantsArray.at(variantIndex);
+    const url = group.get('image')?.value || '';
+    group.get('image')?.setValue('');
+    this.deleteFromStorage(url);
+  }
+
+  private deleteFromStorage(url: string) {
+    if (!url || !url.includes('/product-images/')) return;
+    this.http.delete('/api/upload/image', { body: { url } }).subscribe();
+  }
+
+  // --- Variants ---
 
   addVariant() {
     this.variantsArray.push(this.createVariantGroup());
@@ -412,7 +611,19 @@ export class ProductFormComponent {
     attrs.removeControl(key);
   }
 
+  // --- Submit ---
+
+  onSaveDraft() {
+    this.form.controls.status.setValue(ProductStatus.DRAFT);
+    this.submitForm();
+  }
+
   onSubmit() {
+    this.form.controls.status.setValue(ProductStatus.PUBLISHED);
+    this.submitForm();
+  }
+
+  private submitForm() {
     if (this.form.invalid) return;
     this.saving.set(true);
     this.error.set('');
@@ -426,6 +637,7 @@ export class ProductFormComponent {
       descriptionAr: raw.descriptionAr,
       category: raw.category,
       gender: raw.gender,
+      status: raw.status,
       images: raw.images.filter((url: string) => url.trim() !== ''),
       variants: raw.variants.map((v: any) => ({
         ...(v.id ? { id: v.id } : {}),

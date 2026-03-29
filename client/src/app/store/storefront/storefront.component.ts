@@ -39,10 +39,10 @@ import { LanguageService } from '../../services/language.service';
 
     <!-- Filter Bar -->
     <section class="container mx-auto px-4 py-6">
-      <div class="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 mb-6">
+      <div class="flex flex-row flex-wrap items-center gap-3 mb-6">
         <!-- Category Filter -->
         <brn-select hlm [value]="categoryFilter()" (valueChange)="setCategoryFilter($event)" [placeholder]="'store.all_categories' | translate">
-          <hlm-select-trigger class="w-full sm:w-45">
+          <hlm-select-trigger class="w-40 sm:w-45">
             <hlm-select-value />
           </hlm-select-trigger>
           <hlm-select-content hlmSelectContent>
@@ -55,7 +55,7 @@ import { LanguageService } from '../../services/language.service';
 
         <!-- Brand Filter -->
         <brn-select hlm [value]="companyFilter()" (valueChange)="setCompanyFilter($event)" [placeholder]="'store.all_brands' | translate">
-          <hlm-select-trigger class="w-full sm:w-45">
+          <hlm-select-trigger class="w-40 sm:w-45">
             <hlm-select-value />
           </hlm-select-trigger>
           <hlm-select-content hlmSelectContent>
@@ -108,6 +108,12 @@ import { LanguageService } from '../../services/language.service';
                       : 'bg-girl/30 text-girl-accent'">
                     {{ 'gender.' + product.gender | translate }}
                   </span>
+                  <!-- Discount badge -->
+                  @if (getDiscountPercent(product); as discount) {
+                    <span class="absolute top-2 inset-e-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
+                      {{ discount }}% {{ 'store.off' | translate }}
+                    </span>
+                  }
                 </div>
                 <div hlmCardContent class="p-3">
                   <!-- Brand -->
@@ -122,9 +128,16 @@ import { LanguageService } from '../../services/language.service';
                   </h3>
                   <!-- Price -->
                   @if (product.variants?.length) {
-                    <p class="text-sm font-bold text-primary">
-                      {{ getMinPrice(product) }} {{ 'common.egp' | translate }}
-                    </p>
+                    <div class="flex flex-wrap items-center gap-1.5">
+                      <span class="text-sm font-bold text-primary">
+                        {{ getMinPrice(product) }} {{ 'common.egp' | translate }}
+                      </span>
+                      @if (getCompareAtPrice(product); as compareAt) {
+                        <span class="text-xs text-muted-foreground line-through">
+                          {{ compareAt }} {{ 'common.egp' | translate }}
+                        </span>
+                      }
+                    </div>
                   }
                 </div>
               </section>
@@ -204,6 +217,24 @@ export class StorefrontComponent {
   getMinPrice(product: IProduct): number {
     if (!product.variants?.length) return 0;
     return Math.min(...product.variants.map((v) => v.price));
+  }
+
+  getCompareAtPrice(product: IProduct): number | null {
+    if (!product.variants?.length) return null;
+    const minPriceVariant = product.variants.reduce((min, v) =>
+      v.price < min.price ? v : min
+    );
+    if (minPriceVariant.compareAtPrice && minPriceVariant.compareAtPrice > minPriceVariant.price) {
+      return minPriceVariant.compareAtPrice;
+    }
+    return null;
+  }
+
+  getDiscountPercent(product: IProduct): number | null {
+    const compareAt = this.getCompareAtPrice(product);
+    if (!compareAt) return null;
+    const price = this.getMinPrice(product);
+    return Math.round(((compareAt - price) / compareAt) * 100);
   }
 
   private loadProducts() {

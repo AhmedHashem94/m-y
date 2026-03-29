@@ -9,7 +9,7 @@ import {
   Query,
   UseGuards,
 } from '@nestjs/common';
-import { UserRole } from '@mamy/shared-models';
+import { UserRole, ProductStatus } from '@mamy/shared-models';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard, Roles } from '../auth/guards/roles.guard';
 import { ProductsService } from './products.service';
@@ -30,7 +30,20 @@ export class ProductsController {
     @Query('category') category?: string,
     @Query('companyId') companyId?: string
   ) {
-    return this.productsService.findAll({ gender, category, companyId });
+    // Public endpoint: only return published products
+    return this.productsService.findAll({ gender, category, companyId, status: ProductStatus.PUBLISHED });
+  }
+
+  @Get('admin')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findAllAdmin(
+    @Query('gender') gender?: string,
+    @Query('category') category?: string,
+    @Query('companyId') companyId?: string,
+    @Query('status') status?: string
+  ) {
+    return this.productsService.findAll({ gender, category, companyId, status });
   }
 
   @Get(':id')

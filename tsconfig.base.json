@@ -51,6 +51,9 @@
       ],
       "@spartan-ng/helm/table": [
         "libs/ui/table/src/index.ts"
+      ],
+      "@spartan-ng/helm/accordion": [
+        "libs/ui/accordion/src/index.ts"
       ]
     }
   },
