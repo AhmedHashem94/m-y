@@ -30,37 +30,27 @@ import {
 } from '@mamy/shared-models';
 
 // --- Custom Validators ---
-
 const ARABIC_RE = /[\u0600-\u06FF\u0750-\u077F]/;
 const LATIN_RE = /[a-zA-Z]/;
 
-function latinOnly(control: AbstractControl): ValidationErrors | null {
-  const val = control.value?.trim();
-  if (!val) return null;
-  return ARABIC_RE.test(val) ? { latinOnly: true } : null;
+function latinOnly(c: AbstractControl): ValidationErrors | null {
+  const v = c.value?.trim();
+  if (!v) return null;
+  return ARABIC_RE.test(v) ? { latinOnly: true } : null;
 }
 
-function arabicOnly(control: AbstractControl): ValidationErrors | null {
-  const val = control.value?.trim();
-  if (!val) return null;
-  return !ARABIC_RE.test(val) || LATIN_RE.test(val) ? { arabicOnly: true } : null;
+function arabicOnly(c: AbstractControl): ValidationErrors | null {
+  const v = c.value?.trim();
+  if (!v) return null;
+  return !ARABIC_RE.test(v) || LATIN_RE.test(v) ? { arabicOnly: true } : null;
 }
 
 @Component({
   selector: 'app-product-form',
   standalone: true,
   imports: [
-    ReactiveFormsModule,
-    RouterLink,
-    NgIcon,
-    HlmIcon,
-    HlmButton,
-    ...HlmCardImports,
-    HlmInput,
-    HlmLabel,
-    ...HlmSelectImports,
-    ...BrnSelectImports,
-    TranslateModule,
+    ReactiveFormsModule, RouterLink, NgIcon, HlmIcon, HlmButton,
+    ...HlmCardImports, HlmInput, HlmLabel, ...HlmSelectImports, ...BrnSelectImports, TranslateModule,
   ],
   providers: [provideIcons({ lucideUpload, lucideX, lucideLoader, lucideAlertCircle })],
   template: `
@@ -78,19 +68,18 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
     </div>
 
     <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 sm:space-y-8">
-      <!-- Product Info Card -->
+
+      <!-- ═══ 1. Product Info ═══ -->
       <section hlmCard>
         <div hlmCardHeader>
           <h2 hlmCardTitle>{{ 'store.product_detail' | translate }}</h2>
         </div>
         <div hlmCardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <!-- Company Select -->
+          <!-- Company -->
           <div class="flex flex-col gap-2">
             <label hlmLabel>{{ 'admin.select_company' | translate }}</label>
             <brn-select hlm formControlName="companyId" [placeholder]="'admin.select_company' | translate">
-              <hlm-select-trigger>
-                <hlm-select-value />
-              </hlm-select-trigger>
+              <hlm-select-trigger><hlm-select-value /></hlm-select-trigger>
               <hlm-select-content hlmSelectContent>
                 <hlm-option value="">{{ 'admin.select_company' | translate }}</hlm-option>
                 @for (company of companies(); track company.id) {
@@ -100,7 +89,7 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
             </brn-select>
           </div>
 
-          <!-- Category Select -->
+          <!-- Category -->
           <div class="flex flex-col gap-2" id="field-category">
             <label hlmLabel>{{ 'admin.select_category' | translate }}</label>
             <brn-select hlm formControlName="category" [placeholder]="'admin.select_category' | translate">
@@ -121,7 +110,7 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
             }
           </div>
 
-          <!-- Gender Select -->
+          <!-- Gender -->
           <div class="flex flex-col gap-2" id="field-gender">
             <label hlmLabel>{{ 'admin.select_gender' | translate }}</label>
             <brn-select hlm formControlName="gender" [placeholder]="'admin.select_gender' | translate">
@@ -179,15 +168,8 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
           <!-- Description EN -->
           <div class="flex flex-col gap-2 md:col-span-2" id="field-description">
             <label hlmLabel for="description">{{ 'admin.description_en' | translate }}</label>
-            <textarea
-              hlmInput
-              id="description"
-              formControlName="description"
-              rows="3"
-              dir="ltr"
-              class="min-h-20 resize-y"
-              [class.border-destructive]="showError('description')"
-            ></textarea>
+            <textarea hlmInput id="description" formControlName="description" rows="3" dir="ltr"
+              class="min-h-20 resize-y" [class.border-destructive]="showError('description')"></textarea>
             @if (showError('description')) {
               <span class="text-xs text-destructive flex items-center gap-1">
                 <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
@@ -199,14 +181,8 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
           <!-- Description AR -->
           <div class="flex flex-col gap-2 md:col-span-2" id="field-descriptionAr">
             <label hlmLabel for="descriptionAr">{{ 'admin.description_ar' | translate }}</label>
-            <textarea
-              hlmInput
-              id="descriptionAr"
-              formControlName="descriptionAr"
-              rows="3"
-              class="min-h-20 resize-y"
-              [class.border-destructive]="showError('descriptionAr')"
-            ></textarea>
+            <textarea hlmInput id="descriptionAr" formControlName="descriptionAr" rows="3"
+              class="min-h-20 resize-y" [class.border-destructive]="showError('descriptionAr')"></textarea>
             @if (showError('descriptionAr')) {
               <span class="text-xs text-destructive flex items-center gap-1">
                 <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
@@ -217,193 +193,183 @@ function arabicOnly(control: AbstractControl): ValidationErrors | null {
         </div>
       </section>
 
-      <!-- Images Card -->
+      <!-- ═══ 2. Price & Sizes ═══ -->
       <section hlmCard>
         <div hlmCardHeader>
-          <h2 hlmCardTitle>{{ 'admin.images' | translate }}</h2>
-          <p class="text-sm text-muted-foreground">{{ 'admin.images_hint' | translate }}</p>
+          <h2 hlmCardTitle>{{ 'admin.price_and_sizes' | translate }}</h2>
         </div>
-        <div hlmCardContent>
-          <!-- Uploaded images grid -->
-          @if (imagesArray.length > 0) {
-            <div class="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 mb-4">
-              @for (img of imagesArray.controls; track $index; let i = $index) {
-                <div class="group relative aspect-square rounded-lg border overflow-hidden bg-muted">
-                  @if (img.value) {
-                    <img [src]="img.value" alt="" class="h-full w-full object-cover" />
-                  }
-                  <button type="button"
-                    class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
-                    (click)="removeImage(i)">
-                    <ng-icon hlmIcon size="xs" name="lucideX" />
-                  </button>
-                </div>
+        <div hlmCardContent class="space-y-6">
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+            <!-- Price -->
+            <div class="flex flex-col gap-2" id="field-price">
+              <label hlmLabel>{{ 'admin.price' | translate }}</label>
+              <input hlmInput formControlName="price" type="number" dir="ltr"
+                [class.border-destructive]="showError('price')" />
+              @if (showError('price')) {
+                <span class="text-xs text-destructive flex items-center gap-1">
+                  <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                  {{ 'admin.validation.min_price' | translate }}
+                </span>
               }
             </div>
-          }
+            <!-- Compare at price -->
+            <div class="flex flex-col gap-2">
+              <label hlmLabel>{{ 'admin.compare_at_price' | translate }}</label>
+              <input hlmInput formControlName="compareAtPrice" type="number" dir="ltr" />
+            </div>
+            <!-- Stock -->
+            <div class="flex flex-col gap-2" id="field-stock">
+              <label hlmLabel>{{ 'admin.stock' | translate }}</label>
+              <input hlmInput formControlName="stock" type="number" dir="ltr"
+                [class.border-destructive]="showError('stock')" />
+              @if (showError('stock')) {
+                <span class="text-xs text-destructive flex items-center gap-1">
+                  <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                  {{ 'admin.validation.min_stock' | translate }}
+                </span>
+              }
+            </div>
+          </div>
 
-          <!-- Drop zone -->
-          <label
-            class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 transition-colors hover:border-primary/50 hover:bg-muted/50"
-            [class.border-primary]="isDraggingProduct()"
-            [class.bg-primary/5]="isDraggingProduct()"
-            (dragover)="onDragOver($event, 'product')"
-            (dragleave)="isDraggingProduct.set(false)"
-            (drop)="onDrop($event, 'product')">
-            @if (uploadingProduct()) {
-              <ng-icon hlmIcon size="lg" name="lucideLoader" class="animate-spin text-muted-foreground" />
-              <span class="text-sm text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
-            } @else {
-              <ng-icon hlmIcon size="lg" name="lucideUpload" class="text-muted-foreground" />
-              <span class="text-sm text-muted-foreground">{{ 'admin.drop_images' | translate }}</span>
-              <span class="text-xs text-muted-foreground/70">JPG, PNG, WebP ({{ 'admin.max_size' | translate }} 5MB)</span>
+          <!-- Available Sizes -->
+          <div class="flex flex-col gap-2">
+            <label hlmLabel>{{ 'admin.available_sizes' | translate }}</label>
+            <p class="text-xs text-muted-foreground">{{ 'admin.sizes_hint' | translate }}</p>
+            <div class="flex flex-wrap gap-2">
+              @for (size of availableSizes; track size) {
+                <button type="button"
+                  class="rounded-md border px-3 py-1.5 text-sm transition-colors"
+                  [class]="isSizeSelected(size)
+                    ? 'border-primary bg-primary text-primary-foreground font-medium'
+                    : 'border-border text-foreground hover:border-primary/50'"
+                  (click)="toggleSize(size)">
+                  {{ size }}
+                </button>
+              }
+            </div>
+            @if (selectedSizes().length > 0) {
+              <p class="text-xs text-muted-foreground">
+                {{ 'admin.selected_sizes' | translate }}: {{ selectedSizes().join(', ') }}
+              </p>
             }
-            <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
-              multiple
-              (change)="onFileSelected($event, 'product')" />
-          </label>
+          </div>
         </div>
       </section>
 
-      <!-- Variants Card -->
+      <!-- ═══ 3. Main Image ═══ -->
+      <section hlmCard>
+        <div hlmCardHeader>
+          <h2 hlmCardTitle>{{ 'admin.main_image' | translate }}</h2>
+          <p class="text-sm text-muted-foreground">{{ 'admin.main_image_hint' | translate }}</p>
+        </div>
+        <div hlmCardContent>
+          <div class="flex items-start gap-4">
+            @if (imagesArray.length > 0 && imagesArray.at(0).value) {
+              <div class="group relative h-32 w-32 shrink-0 rounded-lg border overflow-hidden bg-muted">
+                <img [src]="imagesArray.at(0).value" alt="" class="h-full w-full object-cover" />
+                <button type="button"
+                  class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+                  (click)="removeImage(0)">
+                  <ng-icon hlmIcon size="xs" name="lucideX" />
+                </button>
+              </div>
+            }
+            <label
+              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 transition-colors hover:border-primary/50 hover:bg-muted/50 flex-1"
+              [class.border-primary]="isDraggingProduct()"
+              [class.bg-primary/5]="isDraggingProduct()"
+              (dragover)="onDragOver($event, 'product')"
+              (dragleave)="isDraggingProduct.set(false)"
+              (drop)="onDrop($event, 'product')">
+              @if (uploadingProduct()) {
+                <ng-icon hlmIcon size="lg" name="lucideLoader" class="animate-spin text-muted-foreground" />
+                <span class="text-sm text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
+              } @else {
+                <ng-icon hlmIcon size="lg" name="lucideUpload" class="text-muted-foreground" />
+                <span class="text-sm text-muted-foreground">{{ 'admin.drop_images' | translate }}</span>
+                <span class="text-xs text-muted-foreground/70">JPG, PNG, WebP ({{ 'admin.max_size' | translate }} 5MB)</span>
+              }
+              <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
+                (change)="onFileSelected($event, 'product')" />
+            </label>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══ 4. Colors (Variants) ═══ -->
       <section hlmCard id="field-variants">
         <div hlmCardHeader>
           <div class="flex items-center justify-between">
-            <h2 hlmCardTitle>{{ 'admin.variants' | translate }}</h2>
+            <div>
+              <h2 hlmCardTitle>{{ 'admin.colors' | translate }}</h2>
+              <p class="text-sm text-muted-foreground mt-1">{{ 'admin.colors_hint' | translate }}</p>
+            </div>
             <button type="button" hlmBtn variant="outline" size="sm" (click)="addVariant()">
-              {{ 'admin.add_variant' | translate }}
+              {{ 'admin.add_color' | translate }}
             </button>
           </div>
         </div>
         <div hlmCardContent>
           @if (variantsArray.length === 0) {
             <p class="text-sm text-muted-foreground" [class.text-destructive]="submitted() && variantsArray.length === 0">
-              {{ (submitted() && variantsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_variant' | translate) }}
+              {{ (submitted() && variantsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_color' | translate) }}
             </p>
           } @else {
-            <div formArrayName="variants" class="space-y-6">
+            <div formArrayName="variants" class="space-y-4">
               @for (variant of variantsArray.controls; track $index; let vi = $index) {
-                <div class="rounded-lg border p-4 space-y-4" [formGroupName]="vi"
+                <div class="flex flex-col sm:flex-row items-start gap-4 rounded-lg border p-4" [formGroupName]="vi"
                   [class.border-destructive]="submitted() && variant.invalid"
                   [id]="'field-variant-' + vi">
-                  <div class="flex items-center justify-between">
-                    <h3 class="font-medium text-sm">{{ 'admin.variants' | translate }} #{{ vi + 1 }}</h3>
-                    <button type="button" hlmBtn variant="destructive" size="sm" (click)="removeVariant(vi)">
-                      {{ 'common.delete' | translate }}
-                    </button>
-                  </div>
 
-                  <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 lg:grid-cols-4">
-                    <div class="flex flex-col gap-2">
-                      <label hlmLabel>{{ 'admin.sku' | translate }}</label>
-                      <input hlmInput formControlName="sku" dir="ltr"
-                        [class.border-destructive]="showVariantError(vi, 'sku')" />
-                      @if (showVariantError(vi, 'sku')) {
-                        <span class="text-xs text-destructive flex items-center gap-1">
-                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                          {{ 'admin.validation.sku_required' | translate }}
-                        </span>
-                      }
-                    </div>
-                    <div class="flex flex-col gap-2">
-                      <label hlmLabel>{{ 'admin.price' | translate }}</label>
-                      <input hlmInput formControlName="price" type="number" dir="ltr"
-                        [class.border-destructive]="showVariantError(vi, 'price')" />
-                      @if (showVariantError(vi, 'price')) {
-                        <span class="text-xs text-destructive flex items-center gap-1">
-                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                          {{ 'admin.validation.min_price' | translate }}
-                        </span>
-                      }
-                    </div>
-                    <div class="flex flex-col gap-2">
-                      <label hlmLabel>{{ 'admin.compare_at_price' | translate }}</label>
-                      <input hlmInput formControlName="compareAtPrice" type="number" dir="ltr" />
-                    </div>
-                    <div class="flex flex-col gap-2">
-                      <label hlmLabel>{{ 'admin.stock' | translate }}</label>
-                      <input hlmInput formControlName="stock" type="number" dir="ltr"
-                        [class.border-destructive]="showVariantError(vi, 'stock')" />
-                      @if (showVariantError(vi, 'stock')) {
-                        <span class="text-xs text-destructive flex items-center gap-1">
-                          <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                          {{ 'admin.validation.min_stock' | translate }}
-                        </span>
-                      }
-                    </div>
-                  </div>
-
-                  <!-- Variant Image -->
-                  <div>
-                    <label hlmLabel class="mb-1 block">{{ 'admin.variant_image' | translate }}</label>
-                    <p class="text-xs text-muted-foreground mb-2">{{ 'admin.variant_image_hint' | translate }}</p>
-                    <div class="flex items-center gap-3">
-                      @if (getVariantImage(vi)) {
-                        <div class="group relative h-16 w-16 shrink-0 rounded-lg border overflow-hidden bg-muted">
-                          <img [src]="getVariantImage(vi)" alt="" class="h-full w-full object-cover" />
-                          <button type="button"
-                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
-                            (click)="clearVariantImage(vi)">
-                            <ng-icon hlmIcon size="xs" name="lucideX" />
-                          </button>
-                        </div>
-                      }
+                  <!-- Color Image -->
+                  <div class="shrink-0">
+                    @if (getVariantImage(vi)) {
+                      <div class="group relative h-20 w-20 rounded-lg border overflow-hidden bg-muted">
+                        <img [src]="getVariantImage(vi)" alt="" class="h-full w-full object-cover" />
+                        <button type="button"
+                          class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+                          (click)="clearVariantImage(vi)">
+                          <ng-icon hlmIcon size="xs" name="lucideX" />
+                        </button>
+                      </div>
+                    } @else {
                       <label
-                        class="flex cursor-pointer items-center gap-2 rounded-lg border-2 border-dashed border-border px-4 py-3 transition-colors hover:border-primary/50 hover:bg-muted/50"
+                        class="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/50"
                         [class.border-primary]="isDraggingVariant() === vi"
                         (dragover)="onDragOver($event, 'variant', vi)"
                         (dragleave)="isDraggingVariant.set(-1)"
                         (drop)="onDrop($event, 'variant', vi)">
                         @if (uploadingVariant() === vi) {
                           <ng-icon hlmIcon size="sm" name="lucideLoader" class="animate-spin text-muted-foreground" />
-                          <span class="text-xs text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
                         } @else {
                           <ng-icon hlmIcon size="sm" name="lucideUpload" class="text-muted-foreground" />
-                          <span class="text-xs text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
+                          <span class="text-[10px] text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
                         }
                         <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
                           (change)="onFileSelected($event, 'variant', vi)" />
                       </label>
+                    }
+                  </div>
+
+                  <!-- Color Name + SKU -->
+                  <div class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                    <div class="flex flex-col gap-1 flex-1">
+                      <label hlmLabel class="text-xs">{{ 'admin.color_name' | translate }}</label>
+                      <input hlmInput formControlName="colorName"
+                        [placeholder]="'admin.color_name_placeholder' | translate" />
+                    </div>
+                    <div class="flex flex-col gap-1 w-full sm:w-32">
+                      <label hlmLabel class="text-xs">{{ 'admin.sku' | translate }}</label>
+                      <input hlmInput formControlName="sku" dir="ltr"
+                        [class.border-destructive]="showVariantError(vi, 'sku')" />
                     </div>
                   </div>
 
-                  <!-- Attributes -->
-                  <div formGroupName="attributes">
-                    <p class="text-sm font-medium mb-2">{{ 'admin.attributes' | translate }}</p>
-                    @for (key of getVariantAttributeKeys(vi); track key) {
-                      <div class="flex items-center gap-3 mb-2">
-                        <span class="w-32 text-sm text-muted-foreground" dir="ltr">{{ key }}</span>
-                        <input hlmInput [formControlName]="key" class="flex-1" />
-                        <button type="button" hlmBtn variant="destructive" size="sm" (click)="removeAttribute(vi, key)">
-                          {{ 'common.delete' | translate }}
-                        </button>
-                      </div>
-                    }
-                  </div>
-                  <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
-                    <input
-                      hlmInput
-                      #attrKeyInput
-                      [placeholder]="'admin.attribute_key' | translate"
-                      class="sm:w-32"
-                      dir="ltr"
-                    />
-                    <input
-                      hlmInput
-                      #attrValueInput
-                      [placeholder]="'admin.attribute_value' | translate"
-                      class="flex-1"
-                    />
-                    <button
-                      type="button"
-                      hlmBtn
-                      variant="outline"
-                      size="sm"
-                      (click)="addAttribute(vi, attrKeyInput, attrValueInput)"
-                    >
-                      {{ 'admin.add_attribute' | translate }}
-                    </button>
-                  </div>
+                  <!-- Delete -->
+                  <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0 self-start"
+                    (click)="removeVariant(vi)">
+                    <ng-icon hlmIcon size="sm" name="lucideX" />
+                  </button>
                 </div>
               }
             </div>
@@ -455,7 +421,6 @@ export class ProductFormComponent {
   submitted = signal(false);
   companies = signal<ICompany[]>([]);
 
-  // Upload state
   uploadingProduct = signal(false);
   uploadingVariant = signal(-1);
   isDraggingProduct = signal(false);
@@ -463,6 +428,7 @@ export class ProductFormComponent {
 
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
+  availableSizes = ['0-3M', '3-6M', '6-12M', '1Y', '2Y', '3Y', '4Y', '5Y', '6Y', '7Y', '8Y', '9Y', '10Y', '11Y', '12Y', '14Y', '16Y'];
 
   private productId = '';
 
@@ -475,17 +441,18 @@ export class ProductFormComponent {
     category: new FormControl<ProductCategory | ''>('' as any, { nonNullable: true, validators: [Validators.required] }),
     gender: new FormControl<ProductGender | ''>('' as any, { nonNullable: true, validators: [Validators.required] }),
     status: new FormControl<ProductStatus>(ProductStatus.DRAFT, { nonNullable: true }),
+    price: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
+    compareAtPrice: new FormControl<number | null>(null),
+    stock: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
+    sizes: new FormControl('', { nonNullable: true }),
     images: new FormArray<FormControl<string>>([]),
     variants: new FormArray<FormGroup>([]),
   });
 
-  get imagesArray() {
-    return this.form.controls.images;
-  }
+  get imagesArray() { return this.form.controls.images; }
+  get variantsArray() { return this.form.controls.variants; }
 
-  get variantsArray() {
-    return this.form.controls.variants;
-  }
+  // --- Validation helpers ---
 
   showError(field: string): boolean {
     if (!this.submitted()) return false;
@@ -499,6 +466,27 @@ export class ProductFormComponent {
     return !!control && control.invalid;
   }
 
+  // --- Sizes (product-level) ---
+
+  selectedSizes(): string[] {
+    const val = this.form.controls.sizes.value;
+    return val ? val.split(',') : [];
+  }
+
+  isSizeSelected(size: string): boolean {
+    return this.selectedSizes().includes(size);
+  }
+
+  toggleSize(size: string) {
+    const current = this.selectedSizes();
+    const updated = current.includes(size)
+      ? current.filter((s) => s !== size)
+      : [...current, size];
+    this.form.controls.sizes.setValue(updated.join(','));
+  }
+
+  // --- Constructor ---
+
   constructor() {
     afterNextRender(() => {
       this.http.get<ICompany[]>('/api/companies').subscribe({
@@ -511,6 +499,8 @@ export class ProductFormComponent {
         this.productId = id;
         this.http.get<IProduct>(`/api/products/${id}`).subscribe({
           next: (product) => {
+            // Get price/stock from first variant (shared across all)
+            const firstVariant = product.variants?.[0];
             this.form.patchValue({
               companyId: product.companyId,
               name: product.name,
@@ -520,6 +510,10 @@ export class ProductFormComponent {
               category: product.category,
               gender: product.gender,
               status: product.status || ProductStatus.PUBLISHED,
+              price: firstVariant?.price || 0,
+              compareAtPrice: firstVariant?.compareAtPrice || null,
+              stock: firstVariant?.stock || 0,
+              sizes: firstVariant?.attributes?.['sizes'] || '',
             });
 
             this.imagesArray.clear();
@@ -538,40 +532,25 @@ export class ProductFormComponent {
     });
   }
 
-  // --- Validation: scroll to first error ---
+  // --- Scroll to first error ---
 
   private scrollToFirstError() {
-    // Check top-level fields
-    const fieldOrder = ['category', 'gender', 'name', 'nameAr', 'description', 'descriptionAr'];
+    const fieldOrder = ['category', 'gender', 'name', 'nameAr', 'description', 'descriptionAr', 'price', 'stock'];
     for (const field of fieldOrder) {
       const control = this.form.get(field);
       if (control && control.invalid) {
-        const el = document.getElementById(`field-${field}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
-      }
-    }
-
-    // Check if no variants
-    if (this.variantsArray.length === 0) {
-      const el = document.getElementById('field-variants');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.getElementById(`field-${field}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
-
-    // Check variant fields
+    if (this.variantsArray.length === 0) {
+      document.getElementById('field-variants')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
     for (let i = 0; i < this.variantsArray.length; i++) {
-      const group = this.variantsArray.at(i);
-      if (group.invalid) {
-        const el = document.getElementById(`field-variant-${i}`);
-        if (el) {
-          el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          return;
-        }
+      if (this.variantsArray.at(i).invalid) {
+        document.getElementById(`field-variant-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
       }
     }
   }
@@ -581,11 +560,8 @@ export class ProductFormComponent {
   onDragOver(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
     e.preventDefault();
     e.stopPropagation();
-    if (target === 'product') {
-      this.isDraggingProduct.set(true);
-    } else {
-      this.isDraggingVariant.set(variantIndex ?? -1);
-    }
+    if (target === 'product') this.isDraggingProduct.set(true);
+    else this.isDraggingVariant.set(variantIndex ?? -1);
   }
 
   onDrop(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
@@ -593,41 +569,36 @@ export class ProductFormComponent {
     e.stopPropagation();
     this.isDraggingProduct.set(false);
     this.isDraggingVariant.set(-1);
-
     const files = e.dataTransfer?.files;
     if (!files?.length) return;
-
-    if (target === 'product') {
-      this.uploadProductImages(Array.from(files));
-    } else if (variantIndex !== undefined) {
-      this.uploadVariantImage(files[0], variantIndex);
-    }
+    if (target === 'product') this.uploadMainImage(files[0]);
+    else if (variantIndex !== undefined) this.uploadVariantImage(files[0], variantIndex);
   }
 
   onFileSelected(e: Event, target: 'product' | 'variant', variantIndex?: number) {
     const input = e.target as HTMLInputElement;
     const files = input.files;
     if (!files?.length) return;
-
-    if (target === 'product') {
-      this.uploadProductImages(Array.from(files));
-    } else if (variantIndex !== undefined) {
-      this.uploadVariantImage(files[0], variantIndex);
-    }
-
+    if (target === 'product') this.uploadMainImage(files[0]);
+    else if (variantIndex !== undefined) this.uploadVariantImage(files[0], variantIndex);
     input.value = '';
   }
 
-  private async uploadProductImages(files: File[]) {
+  private async uploadMainImage(file: File) {
     this.uploadingProduct.set(true);
-    for (const file of files) {
-      try {
-        const compressed = await this.compressImage(file);
-        const url = await this.uploadFile(compressed);
+    try {
+      const compressed = await this.compressImage(file);
+      const url = await this.uploadFile(compressed);
+      // Replace existing main image
+      if (this.imagesArray.length > 0) {
+        const oldUrl = this.imagesArray.at(0).value;
+        this.imagesArray.at(0).setValue(url);
+        this.deleteFromStorage(oldUrl);
+      } else {
         this.imagesArray.push(new FormControl(url, { nonNullable: true }));
-      } catch {
-        this.error.set(`Failed to upload ${file.name}`);
       }
+    } catch {
+      this.error.set(`Failed to upload ${file.name}`);
     }
     this.uploadingProduct.set(false);
   }
@@ -650,7 +621,6 @@ export class ProductFormComponent {
   private uploadFile(file: File): Promise<string> {
     const formData = new FormData();
     formData.append('file', file, file.name);
-
     return new Promise((resolve, reject) => {
       this.http.post<{ url: string }>('/api/upload/image', formData).subscribe({
         next: (res) => resolve(res.url),
@@ -661,49 +631,28 @@ export class ProductFormComponent {
 
   private compressImage(file: File, maxWidth = 1200, quality = 0.8): Promise<File> {
     return new Promise((resolve) => {
-      if (!file.type.startsWith('image/') || file.size < 100 * 1024) {
-        resolve(file);
-        return;
-      }
-
+      if (!file.type.startsWith('image/') || file.size < 100 * 1024) { resolve(file); return; }
       const img = new Image();
       const url = URL.createObjectURL(file);
       img.onload = () => {
         URL.revokeObjectURL(url);
-
         let { width, height } = img;
-        if (width <= maxWidth) {
-          resolve(file);
-          return;
-        }
-
+        if (width <= maxWidth) { resolve(file); return; }
         const ratio = maxWidth / width;
         width = maxWidth;
         height = Math.round(height * ratio);
-
         const canvas = document.createElement('canvas');
         canvas.width = width;
         canvas.height = height;
-        const ctx = canvas.getContext('2d')!;
-        ctx.drawImage(img, 0, 0, width, height);
-
+        canvas.getContext('2d')!.drawImage(img, 0, 0, width, height);
         canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              const ext = file.type === 'image/png' ? '.png' : '.webp';
-              resolve(new File([blob], file.name.replace(/\.[^.]+$/, ext), { type: blob.type }));
-            } else {
-              resolve(file);
-            }
-          },
-          file.type === 'image/png' ? 'image/png' : 'image/webp',
-          quality,
+          (blob) => blob
+            ? resolve(new File([blob], file.name.replace(/\.[^.]+$/, file.type === 'image/png' ? '.png' : '.webp'), { type: blob.type }))
+            : resolve(file),
+          file.type === 'image/png' ? 'image/png' : 'image/webp', quality,
         );
       };
-      img.onerror = () => {
-        URL.revokeObjectURL(url);
-        resolve(file);
-      };
+      img.onerror = () => { URL.revokeObjectURL(url); resolve(file); };
       img.src = url;
     });
   }
@@ -739,30 +688,7 @@ export class ProductFormComponent {
   }
 
   getVariantImage(index: number): string {
-    const group = this.variantsArray.at(index);
-    return group.get('image')?.value || '';
-  }
-
-  getVariantAttributeKeys(index: number): string[] {
-    const group = this.variantsArray.at(index);
-    const attrs = group.get('attributes') as FormGroup;
-    return attrs ? Object.keys(attrs.controls) : [];
-  }
-
-  addAttribute(variantIndex: number, keyInput: HTMLInputElement, valueInput: HTMLInputElement) {
-    const key = keyInput.value.trim();
-    if (!key) return;
-    const group = this.variantsArray.at(variantIndex);
-    const attrs = group.get('attributes') as FormGroup;
-    attrs.addControl(key, new FormControl(valueInput.value, { nonNullable: true }));
-    keyInput.value = '';
-    valueInput.value = '';
-  }
-
-  removeAttribute(variantIndex: number, key: string) {
-    const group = this.variantsArray.at(variantIndex);
-    const attrs = group.get('attributes') as FormGroup;
-    attrs.removeControl(key);
+    return this.variantsArray.at(index).get('image')?.value || '';
   }
 
   // --- Submit ---
@@ -790,6 +716,8 @@ export class ProductFormComponent {
     this.error.set('');
 
     const raw = this.form.getRawValue();
+    const sizes = raw.sizes;
+
     const body = {
       companyId: raw.companyId,
       name: raw.name,
@@ -800,15 +728,20 @@ export class ProductFormComponent {
       gender: raw.gender,
       status: raw.status,
       images: raw.images.filter((url: string) => url.trim() !== ''),
-      variants: raw.variants.map((v: any) => ({
-        ...(v.id ? { id: v.id } : {}),
-        sku: v.sku,
-        price: Number(v.price),
-        compareAtPrice: v.compareAtPrice ? Number(v.compareAtPrice) : undefined,
-        stock: Number(v.stock),
-        image: v.image?.trim() || undefined,
-        attributes: v.attributes || {},
-      })),
+      variants: raw.variants.map((v: any) => {
+        const attributes: Record<string, string> = {};
+        if (v.colorName?.trim()) attributes['color'] = v.colorName.trim();
+        if (sizes) attributes['sizes'] = sizes;
+        return {
+          ...(v.id ? { id: v.id } : {}),
+          sku: v.sku,
+          price: Number(raw.price),
+          compareAtPrice: raw.compareAtPrice ? Number(raw.compareAtPrice) : undefined,
+          stock: Number(raw.stock),
+          image: v.image?.trim() || undefined,
+          attributes,
+        };
+      }),
     };
 
     const request$ = this.isEditMode()
@@ -825,21 +758,11 @@ export class ProductFormComponent {
   }
 
   private createVariantGroup(variant?: IProductVariant): FormGroup {
-    const attrsGroup = new FormGroup<Record<string, FormControl<string>>>({});
-    if (variant?.attributes) {
-      Object.entries(variant.attributes).forEach(([key, value]) => {
-        attrsGroup.addControl(key, new FormControl(value, { nonNullable: true }));
-      });
-    }
-
     return new FormGroup({
       id: new FormControl(variant?.id || '', { nonNullable: true }),
+      colorName: new FormControl(variant?.attributes?.['color'] || '', { nonNullable: true }),
       sku: new FormControl(variant?.sku || '', { nonNullable: true, validators: [Validators.required] }),
-      price: new FormControl(variant?.price || 0, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
-      compareAtPrice: new FormControl(variant?.compareAtPrice || null),
-      stock: new FormControl(variant?.stock || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
       image: new FormControl(variant?.image || '', { nonNullable: true }),
-      attributes: attrsGroup,
     });
   }
 }
