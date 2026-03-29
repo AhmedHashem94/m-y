@@ -192,6 +192,8 @@ export class StorefrontComponent {
       this.route.queryParams.subscribe((params) => {
         if (params['gender'] === 'BOY' || params['gender'] === 'GIRL') {
           this.genderFilter.set(params['gender']);
+        } else {
+          this.genderFilter.set(null);
         }
       });
 

@@ -55,7 +55,9 @@
       }
 
       <!-- Mobile menu toggle -->
-      <button hlmBtn variant="ghost" size="icon" class="md:hidden" (click)="mobileMenuOpen = !mobileMenuOpen">
+      <button hlmBtn variant="ghost" size="icon" class="md:hidden transition-transform duration-300"
+              [class.rotate-90]="mobileMenuOpen"
+              (click)="mobileMenuOpen = !mobileMenuOpen">
         @if (mobileMenuOpen) {
           <ng-icon hlmIcon size="sm" name="lucideX" />
         } @else {
@@ -66,32 +68,37 @@
   </nav>
 
   <!-- Mobile Menu -->
-  @if (mobileMenuOpen) {
-    <div class="border-t border-border bg-background px-4 py-4 md:hidden">
-      <div class="flex flex-col gap-3">
-        <a routerLink="/store" class="text-sm font-medium text-foreground hover:text-primary">
-          {{ 'nav.store' | translate }}
-        </a>
-        <a routerLink="/store" [queryParams]="{ gender: 'BOY' }" class="text-sm font-medium text-foreground hover:text-primary">
-          {{ 'nav.boys' | translate }}
-        </a>
-        <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }" class="text-sm font-medium text-foreground hover:text-primary">
-          {{ 'nav.girls' | translate }}
-        </a>
-        <hr class="border-border" />
-        @if (auth.isLoggedIn()) {
-          @if (auth.isAdmin()) {
-            <a routerLink="/admin" class="text-sm font-medium text-foreground hover:text-primary">
-              {{ 'nav.admin' | translate }}
-            </a>
+  <div class="grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out"
+       [class]="mobileMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
+    <div class="overflow-hidden">
+      <div class="bg-background px-4 py-4"
+           [class.opacity-100]="mobileMenuOpen"
+           [class.opacity-0]="!mobileMenuOpen"
+           style="transition: opacity 200ms ease-in-out">
+        <div class="flex flex-col gap-3">
+          <a routerLink="/store" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+            {{ 'nav.store' | translate }}
+          </a>
+          <a routerLink="/store" [queryParams]="{ gender: 'BOY' }" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+            {{ 'nav.boys' | translate }}
+          </a>
+          <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+            {{ 'nav.girls' | translate }}
+          </a>
+          @if (auth.isLoggedIn()) {
+            @if (auth.isAdmin()) {
+              <a routerLink="/admin" class="text-sm font-medium text-foreground hover:text-primary">
+                {{ 'nav.admin' | translate }}
+              </a>
+            }
+            <button (click)="logout()" class="text-sm font-medium text-start text-destructive hover:underline">
+              {{ 'nav.logout' | translate }}
+            </button>
           }
-          <button (click)="logout()" class="text-sm font-medium text-start text-destructive hover:underline">
-            {{ 'nav.logout' | translate }}
-          </button>
-        }
+        </div>
       </div>
     </div>
-  }
+  </div>
 </header>
 
 <!-- Main Content -->
