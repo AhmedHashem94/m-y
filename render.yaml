@@ -33,7 +33,4 @@ services:
       - key: PORT
         value: "4000"
       - key: API_URL
-        fromService:
-          name: mamy-api
-          type: web
-          property: hostport
+        sync: false
