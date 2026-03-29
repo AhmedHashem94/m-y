@@ -6,7 +6,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { IProduct, ICompany, ProductGender, ProductCategory } from '@mamy/shared-models';
+import { IProduct, ICompany } from '@mamy/shared-models';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
@@ -47,7 +47,7 @@ import { LanguageService } from '../../services/language.service';
           </hlm-select-trigger>
           <hlm-select-content hlmSelectContent>
             <hlm-option value="">{{ 'store.all_categories' | translate }}</hlm-option>
-            @for (cat of categories; track cat) {
+            @for (cat of categories(); track cat) {
               <hlm-option [value]="cat">{{ 'categories.' + cat | translate }}</hlm-option>
             }
           </hlm-select-content>
@@ -162,7 +162,9 @@ export class StorefrontComponent {
   readonly categoryFilter = signal<string>('');
   readonly companyFilter = signal<string>('');
 
-  readonly categories = Object.values(ProductCategory);
+  readonly categories = computed(() =>
+    [...new Set(this.products().map((p) => p.category))]
+  );
 
   readonly isAr = computed(() => this.langService.currentLang() === 'ar');
 
