@@ -52,6 +52,7 @@ import { IProduct, ProductStatus } from '@mamy/shared-models';
                 </div>
                 <div class="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
                   <span>{{ product.variants?.length || 0 }} {{ 'admin.variant_count' | translate }}</span>
+                  <span>{{ 'admin.total_stock' | translate }}: {{ getTotalStock(product) }}</span>
                   <span class="font-medium text-foreground">{{ getPriceRange(product) }} {{ 'common.egp' | translate }}</span>
                 </div>
               </div>
@@ -79,6 +80,7 @@ import { IProduct, ProductStatus } from '@mamy/shared-models';
               <th hlmTh>{{ 'store.gender' | translate }}</th>
               <th hlmTh>{{ 'admin.status' | translate }}</th>
               <th hlmTh>{{ 'admin.variant_count' | translate }}</th>
+              <th hlmTh>{{ 'admin.total_stock' | translate }}</th>
               <th hlmTh>{{ 'admin.price_range' | translate }}</th>
               <th hlmTh></th>
             </tr>
@@ -114,6 +116,7 @@ import { IProduct, ProductStatus } from '@mamy/shared-models';
                   </span>
                 </td>
                 <td hlmTd>{{ product.variants?.length || 0 }}</td>
+                <td hlmTd>{{ getTotalStock(product) }}</td>
                 <td hlmTd>{{ getPriceRange(product) }}</td>
                 <td hlmTd>
                   <div class="flex items-center gap-2">
@@ -157,6 +160,10 @@ export class ProductsListComponent {
         this.loading.set(false);
       },
     });
+  }
+
+  getTotalStock(product: IProduct): number {
+    return (product.variants || []).reduce((sum, v) => sum + (v.stock || 0), 0);
   }
 
   getPriceRange(product: IProduct): string {

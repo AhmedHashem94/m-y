@@ -1,4 +1,4 @@
-import { Component, inject, signal, afterNextRender } from '@angular/core';
+import { Component, inject, signal, computed, afterNextRender } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -11,7 +11,7 @@ import {
   ValidationErrors,
 } from '@angular/forms';
 import { NgIcon, provideIcons } from '@ng-icons/core';
-import { lucideUpload, lucideX, lucideLoader, lucideAlertCircle } from '@ng-icons/lucide';
+import { lucideUpload, lucideX, lucideLoader, lucideAlertCircle, lucidePlus } from '@ng-icons/lucide';
 import { HlmIcon } from '@spartan-ng/helm/icon';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
@@ -52,7 +52,7 @@ function arabicOnly(c: AbstractControl): ValidationErrors | null {
     ReactiveFormsModule, RouterLink, NgIcon, HlmIcon, HlmButton,
     ...HlmCardImports, HlmInput, HlmLabel, ...HlmSelectImports, ...BrnSelectImports, TranslateModule,
   ],
-  providers: [provideIcons({ lucideUpload, lucideX, lucideLoader, lucideAlertCircle })],
+  providers: [provideIcons({ lucideUpload, lucideX, lucideLoader, lucideAlertCircle, lucidePlus })],
   template: `
     <div class="flex items-center justify-between mb-4 sm:mb-6">
       <h1 class="text-xl sm:text-2xl font-bold">
@@ -193,13 +193,13 @@ function arabicOnly(c: AbstractControl): ValidationErrors | null {
         </div>
       </section>
 
-      <!-- ═══ 2. Price & Sizes ═══ -->
+      <!-- ═══ 2. Price ═══ -->
       <section hlmCard>
         <div hlmCardHeader>
-          <h2 hlmCardTitle>{{ 'admin.price_and_sizes' | translate }}</h2>
+          <h2 hlmCardTitle>{{ 'admin.price' | translate }}</h2>
         </div>
-        <div hlmCardContent class="space-y-6">
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-3">
+        <div hlmCardContent>
+          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
             <!-- Price -->
             <div class="flex flex-col gap-2" id="field-price">
               <label hlmLabel>{{ 'admin.price' | translate }}</label>
@@ -217,159 +217,156 @@ function arabicOnly(c: AbstractControl): ValidationErrors | null {
               <label hlmLabel>{{ 'admin.compare_at_price' | translate }}</label>
               <input hlmInput formControlName="compareAtPrice" type="number" dir="ltr" />
             </div>
-            <!-- Stock -->
-            <div class="flex flex-col gap-2" id="field-stock">
-              <label hlmLabel>{{ 'admin.stock' | translate }}</label>
-              <input hlmInput formControlName="stock" type="number" dir="ltr"
-                [class.border-destructive]="showError('stock')" />
-              @if (showError('stock')) {
-                <span class="text-xs text-destructive flex items-center gap-1">
-                  <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                  {{ 'admin.validation.min_stock' | translate }}
-                </span>
-              }
-            </div>
-          </div>
-
-          <!-- Available Sizes -->
-          <div class="flex flex-col gap-2">
-            <label hlmLabel>{{ 'admin.available_sizes' | translate }}</label>
-            <p class="text-xs text-muted-foreground">{{ 'admin.sizes_hint' | translate }}</p>
-            <div class="flex flex-wrap gap-2">
-              @for (size of availableSizes; track size) {
-                <button type="button"
-                  class="rounded-md border px-3 py-1.5 text-sm transition-colors"
-                  [class]="isSizeSelected(size)
-                    ? 'border-primary bg-primary text-primary-foreground font-medium'
-                    : 'border-border text-foreground hover:border-primary/50'"
-                  (click)="toggleSize(size)">
-                  {{ size }}
-                </button>
-              }
-            </div>
-            @if (selectedSizes().length > 0) {
-              <p class="text-xs text-muted-foreground">
-                {{ 'admin.selected_sizes' | translate }}: {{ selectedSizes().join(', ') }}
-              </p>
-            }
           </div>
         </div>
       </section>
 
-      <!-- ═══ 3. Main Image ═══ -->
-      <section hlmCard>
-        <div hlmCardHeader>
-          <h2 hlmCardTitle>{{ 'admin.main_image' | translate }}</h2>
-          <p class="text-sm text-muted-foreground">{{ 'admin.main_image_hint' | translate }}</p>
-        </div>
-        <div hlmCardContent>
-          <div class="flex items-start gap-4">
-            @if (imagesArray.length > 0 && imagesArray.at(0).value) {
-              <div class="group relative h-32 w-32 shrink-0 rounded-lg border overflow-hidden bg-muted">
-                <img [src]="imagesArray.at(0).value" alt="" class="h-full w-full object-cover" />
-                <button type="button"
-                  class="absolute top-1 inset-e-1 rounded-full bg-destructive p-1 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
-                  (click)="removeImage(0)">
-                  <ng-icon hlmIcon size="xs" name="lucideX" />
-                </button>
-              </div>
-            }
-            <label
-              class="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-border p-6 transition-colors hover:border-primary/50 hover:bg-muted/50 flex-1"
-              [class.border-primary]="isDraggingProduct()"
-              [class.bg-primary/5]="isDraggingProduct()"
-              (dragover)="onDragOver($event, 'product')"
-              (dragleave)="isDraggingProduct.set(false)"
-              (drop)="onDrop($event, 'product')">
-              @if (uploadingProduct()) {
-                <ng-icon hlmIcon size="lg" name="lucideLoader" class="animate-spin text-muted-foreground" />
-                <span class="text-sm text-muted-foreground">{{ 'admin.uploading' | translate }}...</span>
-              } @else {
-                <ng-icon hlmIcon size="lg" name="lucideUpload" class="text-muted-foreground" />
-                <span class="text-sm text-muted-foreground">{{ 'admin.drop_images' | translate }}</span>
-                <span class="text-xs text-muted-foreground/70">JPG, PNG, WebP ({{ 'admin.max_size' | translate }} 5MB)</span>
-              }
-              <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
-                (change)="onFileSelected($event, 'product')" />
-            </label>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══ 4. Colors (Variants) ═══ -->
-      <section hlmCard id="field-variants">
+      <!-- ═══ 3. Colors & Sizes ═══ -->
+      <section hlmCard id="field-colors">
         <div hlmCardHeader>
           <div class="flex items-center justify-between">
             <div>
-              <h2 hlmCardTitle>{{ 'admin.colors' | translate }}</h2>
-              <p class="text-sm text-muted-foreground mt-1">{{ 'admin.colors_hint' | translate }}</p>
+              <h2 hlmCardTitle>{{ 'admin.colors_and_sizes' | translate }}</h2>
+              <p class="text-sm text-muted-foreground mt-1">{{ 'admin.colors_and_sizes_hint' | translate }}</p>
             </div>
-            <button type="button" hlmBtn variant="outline" size="sm" (click)="addVariant()">
-              {{ 'admin.add_color' | translate }}
-            </button>
+            <div class="flex items-center gap-3">
+              @if (colorGroupsArray.length > 0) {
+                <span class="text-sm text-muted-foreground">
+                  {{ 'admin.total_stock' | translate }}: <span class="font-bold text-foreground">{{ totalStock() }}</span>
+                </span>
+              }
+              <button type="button" hlmBtn variant="outline" size="sm" (click)="addColorGroup()">
+                {{ 'admin.add_color' | translate }}
+              </button>
+            </div>
           </div>
         </div>
         <div hlmCardContent>
-          @if (variantsArray.length === 0) {
-            <p class="text-sm text-muted-foreground" [class.text-destructive]="submitted() && variantsArray.length === 0">
-              {{ (submitted() && variantsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_color' | translate) }}
+          @if (colorGroupsArray.length === 0) {
+            <p class="text-sm text-muted-foreground" [class.text-destructive]="submitted() && colorGroupsArray.length === 0">
+              {{ (submitted() && colorGroupsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_color' | translate) }}
             </p>
           } @else {
-            <div formArrayName="variants" class="space-y-4">
-              @for (variant of variantsArray.controls; track $index; let vi = $index) {
-                <div class="flex flex-col sm:flex-row items-start gap-4 rounded-lg border p-4" [formGroupName]="vi"
-                  [class.border-destructive]="submitted() && variant.invalid"
-                  [id]="'field-variant-' + vi">
+            <div formArrayName="colorGroups" class="space-y-6">
+              @for (colorGroup of colorGroupsArray.controls; track $index; let ci = $index) {
+                <div class="rounded-lg border p-4 space-y-4" [formGroupName]="ci"
+                  [class.border-destructive]="submitted() && colorGroup.invalid"
+                  [id]="'field-color-' + ci">
 
-                  <!-- Color Image -->
-                  <div class="shrink-0">
-                    @if (getVariantImage(vi)) {
-                      <div class="group relative h-20 w-20 rounded-lg border overflow-hidden bg-muted">
-                        <img [src]="getVariantImage(vi)" alt="" class="h-full w-full object-cover" />
-                        <button type="button"
-                          class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
-                          (click)="clearVariantImage(vi)">
-                          <ng-icon hlmIcon size="xs" name="lucideX" />
-                        </button>
-                      </div>
-                    } @else {
-                      <label
-                        class="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/50"
-                        [class.border-primary]="isDraggingVariant() === vi"
-                        (dragover)="onDragOver($event, 'variant', vi)"
-                        (dragleave)="isDraggingVariant.set(-1)"
-                        (drop)="onDrop($event, 'variant', vi)">
-                        @if (uploadingVariant() === vi) {
-                          <ng-icon hlmIcon size="sm" name="lucideLoader" class="animate-spin text-muted-foreground" />
-                        } @else {
-                          <ng-icon hlmIcon size="sm" name="lucideUpload" class="text-muted-foreground" />
-                          <span class="text-[10px] text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
-                        }
-                        <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
-                          (change)="onFileSelected($event, 'variant', vi)" />
-                      </label>
-                    }
-                  </div>
+                  <!-- Color header: Image + Color Name + Delete -->
+                  <div class="flex items-start gap-4">
+                    <!-- Color Image -->
+                    <div class="shrink-0">
+                      @if (getColorImage(ci)) {
+                        <div class="group relative h-20 w-20 rounded-lg border overflow-hidden bg-muted">
+                          <img [src]="getColorImage(ci)" alt="" class="h-full w-full object-cover" />
+                          <button type="button"
+                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
+                            (click)="clearColorImage(ci)">
+                            <ng-icon hlmIcon size="xs" name="lucideX" />
+                          </button>
+                        </div>
+                      } @else {
+                        <label
+                          class="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/50"
+                          [class.border-primary]="isDraggingColor() === ci"
+                          (dragover)="onDragOver($event, ci)"
+                          (dragleave)="isDraggingColor.set(-1)"
+                          (drop)="onDrop($event, ci)">
+                          @if (uploadingColor() === ci) {
+                            <ng-icon hlmIcon size="sm" name="lucideLoader" class="animate-spin text-muted-foreground" />
+                          } @else {
+                            <ng-icon hlmIcon size="sm" name="lucideUpload" class="text-muted-foreground" />
+                            <span class="text-[10px] text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
+                          }
+                          <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
+                            (change)="onFileSelected($event, ci)" />
+                        </label>
+                      }
+                    </div>
 
-                  <!-- Color Name + SKU -->
-                  <div class="flex-1 flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
+                    <!-- Color Name -->
                     <div class="flex flex-col gap-1 flex-1">
                       <label hlmLabel class="text-xs">{{ 'admin.color_name' | translate }}</label>
                       <input hlmInput formControlName="colorName"
                         [placeholder]="'admin.color_name_placeholder' | translate" />
                     </div>
-                    <div class="flex flex-col gap-1 w-full sm:w-32">
-                      <label hlmLabel class="text-xs">{{ 'admin.sku' | translate }}</label>
-                      <input hlmInput formControlName="sku" dir="ltr"
-                        [class.border-destructive]="showVariantError(vi, 'sku')" />
-                    </div>
+
+                    <!-- Delete Color -->
+                    <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0"
+                      (click)="removeColorGroup(ci)">
+                      <ng-icon hlmIcon size="sm" name="lucideX" />
+                    </button>
                   </div>
 
-                  <!-- Delete -->
-                  <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0 self-start"
-                    (click)="removeVariant(vi)">
-                    <ng-icon hlmIcon size="sm" name="lucideX" />
-                  </button>
+                  <!-- Sizes table -->
+                  <div class="space-y-2">
+                    <div class="flex items-center justify-between">
+                      <label hlmLabel class="text-xs">{{ 'admin.available_sizes' | translate }}</label>
+                      <button type="button" hlmBtn variant="ghost" size="sm" (click)="addSizeEntry(ci)">
+                        <ng-icon hlmIcon size="xs" name="lucidePlus" class="me-1" />
+                        {{ 'admin.add_size' | translate }}
+                      </button>
+                    </div>
+
+                    @if (getSizesArray(ci).length === 0) {
+                      <p class="text-xs text-muted-foreground"
+                        [class.text-destructive]="submitted()">
+                        {{ 'admin.add_size_hint' | translate }}
+                      </p>
+                    } @else {
+                      <div formArrayName="sizes" class="space-y-2">
+                        @for (sizeEntry of getSizesArray(ci).controls; track $index; let si = $index) {
+                          <div class="flex items-center gap-2 sm:gap-3" [formGroupName]="si">
+                            <!-- Size select -->
+                            <div class="flex flex-col gap-1 w-20 sm:w-24">
+                              @if (si === 0) {
+                                <span class="text-[10px] text-muted-foreground">{{ 'admin.size' | translate }}</span>
+                              }
+                              <brn-select hlm formControlName="size" [placeholder]="'--'">
+                                <hlm-select-trigger class="w-full h-9"
+                                  [class.border-destructive]="showSizeError(ci, si, 'size')">
+                                  <hlm-select-value />
+                                </hlm-select-trigger>
+                                <hlm-select-content hlmSelectContent>
+                                  @for (s of availableSizes; track s) {
+                                    <hlm-option [value]="s">{{ s }}</hlm-option>
+                                  }
+                                </hlm-select-content>
+                              </brn-select>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="flex flex-col gap-1 w-20 sm:w-24">
+                              @if (si === 0) {
+                                <span class="text-[10px] text-muted-foreground">{{ 'admin.amount' | translate }}</span>
+                              }
+                              <input hlmInput formControlName="stock" type="number" dir="ltr" min="0"
+                                class="h-9"
+                                [class.border-destructive]="showSizeError(ci, si, 'stock')" />
+                            </div>
+
+                            <!-- SKU -->
+                            <div class="flex flex-col gap-1 flex-1">
+                              @if (si === 0) {
+                                <span class="text-[10px] text-muted-foreground">{{ 'admin.sku' | translate }}</span>
+                              }
+                              <input hlmInput formControlName="sku" dir="ltr"
+                                class="h-9"
+                                [class.border-destructive]="showSizeError(ci, si, 'sku')" />
+                            </div>
+
+                            <!-- Delete size -->
+                            <button type="button" hlmBtn variant="ghost" size="icon" class="shrink-0 h-9 w-9"
+                              [class.mt-4]="si === 0"
+                              (click)="removeSizeEntry(ci, si)">
+                              <ng-icon hlmIcon size="xs" name="lucideX" />
+                            </button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  </div>
                 </div>
               }
             </div>
@@ -421,10 +418,8 @@ export class ProductFormComponent {
   submitted = signal(false);
   companies = signal<ICompany[]>([]);
 
-  uploadingProduct = signal(false);
-  uploadingVariant = signal(-1);
-  isDraggingProduct = signal(false);
-  isDraggingVariant = signal(-1);
+  uploadingColor = signal(-1);
+  isDraggingColor = signal(-1);
 
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
@@ -443,14 +438,10 @@ export class ProductFormComponent {
     status: new FormControl<ProductStatus>(ProductStatus.DRAFT, { nonNullable: true }),
     price: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(1)] }),
     compareAtPrice: new FormControl<number | null>(null),
-    stock: new FormControl(0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
-    sizes: new FormControl('', { nonNullable: true }),
-    images: new FormArray<FormControl<string>>([]),
-    variants: new FormArray<FormGroup>([]),
+    colorGroups: new FormArray<FormGroup>([]),
   });
 
-  get imagesArray() { return this.form.controls.images; }
-  get variantsArray() { return this.form.controls.variants; }
+  get colorGroupsArray() { return this.form.controls.colorGroups; }
 
   // --- Validation helpers ---
 
@@ -460,30 +451,24 @@ export class ProductFormComponent {
     return !!control && control.invalid;
   }
 
-  showVariantError(variantIndex: number, field: string): boolean {
+  showSizeError(colorIndex: number, sizeIndex: number, field: string): boolean {
     if (!this.submitted()) return false;
-    const control = this.variantsArray.at(variantIndex)?.get(field);
+    const control = this.getSizesArray(colorIndex).at(sizeIndex)?.get(field);
     return !!control && control.invalid;
   }
 
-  // --- Sizes (product-level) ---
+  // --- Total stock (computed from all size entries across all colors) ---
 
-  selectedSizes(): string[] {
-    const val = this.form.controls.sizes.value;
-    return val ? val.split(',') : [];
-  }
-
-  isSizeSelected(size: string): boolean {
-    return this.selectedSizes().includes(size);
-  }
-
-  toggleSize(size: string) {
-    const current = this.selectedSizes();
-    const updated = current.includes(size)
-      ? current.filter((s) => s !== size)
-      : [...current, size];
-    this.form.controls.sizes.setValue(updated.join(','));
-  }
+  totalStock = computed(() => {
+    let total = 0;
+    for (let ci = 0; ci < this.colorGroupsArray.length; ci++) {
+      const sizes = this.getSizesArray(ci);
+      for (let si = 0; si < sizes.length; si++) {
+        total += Number(sizes.at(si).get('stock')?.value) || 0;
+      }
+    }
+    return total;
+  });
 
   // --- Constructor ---
 
@@ -499,7 +484,6 @@ export class ProductFormComponent {
         this.productId = id;
         this.http.get<IProduct>(`/api/products/${id}`).subscribe({
           next: (product) => {
-            // Get price/stock from first variant (shared across all)
             const firstVariant = product.variants?.[0];
             this.form.patchValue({
               companyId: product.companyId,
@@ -512,19 +496,25 @@ export class ProductFormComponent {
               status: product.status || ProductStatus.PUBLISHED,
               price: firstVariant?.price || 0,
               compareAtPrice: firstVariant?.compareAtPrice || null,
-              stock: firstVariant?.stock || 0,
-              sizes: firstVariant?.attributes?.['sizes'] || '',
             });
 
-            this.imagesArray.clear();
-            (product.images || []).forEach((url) => {
-              this.imagesArray.push(new FormControl(url, { nonNullable: true }));
-            });
-
-            this.variantsArray.clear();
-            (product.variants || []).forEach((v) => {
-              this.variantsArray.push(this.createVariantGroup(v));
-            });
+            // Group variants by color to reconstruct color groups
+            this.colorGroupsArray.clear();
+            const grouped = new Map<string, IProductVariant[]>();
+            for (const v of product.variants || []) {
+              const color = v.attributes?.['color'] || '';
+              if (!grouped.has(color)) grouped.set(color, []);
+              grouped.get(color)!.push(v);
+            }
+            for (const [colorName, variants] of grouped) {
+              const group = this.createColorGroup();
+              group.patchValue({ colorName, image: variants[0]?.image || '' });
+              const sizesArray = group.get('sizes') as FormArray;
+              for (const v of variants) {
+                sizesArray.push(this.createSizeEntry(v));
+              }
+              this.colorGroupsArray.push(group);
+            }
           },
           error: () => this.error.set('Failed to load product'),
         });
@@ -535,7 +525,7 @@ export class ProductFormComponent {
   // --- Scroll to first error ---
 
   private scrollToFirstError() {
-    const fieldOrder = ['category', 'gender', 'name', 'nameAr', 'description', 'descriptionAr', 'price', 'stock'];
+    const fieldOrder = ['category', 'gender', 'name', 'nameAr', 'description', 'descriptionAr', 'price'];
     for (const field of fieldOrder) {
       const control = this.form.get(field);
       if (control && control.invalid) {
@@ -543,13 +533,13 @@ export class ProductFormComponent {
         return;
       }
     }
-    if (this.variantsArray.length === 0) {
-      document.getElementById('field-variants')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    if (this.colorGroupsArray.length === 0) {
+      document.getElementById('field-colors')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       return;
     }
-    for (let i = 0; i < this.variantsArray.length; i++) {
-      if (this.variantsArray.at(i).invalid) {
-        document.getElementById(`field-variant-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    for (let i = 0; i < this.colorGroupsArray.length; i++) {
+      if (this.colorGroupsArray.at(i).invalid) {
+        document.getElementById(`field-color-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
         return;
       }
     }
@@ -557,65 +547,42 @@ export class ProductFormComponent {
 
   // --- Image Upload ---
 
-  onDragOver(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
+  onDragOver(e: DragEvent, colorIndex: number) {
     e.preventDefault();
     e.stopPropagation();
-    if (target === 'product') this.isDraggingProduct.set(true);
-    else this.isDraggingVariant.set(variantIndex ?? -1);
+    this.isDraggingColor.set(colorIndex);
   }
 
-  onDrop(e: DragEvent, target: 'product' | 'variant', variantIndex?: number) {
+  onDrop(e: DragEvent, colorIndex: number) {
     e.preventDefault();
     e.stopPropagation();
-    this.isDraggingProduct.set(false);
-    this.isDraggingVariant.set(-1);
+    this.isDraggingColor.set(-1);
     const files = e.dataTransfer?.files;
     if (!files?.length) return;
-    if (target === 'product') this.uploadMainImage(files[0]);
-    else if (variantIndex !== undefined) this.uploadVariantImage(files[0], variantIndex);
+    this.uploadColorImage(files[0], colorIndex);
   }
 
-  onFileSelected(e: Event, target: 'product' | 'variant', variantIndex?: number) {
+  onFileSelected(e: Event, colorIndex: number) {
     const input = e.target as HTMLInputElement;
     const files = input.files;
     if (!files?.length) return;
-    if (target === 'product') this.uploadMainImage(files[0]);
-    else if (variantIndex !== undefined) this.uploadVariantImage(files[0], variantIndex);
+    this.uploadColorImage(files[0], colorIndex);
     input.value = '';
   }
 
-  private async uploadMainImage(file: File) {
-    this.uploadingProduct.set(true);
+  private async uploadColorImage(file: File, colorIndex: number) {
+    this.uploadingColor.set(colorIndex);
     try {
       const compressed = await this.compressImage(file);
       const url = await this.uploadFile(compressed);
-      // Replace existing main image
-      if (this.imagesArray.length > 0) {
-        const oldUrl = this.imagesArray.at(0).value;
-        this.imagesArray.at(0).setValue(url);
-        this.deleteFromStorage(oldUrl);
-      } else {
-        this.imagesArray.push(new FormControl(url, { nonNullable: true }));
-      }
-    } catch {
-      this.error.set(`Failed to upload ${file.name}`);
-    }
-    this.uploadingProduct.set(false);
-  }
-
-  private async uploadVariantImage(file: File, variantIndex: number) {
-    this.uploadingVariant.set(variantIndex);
-    try {
-      const compressed = await this.compressImage(file);
-      const url = await this.uploadFile(compressed);
-      const group = this.variantsArray.at(variantIndex);
+      const group = this.colorGroupsArray.at(colorIndex);
       const oldUrl = group.get('image')?.value || '';
       group.get('image')?.setValue(url);
       this.deleteFromStorage(oldUrl);
     } catch {
       this.error.set(`Failed to upload ${file.name}`);
     }
-    this.uploadingVariant.set(-1);
+    this.uploadingColor.set(-1);
   }
 
   private uploadFile(file: File): Promise<string> {
@@ -659,14 +626,12 @@ export class ProductFormComponent {
 
   // --- Image Management ---
 
-  removeImage(index: number) {
-    const url = this.imagesArray.at(index).value;
-    this.imagesArray.removeAt(index);
-    this.deleteFromStorage(url);
+  getColorImage(colorIndex: number): string {
+    return this.colorGroupsArray.at(colorIndex).get('image')?.value || '';
   }
 
-  clearVariantImage(variantIndex: number) {
-    const group = this.variantsArray.at(variantIndex);
+  clearColorImage(colorIndex: number) {
+    const group = this.colorGroupsArray.at(colorIndex);
     const url = group.get('image')?.value || '';
     group.get('image')?.setValue('');
     this.deleteFromStorage(url);
@@ -677,18 +642,29 @@ export class ProductFormComponent {
     this.http.delete('/api/upload/image', { body: { url } }).subscribe();
   }
 
-  // --- Variants ---
+  // --- Color Groups ---
 
-  addVariant() {
-    this.variantsArray.push(this.createVariantGroup());
+  addColorGroup() {
+    this.colorGroupsArray.push(this.createColorGroup());
   }
 
-  removeVariant(index: number) {
-    this.variantsArray.removeAt(index);
+  removeColorGroup(index: number) {
+    const group = this.colorGroupsArray.at(index);
+    const imageUrl = group.get('image')?.value || '';
+    this.deleteFromStorage(imageUrl);
+    this.colorGroupsArray.removeAt(index);
   }
 
-  getVariantImage(index: number): string {
-    return this.variantsArray.at(index).get('image')?.value || '';
+  getSizesArray(colorIndex: number): FormArray {
+    return this.colorGroupsArray.at(colorIndex).get('sizes') as FormArray;
+  }
+
+  addSizeEntry(colorIndex: number) {
+    this.getSizesArray(colorIndex).push(this.createSizeEntry());
+  }
+
+  removeSizeEntry(colorIndex: number, sizeIndex: number) {
+    this.getSizesArray(colorIndex).removeAt(sizeIndex);
   }
 
   // --- Submit ---
@@ -707,7 +683,11 @@ export class ProductFormComponent {
     this.submitted.set(true);
     this.form.markAllAsTouched();
 
-    if (this.form.invalid || this.variantsArray.length === 0) {
+    const hasAnySizes = this.colorGroupsArray.controls.some(
+      (cg) => (cg.get('sizes') as FormArray).length > 0
+    );
+
+    if (this.form.invalid || this.colorGroupsArray.length === 0 || !hasAnySizes) {
       this.scrollToFirstError();
       return;
     }
@@ -716,7 +696,25 @@ export class ProductFormComponent {
     this.error.set('');
 
     const raw = this.form.getRawValue();
-    const sizes = raw.sizes;
+
+    // Flatten color groups → variants for the API
+    const variants: any[] = [];
+    for (const cg of raw.colorGroups as any[]) {
+      for (const se of cg.sizes) {
+        const attributes: Record<string, string> = {};
+        if (cg.colorName?.trim()) attributes['color'] = cg.colorName.trim();
+        if (se.size?.trim()) attributes['size'] = se.size.trim();
+        variants.push({
+          ...(se.id ? { id: se.id } : {}),
+          sku: se.sku,
+          price: Number(raw.price),
+          compareAtPrice: raw.compareAtPrice ? Number(raw.compareAtPrice) : undefined,
+          stock: Number(se.stock),
+          image: cg.image?.trim() || undefined,
+          attributes,
+        });
+      }
+    }
 
     const body = {
       companyId: raw.companyId,
@@ -727,21 +725,8 @@ export class ProductFormComponent {
       category: raw.category,
       gender: raw.gender,
       status: raw.status,
-      images: raw.images.filter((url: string) => url.trim() !== ''),
-      variants: raw.variants.map((v: any) => {
-        const attributes: Record<string, string> = {};
-        if (v.colorName?.trim()) attributes['color'] = v.colorName.trim();
-        if (sizes) attributes['sizes'] = sizes;
-        return {
-          ...(v.id ? { id: v.id } : {}),
-          sku: v.sku,
-          price: Number(raw.price),
-          compareAtPrice: raw.compareAtPrice ? Number(raw.compareAtPrice) : undefined,
-          stock: Number(raw.stock),
-          image: v.image?.trim() || undefined,
-          attributes,
-        };
-      }),
+      images: [],
+      variants,
     };
 
     const request$ = this.isEditMode()
@@ -757,12 +742,22 @@ export class ProductFormComponent {
     });
   }
 
-  private createVariantGroup(variant?: IProductVariant): FormGroup {
+  // --- Form Group Factories ---
+
+  private createColorGroup(): FormGroup {
+    return new FormGroup({
+      colorName: new FormControl('', { nonNullable: true }),
+      image: new FormControl('', { nonNullable: true }),
+      sizes: new FormArray<FormGroup>([]),
+    });
+  }
+
+  private createSizeEntry(variant?: IProductVariant): FormGroup {
     return new FormGroup({
       id: new FormControl(variant?.id || '', { nonNullable: true }),
-      colorName: new FormControl(variant?.attributes?.['color'] || '', { nonNullable: true }),
+      size: new FormControl(variant?.attributes?.['size'] || '', { nonNullable: true, validators: [Validators.required] }),
+      stock: new FormControl(variant?.stock || 0, { nonNullable: true, validators: [Validators.required, Validators.min(0)] }),
       sku: new FormControl(variant?.sku || '', { nonNullable: true, validators: [Validators.required] }),
-      image: new FormControl(variant?.image || '', { nonNullable: true }),
     });
   }
 }

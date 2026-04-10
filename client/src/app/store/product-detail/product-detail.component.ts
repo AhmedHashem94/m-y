@@ -120,8 +120,8 @@ import { LanguageService } from '../../services/language.service';
                 <h2 class="text-sm font-semibold text-foreground mb-3">{{ 'store.select_variant' | translate }}</h2>
                 <div class="flex flex-wrap gap-2">
                   @for (variant of product()!.variants; track variant.id) {
-                    @if (getVariantColor(variant); as color) {
-                      <!-- Color swatch variant -->
+                    @if (!variant.attributes?.['size'] && getVariantColor(variant); as color) {
+                      <!-- Color swatch variant (color-only, no size) -->
                       <button
                         class="relative h-10 w-10 rounded-full border-2 transition-all"
                         [class]="variant.id === selectedVariant()?.id
@@ -138,12 +138,13 @@ import { LanguageService } from '../../services/language.service';
                         }
                       </button>
                     } @else {
-                      <!-- Text variant -->
+                      <!-- Text variant (color + size) -->
                       <button
                         class="rounded-md border px-3 py-2 text-sm transition-colors"
                         [class]="variant.id === selectedVariant()?.id
                           ? 'border-primary bg-primary text-primary-foreground font-medium'
                           : 'border-border text-foreground hover:border-primary/50'"
+                        [class.line-through]="!variant.isActive || variant.stock <= 0"
                         [disabled]="!variant.isActive || variant.stock <= 0"
                         (click)="selectVariant(variant)">
                         {{ formatVariantLabel(variant) }}
@@ -396,7 +397,11 @@ export class ProductDetailComponent {
   formatVariantLabel(variant: IProductVariant): string {
     const attrs = variant.attributes;
     if (!attrs || Object.keys(attrs).length === 0) return variant.sku;
-    return Object.values(attrs).join(' / ');
+    const parts: string[] = [];
+    if (attrs['color']) parts.push(attrs['color']);
+    if (attrs['size']) parts.push(attrs['size']);
+    if (parts.length === 0) return Object.values(attrs).join(' / ');
+    return parts.join(' / ');
   }
 
   getVariantColor(variant: IProductVariant): string | null {
