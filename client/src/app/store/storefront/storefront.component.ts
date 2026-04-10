@@ -6,7 +6,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmSelectImports } from '@spartan-ng/helm/select';
 import { BrnSelectImports } from '@spartan-ng/brain/select';
-import { IProduct, ICompany } from '@mamy/shared-models';
+import { IProduct /* , ICompany */ } from '@mamy/shared-models';
 import { LanguageService } from '../../services/language.service';
 
 @Component({
@@ -53,7 +53,7 @@ import { LanguageService } from '../../services/language.service';
           </hlm-select-content>
         </brn-select>
 
-        <!-- Brand Filter -->
+        <!-- Brand Filter (commented out for now)
         <brn-select hlm [value]="companyFilter()" (valueChange)="setCompanyFilter($event)" [placeholder]="'store.all_brands' | translate">
           <hlm-select-trigger class="w-40 sm:w-45">
             <hlm-select-value />
@@ -65,6 +65,7 @@ import { LanguageService } from '../../services/language.service';
             }
           </hlm-select-content>
         </brn-select>
+        -->
 
         <!-- Results count -->
         <span class="text-sm text-muted-foreground sm:ms-auto text-center sm:text-end">
@@ -126,12 +127,13 @@ import { LanguageService } from '../../services/language.service';
                   }
                 </div>
                 <div hlmCardContent class="p-3">
-                  <!-- Brand -->
+                  <!-- Brand (commented out for now)
                   @if (product.company) {
                     <p class="text-xs text-muted-foreground mb-1">
                       {{ isAr() ? product.company.nameAr : product.company.name }}
                     </p>
                   }
+                  -->
                   <!-- Name -->
                   <h3 class="font-semibold text-sm text-foreground line-clamp-2 mb-2">
                     {{ isAr() ? product.nameAr : product.name }}
@@ -165,12 +167,12 @@ export class StorefrontComponent {
   private readonly langService = inject(LanguageService);
 
   readonly products = signal<IProduct[]>([]);
-  readonly companies = signal<ICompany[]>([]);
+  // readonly companies = signal<ICompany[]>([]);
   readonly loading = signal(true);
 
   readonly genderFilter = signal<string | null>(null);
   readonly categoryFilter = signal<string>('');
-  readonly companyFilter = signal<string>('');
+  // readonly companyFilter = signal<string>('');
 
   readonly categories = computed(() =>
     [...new Set(this.products().map((p) => p.category))]
@@ -182,7 +184,7 @@ export class StorefrontComponent {
     let result = this.products();
     const gender = this.genderFilter();
     const category = this.categoryFilter();
-    const companyId = this.companyFilter();
+    // const companyId = this.companyFilter();
 
     if (gender) {
       result = result.filter((p) => p.gender === gender);
@@ -190,9 +192,9 @@ export class StorefrontComponent {
     if (category) {
       result = result.filter((p) => p.category === category);
     }
-    if (companyId) {
-      result = result.filter((p) => p.companyId === companyId);
-    }
+    // if (companyId) {
+    //   result = result.filter((p) => p.companyId === companyId);
+    // }
     return result;
   });
 
@@ -208,7 +210,7 @@ export class StorefrontComponent {
       });
 
       this.loadProducts();
-      this.loadCompanies();
+      // this.loadCompanies();
     });
   }
 
@@ -224,9 +226,9 @@ export class StorefrontComponent {
     this.categoryFilter.set(Array.isArray(value) ? value[0] ?? '' : value);
   }
 
-  setCompanyFilter(value: string | string[]) {
-    this.companyFilter.set(Array.isArray(value) ? value[0] ?? '' : value);
-  }
+  // setCompanyFilter(value: string | string[]) {
+  //   this.companyFilter.set(Array.isArray(value) ? value[0] ?? '' : value);
+  // }
 
   getMinPrice(product: IProduct): number {
     if (!product.variants?.length) return 0;
@@ -269,9 +271,9 @@ export class StorefrontComponent {
     });
   }
 
-  private loadCompanies() {
-    this.http.get<ICompany[]>('/api/companies').subscribe({
-      next: (companies) => this.companies.set(companies),
-    });
-  }
+  // private loadCompanies() {
+  //   this.http.get<ICompany[]>('/api/companies').subscribe({
+  //     next: (companies) => this.companies.set(companies),
+  //   });
+  // }
 }
