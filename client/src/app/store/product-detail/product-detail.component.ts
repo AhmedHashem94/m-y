@@ -331,15 +331,47 @@ export class ProductDetailComponent {
     return this.cartService.getItemQuantity(v.id);
   });
 
-  /** Combines product images + unique variant images into one gallery */
+  readonly selectedColor = signal<string | null>(null);
+
+  /** Map of color name → images array (from first variant of each color) */
+  readonly colorImageMap = computed(() => {
+    const p = this.product();
+    if (!p?.variants) return new Map<string, string[]>();
+    const map = new Map<string, string[]>();
+    for (const v of p.variants) {
+      const color = v.attributes?.['color'] || '';
+      if (!map.has(color) && v.images?.length) {
+        map.set(color, v.images);
+      }
+    }
+    return map;
+  });
+
+  /** Gallery: selected color's images first, then all others */
   readonly galleryImages = computed(() => {
     const p = this.product();
     if (!p) return [];
-    const images = [...(p.images || [])];
-    // Add variant images that aren't already in the product images
+    const color = this.selectedColor();
+    const colorMap = this.colorImageMap();
+
+    if (color !== null && colorMap.has(color)) {
+      const colorImages = colorMap.get(color) || [];
+      const otherImages: string[] = [];
+      for (const [c, imgs] of colorMap) {
+        if (c !== color) {
+          for (const img of imgs) {
+            if (!otherImages.includes(img)) otherImages.push(img);
+          }
+        }
+      }
+      return [...colorImages, ...otherImages];
+    }
+
+    // No color selected: flat gallery of all variant images (deduped)
+    const images: string[] = [];
     for (const v of p.variants || []) {
-      if (v.image && !images.includes(v.image)) {
-        images.push(v.image);
+      for (const img of v.images || []) {
+        if (!images.includes(img)) images.push(img);
       }
     }
     return images;
@@ -357,11 +389,9 @@ export class ProductDetailComponent {
   selectVariant(variant: IProductVariant) {
     this.selectedVariant.set(variant);
     this.quantity.set(1);
-    // Switch to variant image if available
-    if (variant.image) {
-      const idx = this.galleryImages().indexOf(variant.image);
-      if (idx >= 0) this.activeImageIndex.set(idx);
-    }
+    const color = variant.attributes?.['color'] || '';
+    this.selectedColor.set(color);
+    this.activeImageIndex.set(0);
   }
 
   // Lightbox methods
@@ -470,7 +500,7 @@ export class ProductDetailComponent {
       sku: variant.sku,
       price: variant.price,
       quantity: this.quantity(),
-      image: variant.image || product.images?.[0] || '',
+      image: variant.images?.[0] || product.images?.[0] || '',
       attributes: variant.attributes,
     });
 
@@ -495,18 +525,19 @@ export class ProductDetailComponent {
 
         // Auto-select first active variant
         const firstActive = product.variants?.find((v) => v.isActive && v.stock > 0);
-        if (firstActive) {
-          this.selectedVariant.set(firstActive);
-        } else if (product.variants?.length) {
-          this.selectedVariant.set(product.variants[0]);
+        const autoSelected = firstActive || product.variants?.[0] || null;
+        if (autoSelected) {
+          this.selectedVariant.set(autoSelected);
+          this.selectedColor.set(autoSelected.attributes?.['color'] || '');
         }
 
         // SEO
         const name = this.isAr() ? product.nameAr : product.name;
         this.title.setTitle(`${name} - MAMY Store`);
         this.meta.updateTag({ name: 'description', content: this.isAr() ? product.descriptionAr : product.description });
-        if (product.images?.[0]) {
-          this.meta.updateTag({ property: 'og:image', content: product.images[0] });
+        const ogImage = product.images?.[0] || product.variants?.[0]?.images?.[0];
+        if (ogImage) {
+          this.meta.updateTag({ property: 'og:image', content: ogImage });
         }
       },
       error: () => {

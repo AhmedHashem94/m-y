@@ -84,7 +84,7 @@ export interface IProductVariant {
   compareAtPrice?: number;
   stock: number;
   attributes: VariantAttributes;
-  image?: string;
+  images: string[];
   isActive: boolean;
   createdAt: string;
 }

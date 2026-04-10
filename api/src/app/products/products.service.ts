@@ -180,7 +180,7 @@ export class ProductsService {
 
     const { data: variantRows } = await this.supabase
       .from('product_variants')
-      .select('image')
+      .select('images')
       .eq('product_id', id);
 
     // Collect all storage file paths to delete
@@ -199,7 +199,9 @@ export class ProductsService {
     }
     if (variantRows) {
       for (const row of variantRows) {
-        if (row.image) extractPath(row.image);
+        for (const url of row.images || []) {
+          extractPath(url);
+        }
       }
     }
 
@@ -310,7 +312,7 @@ export class ProductsService {
       compareAtPrice: row['compare_at_price'] as number | undefined,
       stock: row['stock'] as number,
       attributes: (row['attributes'] as Record<string, string>) || {},
-      image: row['image'] as string | undefined,
+      images: (row['images'] as string[]) || [],
       isActive: row['is_active'] as boolean,
       createdAt: row['created_at'] as string,
     };
@@ -343,7 +345,7 @@ export class ProductsService {
       row['compare_at_price'] = dto.compareAtPrice;
     if (dto.stock !== undefined) row['stock'] = dto.stock;
     if (dto.attributes !== undefined) row['attributes'] = dto.attributes;
-    if (dto.image !== undefined) row['image'] = dto.image;
+    if (dto.images !== undefined) row['images'] = dto.images || [];
     if (dto.isActive !== undefined) row['is_active'] = dto.isActive;
     return row;
   }

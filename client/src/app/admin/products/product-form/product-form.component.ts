@@ -53,359 +53,7 @@ function arabicOnly(c: AbstractControl): ValidationErrors | null {
     ...HlmCardImports, HlmInput, HlmLabel, ...HlmSelectImports, ...BrnSelectImports, TranslateModule,
   ],
   providers: [provideIcons({ lucideUpload, lucideX, lucideLoader, lucideAlertCircle, lucidePlus })],
-  template: `
-    <div class="flex items-center justify-between mb-4 sm:mb-6">
-      <h1 class="text-xl sm:text-2xl font-bold">
-        @if (isEditMode()) {
-          {{ 'admin.edit_product' | translate }}
-        } @else {
-          {{ 'admin.add_product' | translate }}
-        }
-      </h1>
-      <a routerLink="/admin/products" hlmBtn variant="outline" size="sm" class="sm:size-default">
-        {{ 'common.back' | translate }}
-      </a>
-    </div>
-
-    <form [formGroup]="form" (ngSubmit)="onSubmit()" class="space-y-6 sm:space-y-8">
-
-      <!-- ═══ 1. Product Info ═══ -->
-      <section hlmCard>
-        <div hlmCardHeader>
-          <h2 hlmCardTitle>{{ 'store.product_detail' | translate }}</h2>
-        </div>
-        <div hlmCardContent class="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <!-- Company -->
-          <div class="flex flex-col gap-2">
-            <label hlmLabel>{{ 'admin.select_company' | translate }}</label>
-            <brn-select hlm formControlName="companyId" [placeholder]="'admin.select_company' | translate">
-              <hlm-select-trigger><hlm-select-value /></hlm-select-trigger>
-              <hlm-select-content hlmSelectContent>
-                <hlm-option value="">{{ 'admin.select_company' | translate }}</hlm-option>
-                @for (company of companies(); track company.id) {
-                  <hlm-option [value]="company.id">{{ company.nameAr }} ({{ company.name }})</hlm-option>
-                }
-              </hlm-select-content>
-            </brn-select>
-          </div>
-
-          <!-- Category -->
-          <div class="flex flex-col gap-2" id="field-category">
-            <label hlmLabel>{{ 'admin.select_category' | translate }}</label>
-            <brn-select hlm formControlName="category" [placeholder]="'admin.select_category' | translate">
-              <hlm-select-trigger [class.border-destructive]="showError('category')">
-                <hlm-select-value />
-              </hlm-select-trigger>
-              <hlm-select-content hlmSelectContent>
-                @for (cat of categories; track cat) {
-                  <hlm-option [value]="cat">{{ 'categories.' + cat | translate }}</hlm-option>
-                }
-              </hlm-select-content>
-            </brn-select>
-            @if (showError('category')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                {{ 'admin.validation.category_required' | translate }}
-              </span>
-            }
-          </div>
-
-          <!-- Gender -->
-          <div class="flex flex-col gap-2" id="field-gender">
-            <label hlmLabel>{{ 'admin.select_gender' | translate }}</label>
-            <brn-select hlm formControlName="gender" [placeholder]="'admin.select_gender' | translate">
-              <hlm-select-trigger [class.border-destructive]="showError('gender')">
-                <hlm-select-value />
-              </hlm-select-trigger>
-              <hlm-select-content hlmSelectContent>
-                @for (g of genders; track g) {
-                  <hlm-option [value]="g">{{ 'gender.' + g | translate }}</hlm-option>
-                }
-              </hlm-select-content>
-            </brn-select>
-            @if (showError('gender')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                {{ 'admin.validation.gender_required' | translate }}
-              </span>
-            }
-          </div>
-
-          <!-- Name EN -->
-          <div class="flex flex-col gap-2" id="field-name">
-            <label hlmLabel for="name">{{ 'admin.name_en' | translate }}</label>
-            <input hlmInput id="name" formControlName="name" dir="ltr"
-              [class.border-destructive]="showError('name')" />
-            @if (showError('name')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                @if (form.controls.name.errors?.['required']) {
-                  {{ 'admin.validation.required' | translate }}
-                } @else {
-                  {{ 'admin.validation.name_en_pattern' | translate }}
-                }
-              </span>
-            }
-          </div>
-
-          <!-- Name AR -->
-          <div class="flex flex-col gap-2" id="field-nameAr">
-            <label hlmLabel for="nameAr">{{ 'admin.name_ar' | translate }}</label>
-            <input hlmInput id="nameAr" formControlName="nameAr"
-              [class.border-destructive]="showError('nameAr')" />
-            @if (showError('nameAr')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                @if (form.controls.nameAr.errors?.['required']) {
-                  {{ 'admin.validation.required' | translate }}
-                } @else {
-                  {{ 'admin.validation.name_ar_pattern' | translate }}
-                }
-              </span>
-            }
-          </div>
-
-          <!-- Description EN -->
-          <div class="flex flex-col gap-2 md:col-span-2" id="field-description">
-            <label hlmLabel for="description">{{ 'admin.description_en' | translate }}</label>
-            <textarea hlmInput id="description" formControlName="description" rows="3" dir="ltr"
-              class="min-h-20 resize-y" [class.border-destructive]="showError('description')"></textarea>
-            @if (showError('description')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                {{ 'admin.validation.desc_en_pattern' | translate }}
-              </span>
-            }
-          </div>
-
-          <!-- Description AR -->
-          <div class="flex flex-col gap-2 md:col-span-2" id="field-descriptionAr">
-            <label hlmLabel for="descriptionAr">{{ 'admin.description_ar' | translate }}</label>
-            <textarea hlmInput id="descriptionAr" formControlName="descriptionAr" rows="3"
-              class="min-h-20 resize-y" [class.border-destructive]="showError('descriptionAr')"></textarea>
-            @if (showError('descriptionAr')) {
-              <span class="text-xs text-destructive flex items-center gap-1">
-                <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                {{ 'admin.validation.desc_ar_pattern' | translate }}
-              </span>
-            }
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══ 2. Price ═══ -->
-      <section hlmCard>
-        <div hlmCardHeader>
-          <h2 hlmCardTitle>{{ 'admin.price' | translate }}</h2>
-        </div>
-        <div hlmCardContent>
-          <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            <!-- Price -->
-            <div class="flex flex-col gap-2" id="field-price">
-              <label hlmLabel>{{ 'admin.price' | translate }}</label>
-              <input hlmInput formControlName="price" type="number" dir="ltr"
-                [class.border-destructive]="showError('price')" />
-              @if (showError('price')) {
-                <span class="text-xs text-destructive flex items-center gap-1">
-                  <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-                  {{ 'admin.validation.min_price' | translate }}
-                </span>
-              }
-            </div>
-            <!-- Compare at price -->
-            <div class="flex flex-col gap-2">
-              <label hlmLabel>{{ 'admin.compare_at_price' | translate }}</label>
-              <input hlmInput formControlName="compareAtPrice" type="number" dir="ltr" />
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ═══ 3. Colors & Sizes ═══ -->
-      <section hlmCard id="field-colors">
-        <div hlmCardHeader>
-          <div class="flex items-center justify-between">
-            <div>
-              <h2 hlmCardTitle>{{ 'admin.colors_and_sizes' | translate }}</h2>
-              <p class="text-sm text-muted-foreground mt-1">{{ 'admin.colors_and_sizes_hint' | translate }}</p>
-            </div>
-            <div class="flex items-center gap-3">
-              @if (colorGroupsArray.length > 0) {
-                <span class="text-sm text-muted-foreground">
-                  {{ 'admin.total_stock' | translate }}: <span class="font-bold text-foreground">{{ totalStock() }}</span>
-                </span>
-              }
-              <button type="button" hlmBtn variant="outline" size="sm" (click)="addColorGroup()">
-                {{ 'admin.add_color' | translate }}
-              </button>
-            </div>
-          </div>
-        </div>
-        <div hlmCardContent>
-          @if (colorGroupsArray.length === 0) {
-            <p class="text-sm text-muted-foreground" [class.text-destructive]="submitted() && colorGroupsArray.length === 0">
-              {{ (submitted() && colorGroupsArray.length === 0) ? ('admin.validation.variant_required' | translate) : ('admin.add_color' | translate) }}
-            </p>
-          } @else {
-            <div formArrayName="colorGroups" class="space-y-6">
-              @for (colorGroup of colorGroupsArray.controls; track $index; let ci = $index) {
-                <div class="rounded-lg border p-4 space-y-4" [formGroupName]="ci"
-                  [class.border-destructive]="submitted() && colorGroup.invalid"
-                  [id]="'field-color-' + ci">
-
-                  <!-- Color header: Image + Color Name + Delete -->
-                  <div class="flex items-start gap-4">
-                    <!-- Color Image -->
-                    <div class="shrink-0">
-                      @if (getColorImage(ci)) {
-                        <div class="group relative h-20 w-20 rounded-lg border overflow-hidden bg-muted">
-                          <img [src]="getColorImage(ci)" alt="" class="h-full w-full object-cover" />
-                          <button type="button"
-                            class="absolute top-0.5 inset-e-0.5 rounded-full bg-destructive p-0.5 text-destructive-foreground opacity-100 md:opacity-0 transition-opacity md:group-hover:opacity-100"
-                            (click)="clearColorImage(ci)">
-                            <ng-icon hlmIcon size="xs" name="lucideX" />
-                          </button>
-                        </div>
-                      } @else {
-                        <label
-                          class="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border transition-colors hover:border-primary/50 hover:bg-muted/50"
-                          [class.border-primary]="isDraggingColor() === ci"
-                          (dragover)="onDragOver($event, ci)"
-                          (dragleave)="isDraggingColor.set(-1)"
-                          (drop)="onDrop($event, ci)">
-                          @if (uploadingColor() === ci) {
-                            <ng-icon hlmIcon size="sm" name="lucideLoader" class="animate-spin text-muted-foreground" />
-                          } @else {
-                            <ng-icon hlmIcon size="sm" name="lucideUpload" class="text-muted-foreground" />
-                            <span class="text-[10px] text-muted-foreground">{{ 'admin.upload_image' | translate }}</span>
-                          }
-                          <input type="file" class="hidden" accept="image/jpeg,image/png,image/webp"
-                            (change)="onFileSelected($event, ci)" />
-                        </label>
-                      }
-                    </div>
-
-                    <!-- Color Name -->
-                    <div class="flex flex-col gap-1 flex-1">
-                      <label hlmLabel class="text-xs">{{ 'admin.color_name' | translate }}</label>
-                      <input hlmInput formControlName="colorName"
-                        [placeholder]="'admin.color_name_placeholder' | translate" />
-                    </div>
-
-                    <!-- Delete Color -->
-                    <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0"
-                      (click)="removeColorGroup(ci)">
-                      <ng-icon hlmIcon size="sm" name="lucideX" />
-                    </button>
-                  </div>
-
-                  <!-- Sizes table -->
-                  <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                      <label hlmLabel class="text-xs">{{ 'admin.available_sizes' | translate }}</label>
-                      <button type="button" hlmBtn variant="ghost" size="sm" (click)="addSizeEntry(ci)">
-                        <ng-icon hlmIcon size="xs" name="lucidePlus" class="me-1" />
-                        {{ 'admin.add_size' | translate }}
-                      </button>
-                    </div>
-
-                    @if (getSizesArray(ci).length === 0) {
-                      <p class="text-xs text-muted-foreground"
-                        [class.text-destructive]="submitted()">
-                        {{ 'admin.add_size_hint' | translate }}
-                      </p>
-                    } @else {
-                      <div formArrayName="sizes" class="space-y-2">
-                        @for (sizeEntry of getSizesArray(ci).controls; track $index; let si = $index) {
-                          <div class="flex items-center gap-2 sm:gap-3" [formGroupName]="si">
-                            <!-- Size select -->
-                            <div class="flex flex-col gap-1 w-20 sm:w-24">
-                              @if (si === 0) {
-                                <span class="text-[10px] text-muted-foreground">{{ 'admin.size' | translate }}</span>
-                              }
-                              <brn-select hlm formControlName="size" [placeholder]="'--'">
-                                <hlm-select-trigger class="w-full h-9"
-                                  [class.border-destructive]="showSizeError(ci, si, 'size')">
-                                  <hlm-select-value />
-                                </hlm-select-trigger>
-                                <hlm-select-content hlmSelectContent>
-                                  @for (s of availableSizes; track s) {
-                                    <hlm-option [value]="s">{{ s }}</hlm-option>
-                                  }
-                                </hlm-select-content>
-                              </brn-select>
-                            </div>
-
-                            <!-- Amount -->
-                            <div class="flex flex-col gap-1 w-20 sm:w-24">
-                              @if (si === 0) {
-                                <span class="text-[10px] text-muted-foreground">{{ 'admin.amount' | translate }}</span>
-                              }
-                              <input hlmInput formControlName="stock" type="number" dir="ltr" min="0"
-                                class="h-9"
-                                [class.border-destructive]="showSizeError(ci, si, 'stock')" />
-                            </div>
-
-                            <!-- SKU -->
-                            <div class="flex flex-col gap-1 flex-1">
-                              @if (si === 0) {
-                                <span class="text-[10px] text-muted-foreground">{{ 'admin.sku' | translate }}</span>
-                              }
-                              <input hlmInput formControlName="sku" dir="ltr"
-                                class="h-9"
-                                [class.border-destructive]="showSizeError(ci, si, 'sku')" />
-                            </div>
-
-                            <!-- Delete size -->
-                            <button type="button" hlmBtn variant="ghost" size="icon" class="shrink-0 h-9 w-9"
-                              [class.mt-4]="si === 0"
-                              (click)="removeSizeEntry(ci, si)">
-                              <ng-icon hlmIcon size="xs" name="lucideX" />
-                            </button>
-                          </div>
-                        }
-                      </div>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-        </div>
-      </section>
-
-      @if (error()) {
-        <p class="text-sm text-destructive">{{ error() }}</p>
-      }
-
-      @if (submitted() && form.invalid) {
-        <p class="text-sm text-destructive flex items-center gap-1">
-          <ng-icon hlmIcon size="sm" name="lucideAlertCircle" />
-          {{ 'admin.validation.fix_errors' | translate }}
-        </p>
-      }
-
-      <div class="flex gap-3">
-        <button hlmBtn type="button" variant="outline" [disabled]="saving()" (click)="onSaveDraft()">
-          @if (saving()) {
-            {{ 'common.loading' | translate }}
-          } @else {
-            {{ 'admin.save_draft' | translate }}
-          }
-        </button>
-        <button hlmBtn type="submit" [disabled]="saving()">
-          @if (saving()) {
-            {{ 'common.loading' | translate }}
-          } @else {
-            {{ 'admin.publish' | translate }}
-          }
-        </button>
-        <a routerLink="/admin/products" hlmBtn variant="ghost">
-          {{ 'common.cancel' | translate }}
-        </a>
-      </div>
-    </form>
-  `,
+  templateUrl: './product-form.component.html',
 })
 export class ProductFormComponent {
   private readonly http = inject(HttpClient);
@@ -508,7 +156,7 @@ export class ProductFormComponent {
             }
             for (const [colorName, variants] of grouped) {
               const group = this.createColorGroup();
-              group.patchValue({ colorName, image: variants[0]?.image || '' });
+              group.patchValue({ colorName, images: variants[0]?.images || [] });
               const sizesArray = group.get('sizes') as FormArray;
               for (const v of variants) {
                 sizesArray.push(this.createSizeEntry(v));
@@ -559,14 +207,18 @@ export class ProductFormComponent {
     this.isDraggingColor.set(-1);
     const files = e.dataTransfer?.files;
     if (!files?.length) return;
-    this.uploadColorImage(files[0], colorIndex);
+    for (const file of Array.from(files)) {
+      this.uploadColorImage(file, colorIndex);
+    }
   }
 
   onFileSelected(e: Event, colorIndex: number) {
     const input = e.target as HTMLInputElement;
     const files = input.files;
     if (!files?.length) return;
-    this.uploadColorImage(files[0], colorIndex);
+    for (const file of Array.from(files)) {
+      this.uploadColorImage(file, colorIndex);
+    }
     input.value = '';
   }
 
@@ -576,9 +228,8 @@ export class ProductFormComponent {
       const compressed = await this.compressImage(file);
       const url = await this.uploadFile(compressed);
       const group = this.colorGroupsArray.at(colorIndex);
-      const oldUrl = group.get('image')?.value || '';
-      group.get('image')?.setValue(url);
-      this.deleteFromStorage(oldUrl);
+      const current: string[] = group.get('images')?.value || [];
+      group.get('images')?.setValue([...current, url]);
     } catch {
       this.error.set(`Failed to upload ${file.name}`);
     }
@@ -626,15 +277,44 @@ export class ProductFormComponent {
 
   // --- Image Management ---
 
-  getColorImage(colorIndex: number): string {
-    return this.colorGroupsArray.at(colorIndex).get('image')?.value || '';
+  getColorImages(colorIndex: number): string[] {
+    return this.colorGroupsArray.at(colorIndex).get('images')?.value || [];
   }
 
-  clearColorImage(colorIndex: number) {
+  removeColorImage(colorIndex: number, imageIndex: number) {
     const group = this.colorGroupsArray.at(colorIndex);
-    const url = group.get('image')?.value || '';
-    group.get('image')?.setValue('');
-    this.deleteFromStorage(url);
+    const current: string[] = [...(group.get('images')?.value || [])];
+    const [removed] = current.splice(imageIndex, 1);
+    group.get('images')?.setValue(current);
+    this.deleteFromStorage(removed);
+  }
+
+  // --- Image Reorder (drag within a color) ---
+
+  private dragSourceColor = -1;
+  private dragSourceIndex = -1;
+
+  onImageDragStart(e: DragEvent, colorIndex: number, imageIndex: number) {
+    this.dragSourceColor = colorIndex;
+    this.dragSourceIndex = imageIndex;
+    if (e.dataTransfer) e.dataTransfer.effectAllowed = 'move';
+  }
+
+  onImageDragOver(e: DragEvent) {
+    e.preventDefault();
+    if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+  }
+
+  onImageDrop(e: DragEvent, colorIndex: number, targetIndex: number) {
+    e.preventDefault();
+    if (this.dragSourceColor !== colorIndex) return;
+    const group = this.colorGroupsArray.at(colorIndex);
+    const current: string[] = [...(group.get('images')?.value || [])];
+    const [moved] = current.splice(this.dragSourceIndex, 1);
+    current.splice(targetIndex, 0, moved);
+    group.get('images')?.setValue(current);
+    this.dragSourceColor = -1;
+    this.dragSourceIndex = -1;
   }
 
   private deleteFromStorage(url: string) {
@@ -650,8 +330,10 @@ export class ProductFormComponent {
 
   removeColorGroup(index: number) {
     const group = this.colorGroupsArray.at(index);
-    const imageUrl = group.get('image')?.value || '';
-    this.deleteFromStorage(imageUrl);
+    const images: string[] = group.get('images')?.value || [];
+    for (const url of images) {
+      this.deleteFromStorage(url);
+    }
     this.colorGroupsArray.removeAt(index);
   }
 
@@ -710,7 +392,7 @@ export class ProductFormComponent {
           price: Number(raw.price),
           compareAtPrice: raw.compareAtPrice ? Number(raw.compareAtPrice) : undefined,
           stock: Number(se.stock),
-          image: cg.image?.trim() || undefined,
+          images: (cg.images as string[])?.filter((url: string) => url?.trim()) || [],
           attributes,
         });
       }
@@ -747,7 +429,7 @@ export class ProductFormComponent {
   private createColorGroup(): FormGroup {
     return new FormGroup({
       colorName: new FormControl('', { nonNullable: true }),
-      image: new FormControl('', { nonNullable: true }),
+      images: new FormControl<string[]>([], { nonNullable: true }),
       sizes: new FormArray<FormGroup>([]),
     });
   }

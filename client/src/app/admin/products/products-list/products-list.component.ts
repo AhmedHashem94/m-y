@@ -4,7 +4,7 @@ import { RouterLink } from '@angular/router';
 import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmTable, HlmTableContainer, HlmTHead, HlmTBody, HlmTr, HlmTh, HlmTd } from '@spartan-ng/helm/table';
 import { TranslateModule } from '@ngx-translate/core';
-import { IProduct, ProductStatus } from '@mamy/shared-models';
+import { IProduct } from '@mamy/shared-models';
 
 @Component({
   selector: 'app-products-list',
@@ -28,8 +28,8 @@ import { IProduct, ProductStatus } from '@mamy/shared-models';
         @for (product of products(); track product.id) {
           <div class="rounded-lg border bg-card p-4">
             <div class="flex items-start gap-3 mb-3">
-              @if (product.images && product.images.length > 0) {
-                <img [src]="product.images[0]" [alt]="product.nameAr" class="h-14 w-14 rounded object-cover shrink-0" />
+              @if (getProductThumb(product); as thumb) {
+                <img [src]="thumb" [alt]="product.nameAr" class="h-14 w-14 rounded object-cover shrink-0" />
               } @else {
                 <div class="h-14 w-14 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs shrink-0">--</div>
               }
@@ -89,8 +89,8 @@ import { IProduct, ProductStatus } from '@mamy/shared-models';
             @for (product of products(); track product.id) {
               <tr hlmTr>
                 <td hlmTd>
-                  @if (product.images && product.images.length > 0) {
-                    <img [src]="product.images[0]" [alt]="product.nameAr" class="h-12 w-12 rounded object-cover" />
+                  @if (getProductThumb(product); as thumb) {
+                    <img [src]="thumb" [alt]="product.nameAr" class="h-12 w-12 rounded object-cover" />
                   } @else {
                     <div class="h-12 w-12 rounded bg-muted flex items-center justify-center text-muted-foreground text-xs">--</div>
                   }
@@ -174,6 +174,10 @@ export class ProductsListComponent {
     const max = Math.max(...prices);
     if (min === max) return `${min}`;
     return `${min} - ${max}`;
+  }
+
+  getProductThumb(product: IProduct): string {
+    return product.images?.[0] || product.variants?.[0]?.images?.[0] || '';
   }
 
   deleteProduct(product: IProduct) {

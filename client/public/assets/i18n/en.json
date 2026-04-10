@@ -192,6 +192,7 @@
     "drop_images": "Drop images here or click to browse",
     "upload_image": "Upload image",
     "variant_image_hint": "Image for this color/size — shown when selected in the store",
+    "main": "Main",
     "max_size": "Max",
     "save_draft": "Save as Draft",
     "publish": "Publish",

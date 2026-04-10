@@ -90,9 +90,9 @@ import { LanguageService } from '../../services/language.service';
               <section hlmCard class="overflow-hidden transition-shadow hover:shadow-lg">
                 <!-- Product Image -->
                 <div class="relative aspect-[3/4] overflow-hidden bg-muted">
-                  @if (product.images?.length) {
+                  @if (getProductImage(product); as imgUrl) {
                     <img
-                      [src]="product.images[0]"
+                      [src]="imgUrl"
                       [alt]="isAr() ? product.nameAr : product.name"
                       class="h-full w-full object-cover transition-transform group-hover:scale-105"
                       [class.grayscale]="isOutOfStock(product)"
@@ -251,6 +251,10 @@ export class StorefrontComponent {
     if (!compareAt) return null;
     const price = this.getMinPrice(product);
     return Math.round(((compareAt - price) / compareAt) * 100);
+  }
+
+  getProductImage(product: IProduct): string {
+    return product.images?.[0] || product.variants?.[0]?.images?.[0] || '';
   }
 
   isOutOfStock(product: IProduct): boolean {

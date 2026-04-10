@@ -78,8 +78,9 @@ export class CreateVariantDto {
   attributes: Record<string, string>;
 
   @IsOptional()
-  @IsString()
-  image?: string;
+  @IsArray()
+  @IsString({ each: true })
+  images?: string[];
 
   @IsOptional()
   @IsBoolean()
