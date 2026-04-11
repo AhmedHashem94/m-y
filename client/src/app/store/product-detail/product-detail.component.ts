@@ -53,6 +53,52 @@ export class ProductDetailComponent {
   });
 
   readonly selectedColor = signal<string | null>(null);
+  readonly selectedSize = signal<string | null>(null);
+
+  /** Unique color names from all variants */
+  readonly uniqueColors = computed(() => {
+    const p = this.product();
+    if (!p?.variants) return [] as string[];
+    const seen = new Set<string>();
+    const colors: string[] = [];
+    for (const v of p.variants) {
+      const c = v.attributes?.['color'] || '';
+      if (c && !seen.has(c)) { seen.add(c); colors.push(c); }
+    }
+    return colors;
+  });
+
+  /** Unique sizes available for the selected color */
+  readonly availableSizes = computed(() => {
+    const p = this.product();
+    const color = this.selectedColor();
+    if (!p?.variants) return [] as string[];
+    const seen = new Set<string>();
+    const sizes: string[] = [];
+    for (const v of p.variants) {
+      const vc = v.attributes?.['color'] || '';
+      const vs = v.attributes?.['size'] || '';
+      if (vs && vc === color && !seen.has(vs)) { seen.add(vs); sizes.push(vs); }
+    }
+    return sizes;
+  });
+
+  /** Whether this product uses color+size variant structure */
+  readonly hasColorSizeVariants = computed(() => {
+    const p = this.product();
+    if (!p?.variants?.length) return false;
+    return p.variants.some(v => v.attributes?.['color']) && p.variants.some(v => v.attributes?.['size']);
+  });
+
+  /** Check if a specific size is in stock for the selected color */
+  getSizeVariant(size: string): IProductVariant | null {
+    const p = this.product();
+    const color = this.selectedColor();
+    if (!p?.variants) return null;
+    return p.variants.find(v =>
+      v.attributes?.['color'] === color && v.attributes?.['size'] === size
+    ) || null;
+  }
 
   /** Map of color name → images array (from first variant of each color) */
   readonly colorImageMap = computed(() => {
@@ -112,7 +158,38 @@ export class ProductDetailComponent {
     this.quantity.set(1);
     const color = variant.attributes?.['color'] || '';
     this.selectedColor.set(color);
+    this.selectedSize.set(variant.attributes?.['size'] || null);
     this.activeImageIndex.set(0);
+  }
+
+  selectColor(color: string) {
+    this.selectedColor.set(color);
+    this.activeImageIndex.set(0);
+    // Auto-select same size in new color, or first available
+    const currentSize = this.selectedSize();
+    const p = this.product();
+    if (!p?.variants) return;
+    const match = p.variants.find(v =>
+      v.attributes?.['color'] === color && v.attributes?.['size'] === currentSize && v.isActive && v.stock > 0
+    ) || p.variants.find(v =>
+      v.attributes?.['color'] === color && v.isActive && v.stock > 0
+    ) || p.variants.find(v =>
+      v.attributes?.['color'] === color
+    );
+    if (match) {
+      this.selectedVariant.set(match);
+      this.selectedSize.set(match.attributes?.['size'] || null);
+      this.quantity.set(1);
+    }
+  }
+
+  selectSize(size: string) {
+    this.selectedSize.set(size);
+    const variant = this.getSizeVariant(size);
+    if (variant) {
+      this.selectedVariant.set(variant);
+      this.quantity.set(1);
+    }
   }
 
   // Lightbox methods
@@ -155,32 +232,38 @@ export class ProductDetailComponent {
     return parts.join(' / ');
   }
 
+  private readonly colorMap: Record<string, string> = {
+    red: '#EF4444', أحمر: '#EF4444',
+    blue: '#3B82F6', أزرق: '#3B82F6',
+    green: '#22C55E', أخضر: '#22C55E',
+    yellow: '#EAB308', أصفر: '#EAB308',
+    black: '#1F2937', أسود: '#1F2937',
+    white: '#F9FAFB', أبيض: '#F9FAFB',
+    pink: '#EC4899', وردي: '#EC4899',
+    purple: '#A855F7', بنفسجي: '#A855F7',
+    orange: '#F97316', برتقالي: '#F97316',
+    brown: '#92400E', بني: '#92400E',
+    gray: '#6B7280', grey: '#6B7280', رمادي: '#6B7280',
+    navy: '#1E3A5F', كحلي: '#1E3A5F',
+    beige: '#D4C5A9', بيج: '#D4C5A9',
+    olive: '#808000', زيتي: '#808000',
+    turquoise: '#40E0D0', تركواز: '#40E0D0',
+    fuchsia: '#D946EF', فوشيا: '#D946EF',
+    camel: '#C19A6B', جملي: '#C19A6B',
+  };
+
   getVariantColor(variant: IProductVariant): string | null {
     const color = variant.attributes?.['color'] || variant.attributes?.['Color'] || variant.attributes?.['اللون'];
     if (!color || typeof color !== 'string') return null;
-    // Check if it's a CSS color value (hex, rgb, named color)
     if (color.startsWith('#') || color.startsWith('rgb') || color.startsWith('hsl')) return color;
-    // Map common color names to hex
-    const colorMap: Record<string, string> = {
-      red: '#EF4444', أحمر: '#EF4444',
-      blue: '#3B82F6', أزرق: '#3B82F6',
-      green: '#22C55E', أخضر: '#22C55E',
-      yellow: '#EAB308', أصفر: '#EAB308',
-      black: '#1F2937', أسود: '#1F2937',
-      white: '#F9FAFB', أبيض: '#F9FAFB',
-      pink: '#EC4899', وردي: '#EC4899',
-      purple: '#A855F7', بنفسجي: '#A855F7',
-      orange: '#F97316', برتقالي: '#F97316',
-      brown: '#92400E', بني: '#92400E',
-      gray: '#6B7280', grey: '#6B7280', رمادي: '#6B7280',
-      navy: '#1E3A5F', كحلي: '#1E3A5F',
-      beige: '#D4C5A9', بيج: '#D4C5A9',
-      olive: '#808000', زيتي: '#808000',
-      turquoise: '#40E0D0', تركواز: '#40E0D0',
-      fuchsia: '#D946EF', فوشيا: '#D946EF',
-      camel: '#C19A6B', جملي: '#C19A6B',
-    };
-    return colorMap[color.toLowerCase()] ?? null;
+    return this.colorMap[color.toLowerCase()] ?? null;
+  }
+
+  /** Get hex color from a color name string */
+  getVariantColorHex(colorName: string): string | null {
+    if (!colorName) return null;
+    if (colorName.startsWith('#') || colorName.startsWith('rgb') || colorName.startsWith('hsl')) return colorName;
+    return this.colorMap[colorName.toLowerCase()] ?? null;
   }
 
   getVariantDiscountPercent(): number {
@@ -250,6 +333,7 @@ export class ProductDetailComponent {
         if (autoSelected) {
           this.selectedVariant.set(autoSelected);
           this.selectedColor.set(autoSelected.attributes?.['color'] || '');
+          this.selectedSize.set(autoSelected.attributes?.['size'] || null);
         }
 
         // SEO

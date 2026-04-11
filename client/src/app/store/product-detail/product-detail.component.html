@@ -94,30 +94,77 @@
 
         <!-- Variant Selector -->
         @if (product()!.variants?.length) {
-          <div>
-            <h2 class="text-sm font-semibold text-foreground mb-3">{{ 'store.select_variant' | translate }}</h2>
-            <div class="flex flex-wrap gap-2.5">
-              @for (variant of product()!.variants; track variant.id) {
-                @if (!variant.attributes?.['size'] && getVariantColor(variant); as color) {
-                  <!-- Color swatch variant (color-only, no size) -->
-                  <button
-                    class="relative h-12 w-12 rounded-full border-2 transition-all"
-                    [class]="variant.id === selectedVariant()?.id
-                      ? 'border-primary ring-2 ring-primary/30 scale-110'
-                      : 'border-border hover:border-primary/50'"
-                    [style.background-color]="color"
-                    [disabled]="!variant.isActive || variant.stock <= 0"
-                    [attr.aria-label]="formatVariantLabel(variant)"
-                    [title]="formatVariantLabel(variant)"
-                    (click)="selectVariant(variant)">
-                    @if (!variant.isActive || variant.stock <= 0) {
-                      <span class="absolute inset-0 flex items-center justify-center">
-                        <span class="block h-0.5 w-full rotate-45 bg-muted-foreground/60 rounded-full"></span>
-                      </span>
+          @if (hasColorSizeVariants()) {
+            <!-- Separate Color + Size selectors -->
+            <div class="space-y-4">
+              <!-- Color -->
+              @if (uniqueColors().length > 0) {
+                <div>
+                  <h2 class="text-sm font-semibold text-foreground mb-2">
+                    {{ 'store.color' | translate }}:
+                    <span class="font-normal text-muted-foreground">{{ selectedColor() }}</span>
+                  </h2>
+                  <div class="flex flex-wrap gap-2.5">
+                    @for (color of uniqueColors(); track color) {
+                      @if (getVariantColorHex(color); as hex) {
+                        <button
+                          class="relative h-12 w-12 rounded-full border-2 transition-all"
+                          [class]="color === selectedColor()
+                            ? 'border-primary ring-2 ring-primary/30 scale-110'
+                            : 'border-border hover:border-primary/50'"
+                          [style.background-color]="hex"
+                          [attr.aria-label]="color"
+                          [title]="color"
+                          (click)="selectColor(color)">
+                        </button>
+                      } @else {
+                        <button
+                          class="rounded-lg border min-h-11 px-4 py-2.5 text-sm transition-colors"
+                          [class]="color === selectedColor()
+                            ? 'border-primary bg-primary text-primary-foreground font-medium'
+                            : 'border-border text-foreground hover:border-primary/50'"
+                          [attr.aria-label]="color"
+                          (click)="selectColor(color)">
+                          {{ color }}
+                        </button>
+                      }
                     }
-                  </button>
-                } @else {
-                  <!-- Text variant (color + size) -->
+                  </div>
+                </div>
+              }
+
+              <!-- Size -->
+              @if (availableSizes().length > 0) {
+                <div>
+                  <h2 class="text-sm font-semibold text-foreground mb-2">
+                    {{ 'store.size' | translate }}:
+                    <span class="font-normal text-muted-foreground">{{ selectedSize() }}</span>
+                  </h2>
+                  <div class="flex flex-wrap gap-2">
+                    @for (size of availableSizes(); track size) {
+                      <button
+                        class="rounded-lg border min-h-11 min-w-11 px-4 py-2.5 text-sm font-medium transition-colors"
+                        [class]="size === selectedSize()
+                          ? 'border-primary bg-primary text-primary-foreground'
+                          : 'border-border text-foreground hover:border-primary/50'"
+                        [class.line-through]="getSizeVariant(size)?.stock === 0"
+                        [class.opacity-40]="getSizeVariant(size)?.stock === 0"
+                        [disabled]="getSizeVariant(size)?.stock === 0"
+                        [attr.aria-label]="'Size ' + size"
+                        (click)="selectSize(size)">
+                        {{ size }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          } @else {
+            <!-- Simple variant selector (no color+size structure) -->
+            <div>
+              <h2 class="text-sm font-semibold text-foreground mb-3">{{ 'store.select_variant' | translate }}</h2>
+              <div class="flex flex-wrap gap-2.5">
+                @for (variant of product()!.variants; track variant.id) {
                   <button
                     class="rounded-lg border min-h-11 px-4 py-2.5 text-sm transition-colors"
                     [class]="variant.id === selectedVariant()?.id
@@ -129,13 +176,9 @@
                     {{ formatVariantLabel(variant) }}
                   </button>
                 }
-              }
+              </div>
             </div>
-            <!-- Selected variant label -->
-            @if (selectedVariant()) {
-              <p class="mt-2 text-xs text-muted-foreground">{{ formatVariantLabel(selectedVariant()!) }}</p>
-            }
-          </div>
+          }
         }
 
         <!-- Selected variant details -->
