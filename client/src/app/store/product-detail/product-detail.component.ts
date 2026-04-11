@@ -10,7 +10,7 @@ import { HlmButton } from '@spartan-ng/helm/button';
 import { HlmCardImports } from '@spartan-ng/helm/card';
 import { HlmAccordionImports } from '@spartan-ng/helm/accordion';
 import { BrnAccordionImports } from '@spartan-ng/brain/accordion';
-import { IProduct, IProductVariant } from '@mamy/shared-models';
+import { IProduct, IProductVariant, COLOR_PALETTE } from '@mamy/shared-models';
 import { ThemeService } from '../../services/theme.service';
 import { CartService } from '../../services/cart.service';
 import { LanguageService } from '../../services/language.service';
@@ -232,38 +232,39 @@ export class ProductDetailComponent {
     return parts.join(' / ');
   }
 
-  private readonly colorMap: Record<string, string> = {
-    red: '#EF4444', أحمر: '#EF4444',
-    blue: '#3B82F6', أزرق: '#3B82F6',
-    green: '#22C55E', أخضر: '#22C55E',
-    yellow: '#EAB308', أصفر: '#EAB308',
-    black: '#1F2937', أسود: '#1F2937',
-    white: '#F9FAFB', أبيض: '#F9FAFB',
-    pink: '#EC4899', وردي: '#EC4899',
-    purple: '#A855F7', بنفسجي: '#A855F7',
-    orange: '#F97316', برتقالي: '#F97316',
-    brown: '#92400E', بني: '#92400E',
-    gray: '#6B7280', grey: '#6B7280', رمادي: '#6B7280',
-    navy: '#1E3A5F', كحلي: '#1E3A5F',
-    beige: '#D4C5A9', بيج: '#D4C5A9',
-    olive: '#808000', زيتي: '#808000',
-    turquoise: '#40E0D0', تركواز: '#40E0D0',
-    fuchsia: '#D946EF', فوشيا: '#D946EF',
-    camel: '#C19A6B', جملي: '#C19A6B',
-  };
+  private paletteHexMap = new Map(
+    COLOR_PALETTE.flatMap(c => [
+      [c.key, c.hex],
+      [c.nameEn.toLowerCase(), c.hex],
+      [c.nameAr, c.hex],
+    ])
+  );
+
+  private paletteColorMap = new Map(
+    COLOR_PALETTE.flatMap(c => [
+      [c.key, c],
+      [c.nameEn.toLowerCase(), c],
+      [c.nameAr, c],
+    ])
+  );
 
   getVariantColor(variant: IProductVariant): string | null {
     const color = variant.attributes?.['color'] || variant.attributes?.['Color'] || variant.attributes?.['اللون'];
     if (!color || typeof color !== 'string') return null;
     if (color.startsWith('#') || color.startsWith('rgb') || color.startsWith('hsl')) return color;
-    return this.colorMap[color.toLowerCase()] ?? null;
+    return this.paletteHexMap.get(color) ?? this.paletteHexMap.get(color.toLowerCase()) ?? null;
   }
 
-  /** Get hex color from a color name string */
   getVariantColorHex(colorName: string): string | null {
     if (!colorName) return null;
     if (colorName.startsWith('#') || colorName.startsWith('rgb') || colorName.startsWith('hsl')) return colorName;
-    return this.colorMap[colorName.toLowerCase()] ?? null;
+    return this.paletteHexMap.get(colorName) ?? this.paletteHexMap.get(colorName.toLowerCase()) ?? null;
+  }
+
+  getColorDisplayName(colorKey: string): string {
+    const c = this.paletteColorMap.get(colorKey) ?? this.paletteColorMap.get(colorKey.toLowerCase());
+    if (!c) return colorKey;
+    return this.isAr() ? c.nameAr : c.nameEn;
   }
 
   getVariantDiscountPercent(): number {
