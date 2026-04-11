@@ -1,5 +1,5 @@
 -- ============================================================
--- MAMY Store: Initial Schema
+-- M&Y Store: Initial Schema
 -- Tables: companies, products, product_variants, orders
 -- ============================================================
 

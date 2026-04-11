@@ -338,7 +338,7 @@ export class ProductDetailComponent {
 
         // SEO
         const name = this.isAr() ? product.nameAr : product.name;
-        this.title.setTitle(`${name} - MAMY Store`);
+        this.title.setTitle(`${name} - M&Y`);
         this.meta.updateTag({ name: 'description', content: this.isAr() ? product.descriptionAr : product.description });
         const ogImage = product.images?.[0] || product.variants?.[0]?.images?.[0];
         if (ogImage) {

@@ -1,7 +1,7 @@
 {
-  "name": "M&Y Store - متجر ملابس أطفال",
-  "short_name": "M&Y Store",
-  "description": "M&Y Store - Kids Clothing Store",
+  "name": "M&Y - متجر ملابس أطفال",
+  "short_name": "M&Y",
+  "description": "M&Y - أزياء أطفال مميزة للأولاد والبنات | Kids Fashion",
   "dir": "rtl",
   "lang": "ar",
   "start_url": "/store",
