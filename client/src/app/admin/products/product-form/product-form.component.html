@@ -199,14 +199,37 @@
               [class.border-destructive]="submitted() && colorGroup.invalid"
               [id]="'field-color-' + ci">
 
-              <!-- Color header: Name + Delete -->
-              <div class="flex items-center gap-4">
-                <div class="flex flex-col gap-1 flex-1">
-                  <span hlmLabel class="text-xs">{{ 'admin.color_name' | translate }}</span>
-                  <input hlmInput formControlName="colorName"
-                    [placeholder]="'admin.color_name_placeholder' | translate" />
+              <!-- Color header: Picker + Selected label + Delete -->
+              <div class="flex items-start gap-3">
+                <div class="flex flex-col gap-2 flex-1">
+                  <div class="flex items-center justify-between">
+                    <span hlmLabel class="text-xs">{{ 'admin.color_name' | translate }}</span>
+                    @if (colorGroupsArray.at(ci).get('colorName')?.value; as selectedKey) {
+                      <span class="flex items-center gap-1.5 text-xs font-medium text-foreground">
+                        <span class="inline-block h-4 w-4 rounded-full border border-border"
+                          [style.background-color]="getColorHex(selectedKey)"></span>
+                        {{ getColorLabel(selectedKey) }}
+                      </span>
+                    }
+                  </div>
+                  <!-- Color palette grid -->
+                  <div class="flex flex-wrap gap-1.5">
+                    @for (color of colorPalette; track color.key) {
+                      <button type="button"
+                        class="h-8 w-8 rounded-full border-2 transition-all hover:scale-110"
+                        [class]="colorGroupsArray.at(ci).get('colorName')?.value === color.key
+                          ? 'border-primary ring-2 ring-primary/30 scale-110'
+                          : 'border-border hover:border-primary/40'"
+                        [style.background-color]="color.hex"
+                        [title]="color.nameAr + ' / ' + color.nameEn"
+                        [attr.aria-label]="color.nameAr + ' / ' + color.nameEn"
+                        (click)="colorGroupsArray.at(ci).get('colorName')?.setValue(color.key)">
+                      </button>
+                    }
+                  </div>
                 </div>
-                <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0"
+                <button type="button" hlmBtn variant="destructive" size="icon" class="shrink-0 mt-5"
+                  aria-label="Remove color"
                   (click)="removeColorGroup(ci)">
                   <ng-icon hlmIcon size="sm" name="lucideX" />
                 </button>

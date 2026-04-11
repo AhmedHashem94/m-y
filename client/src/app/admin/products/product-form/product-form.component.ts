@@ -1,4 +1,5 @@
 import { Component, inject, signal, computed, afterNextRender } from '@angular/core';
+import { LanguageService } from '../../../services/language.service';
 import { HttpClient } from '@angular/common/http';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import {
@@ -27,6 +28,7 @@ import {
   ProductCategory,
   ProductGender,
   ProductStatus,
+  COLOR_PALETTE,
 } from '@mamy/shared-models';
 
 // --- Custom Validators ---
@@ -59,6 +61,7 @@ export class ProductFormComponent {
   private readonly http = inject(HttpClient);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
+  private readonly langService = inject(LanguageService);
 
   isEditMode = signal(false);
   saving = signal(false);
@@ -72,6 +75,18 @@ export class ProductFormComponent {
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
   availableSizes = ['2', '4', '6', '8', '10', '12', '14', '16', '18'];
+  colorPalette = COLOR_PALETTE;
+
+  getColorLabel(key: string): string {
+    const c = COLOR_PALETTE.find(p => p.key === key);
+    if (!c) return key;
+    return this.langService.currentLang() === 'ar' ? c.nameAr : c.nameEn;
+  }
+
+  getColorHex(key: string): string {
+    const c = COLOR_PALETTE.find(p => p.key === key);
+    return c ? c.hex : '#ccc';
+  }
 
   private productId = '';
 

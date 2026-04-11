@@ -102,7 +102,7 @@
                 <div>
                   <h2 class="text-sm font-semibold text-foreground mb-2">
                     {{ 'store.color' | translate }}:
-                    <span class="font-normal text-muted-foreground">{{ selectedColor() }}</span>
+                    <span class="font-normal text-muted-foreground">{{ getColorDisplayName(selectedColor() || '') }}</span>
                   </h2>
                   <div class="flex flex-wrap gap-2.5">
                     @for (color of uniqueColors(); track color) {
@@ -123,9 +123,9 @@
                           [class]="color === selectedColor()
                             ? 'border-primary bg-primary text-primary-foreground font-medium'
                             : 'border-border text-foreground hover:border-primary/50'"
-                          [attr.aria-label]="color"
+                          [attr.aria-label]="getColorDisplayName(color)"
                           (click)="selectColor(color)">
-                          {{ color }}
+                          {{ getColorDisplayName(color) }}
                         </button>
                       }
                     }
