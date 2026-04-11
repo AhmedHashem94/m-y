@@ -42,15 +42,17 @@
 
                 <div class="flex flex-wrap items-center gap-2 sm:gap-0 sm:justify-between mt-2">
                   <!-- Quantity controls -->
-                  <div class="flex items-center gap-1 rounded-md border border-border">
-                    <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8"
+                  <div class="flex items-center gap-0.5 rounded-lg border border-border">
+                    <button hlmBtn variant="ghost" size="icon" class="h-10 w-10"
+                      aria-label="Decrease quantity"
                       (click)="cart.updateQuantity(item.variantId, item.quantity - 1)">
-                      <ng-icon hlmIcon size="xs" name="lucideMinus" />
+                      <ng-icon hlmIcon size="sm" name="lucideMinus" />
                     </button>
-                    <span class="w-7 sm:w-8 text-center text-sm font-medium">{{ item.quantity }}</span>
-                    <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8"
+                    <span class="w-8 text-center text-sm font-semibold">{{ item.quantity }}</span>
+                    <button hlmBtn variant="ghost" size="icon" class="h-10 w-10"
+                      aria-label="Increase quantity"
                       (click)="cart.updateQuantity(item.variantId, item.quantity + 1)">
-                      <ng-icon hlmIcon size="xs" name="lucidePlus" />
+                      <ng-icon hlmIcon size="sm" name="lucidePlus" />
                     </button>
                   </div>
 
@@ -60,9 +62,10 @@
                   </span>
 
                   <!-- Remove -->
-                  <button hlmBtn variant="ghost" size="icon" class="h-7 w-7 sm:h-8 sm:w-8 text-destructive"
+                  <button hlmBtn variant="ghost" size="icon" class="h-10 w-10 text-destructive"
+                    aria-label="Remove item"
                     (click)="cart.removeItem(item.variantId)">
-                    <ng-icon hlmIcon size="xs" name="lucideTrash2" />
+                    <ng-icon hlmIcon size="sm" name="lucideTrash2" />
                   </button>
                 </div>
               </div>

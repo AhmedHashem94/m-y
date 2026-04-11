@@ -1,61 +1,67 @@
 <!-- Sticky Navbar -->
-<header class="sticky top-0 z-50 border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-  <nav class="container mx-auto flex items-center justify-between px-4 py-3">
+<header class="sticky top-0 z-50 border-b border-border/60 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-sm">
+  <nav class="container mx-auto flex items-center justify-between px-4 py-2.5">
     <!-- Brand -->
-    <a routerLink="/store" class="flex items-center">
-      <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-12 w-auto" />
+    <a routerLink="/store" class="flex items-center transition-opacity hover:opacity-80">
+      <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-10 sm:h-11 w-auto" />
     </a>
 
     <!-- Desktop Nav -->
-    <div class="hidden md:flex items-center gap-6">
-      <a routerLink="/store" class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+    <div class="hidden md:flex items-center gap-1">
+      <a routerLink="/store"
+         class="relative px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/5">
         {{ 'nav.store' | translate }}
       </a>
       <a routerLink="/store" [queryParams]="{ gender: 'BOY' }"
-         class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+         class="relative px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/5">
         {{ 'nav.boys' | translate }}
       </a>
       <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }"
-         class="text-sm font-medium text-foreground hover:text-primary transition-colors">
+         class="relative px-4 py-2 text-sm font-semibold text-foreground/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/5">
         {{ 'nav.girls' | translate }}
       </a>
     </div>
 
     <!-- Actions -->
-    <div class="flex items-center gap-2">
+    <div class="flex items-center gap-1">
       <!-- Language toggle -->
-      <button hlmBtn variant="ghost" size="icon" (click)="toggleLang()" class="text-sm">
+      <button hlmBtn variant="ghost" size="icon" (click)="toggleLang()"
+        aria-label="Toggle language"
+        class="text-xs font-bold tracking-wide text-foreground/60 hover:text-primary">
         {{ lang.currentLang() === 'ar' ? 'EN' : 'AR' }}
       </button>
 
       <!-- Cart -->
-      <a routerLink="/cart" class="relative">
-        <button hlmBtn variant="ghost" size="icon">
+      <a routerLink="/cart" class="relative" aria-label="Shopping cart">
+        <button hlmBtn variant="ghost" size="icon" class="text-foreground/60 hover:text-primary"
+          aria-label="Shopping cart">
           <ng-icon hlmIcon size="sm" name="lucideShoppingCart" />
         </button>
         @if (cart.totalItems() > 0) {
-          <span class="absolute -top-1 -end-1 flex h-5 w-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground">
+          <span class="absolute -top-0.5 -end-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white animate-in zoom-in-50">
             {{ cart.totalItems() }}
           </span>
         }
       </a>
 
-      <!-- Auth / Admin (login hidden — navigate to /auth/login manually) -->
+      <!-- Auth / Admin -->
       @if (auth.isLoggedIn()) {
         @if (auth.isAdmin()) {
           <a routerLink="/admin" class="hidden md:block">
-            <button hlmBtn variant="ghost" size="icon">
+            <button hlmBtn variant="ghost" size="icon" class="text-foreground/60 hover:text-primary"
+              aria-label="Admin panel">
               <ng-icon hlmIcon size="sm" name="lucideShield" />
             </button>
           </a>
         }
-        <button hlmBtn variant="ghost" size="icon" (click)="logout()" class="hidden md:flex">
+        <button hlmBtn variant="ghost" size="icon" (click)="logout()" class="hidden md:flex text-foreground/60 hover:text-destructive"
+          aria-label="Logout">
           <ng-icon hlmIcon size="sm" name="lucideLogOut" />
         </button>
       }
 
       <!-- Mobile menu toggle -->
-      <button hlmBtn variant="ghost" size="icon" class="md:hidden transition-transform duration-300"
+      <button hlmBtn variant="ghost" size="icon" aria-label="Toggle menu" class="md:hidden transition-transform duration-300"
               [class.rotate-90]="mobileMenuOpen"
               (click)="mobileMenuOpen = !mobileMenuOpen">
         @if (mobileMenuOpen) {
@@ -71,27 +77,32 @@
   <div class="grid md:hidden transition-[grid-template-rows] duration-300 ease-in-out"
        [class]="mobileMenuOpen ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'">
     <div class="overflow-hidden">
-      <div class="bg-background px-4 py-4"
+      <div class="bg-background px-4 pb-4 pt-1"
            [class.opacity-100]="mobileMenuOpen"
            [class.opacity-0]="!mobileMenuOpen"
            style="transition: opacity 200ms ease-in-out">
-        <div class="flex flex-col gap-3">
-          <a routerLink="/store" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+        <div class="flex flex-col gap-1">
+          <a routerLink="/store" (click)="mobileMenuOpen = false"
+             class="rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
             {{ 'nav.store' | translate }}
           </a>
-          <a routerLink="/store" [queryParams]="{ gender: 'BOY' }" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+          <a routerLink="/store" [queryParams]="{ gender: 'BOY' }" (click)="mobileMenuOpen = false"
+             class="rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
             {{ 'nav.boys' | translate }}
           </a>
-          <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }" (click)="mobileMenuOpen = false" class="text-sm font-medium text-foreground hover:text-primary">
+          <a routerLink="/store" [queryParams]="{ gender: 'GIRL' }" (click)="mobileMenuOpen = false"
+             class="rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
             {{ 'nav.girls' | translate }}
           </a>
           @if (auth.isLoggedIn()) {
             @if (auth.isAdmin()) {
-              <a routerLink="/admin" class="text-sm font-medium text-foreground hover:text-primary">
+              <a routerLink="/admin" (click)="mobileMenuOpen = false"
+                 class="rounded-lg px-3 py-2.5 text-sm font-semibold text-foreground/80 hover:text-primary hover:bg-primary/5 transition-colors">
                 {{ 'nav.admin' | translate }}
               </a>
             }
-            <button (click)="logout()" class="text-sm font-medium text-start text-destructive hover:underline">
+            <button (click)="logout()"
+              class="rounded-lg px-3 py-2.5 text-sm font-semibold text-start text-destructive/80 hover:text-destructive hover:bg-destructive/5 transition-colors">
               {{ 'nav.logout' | translate }}
             </button>
           }

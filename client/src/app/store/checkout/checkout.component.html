@@ -20,7 +20,8 @@
             <form [formGroup]="form" (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
               <div class="flex flex-col gap-2">
                 <label hlmLabel for="name">{{ 'checkout.customer_name' | translate }}</label>
-                <input hlmInput id="name" formControlName="name" />
+                <input hlmInput id="name" formControlName="name"
+                  autocomplete="name" class="h-11 text-base" />
                 @if (form.get('name')?.touched && form.get('name')?.hasError('required')) {
                   <p class="text-xs text-destructive">{{ 'checkout.required_field' | translate }}</p>
                 }
@@ -29,6 +30,8 @@
               <div class="flex flex-col gap-2">
                 <label hlmLabel for="phone">{{ 'checkout.phone' | translate }}</label>
                 <input hlmInput id="phone" formControlName="phone" dir="ltr"
+                  type="tel" inputmode="tel" autocomplete="tel"
+                  class="h-11 text-base"
                   [placeholder]="'checkout.phone_placeholder' | translate" />
                 @if (form.get('phone')?.touched && form.get('phone')?.hasError('required')) {
                   <p class="text-xs text-destructive">{{ 'checkout.required_field' | translate }}</p>
@@ -40,7 +43,8 @@
 
               <div class="flex flex-col gap-2">
                 <label hlmLabel for="address">{{ 'checkout.address' | translate }}</label>
-                <input hlmInput id="address" formControlName="address" />
+                <input hlmInput id="address" formControlName="address"
+                  autocomplete="street-address" class="h-11 text-base" />
                 @if (form.get('address')?.touched && form.get('address')?.hasError('required')) {
                   <p class="text-xs text-destructive">{{ 'checkout.required_field' | translate }}</p>
                 }
@@ -48,7 +52,8 @@
 
               <div class="flex flex-col gap-2">
                 <label hlmLabel for="city">{{ 'checkout.city' | translate }}</label>
-                <input hlmInput id="city" formControlName="city" />
+                <input hlmInput id="city" formControlName="city"
+                  autocomplete="address-level2" class="h-11 text-base" />
                 @if (form.get('city')?.touched && form.get('city')?.hasError('required')) {
                   <p class="text-xs text-destructive">{{ 'checkout.required_field' | translate }}</p>
                 }
@@ -58,7 +63,7 @@
                 <p class="text-sm text-destructive">{{ error() }}</p>
               }
 
-              <button hlmBtn type="submit" class="mt-2"
+              <button hlmBtn type="submit" class="mt-2 h-12 text-base"
                 [disabled]="submitting() || form.invalid">
                 @if (submitting()) {
                   {{ 'checkout.placing_order' | translate }}

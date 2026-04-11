@@ -107,4 +107,36 @@
   * {
     @apply border-border;
   }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Prevent iOS zoom on input focus (16px minimum) */
+  input,
+  select,
+  textarea {
+    font-size: 16px;
+  }
+
+  /* Focus-visible ring for keyboard navigation */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-primary/50 rounded-sm;
+  }
+
+  /* Active press feedback for touch */
+  button:active,
+  a:active {
+    transform: scale(0.97);
+    transition: transform 0.1s ease;
+  }
+
+  /* Prevent text selection on interactive elements (mobile) */
+  button,
+  [role="button"] {
+    -webkit-user-select: none;
+    user-select: none;
+  }
 }

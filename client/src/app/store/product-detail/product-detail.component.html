@@ -17,6 +17,7 @@
         <div class="relative aspect-square overflow-hidden rounded-lg bg-muted cursor-zoom-in group"
           tabindex="0"
           role="button"
+          aria-label="Open fullscreen image"
           (click)="openLightbox(activeImageIndex())"
           (keydown.enter)="openLightbox(activeImageIndex())"
           (keydown.space)="openLightbox(activeImageIndex()); $event.preventDefault()">
@@ -95,17 +96,18 @@
         @if (product()!.variants?.length) {
           <div>
             <h2 class="text-sm font-semibold text-foreground mb-3">{{ 'store.select_variant' | translate }}</h2>
-            <div class="flex flex-wrap gap-2">
+            <div class="flex flex-wrap gap-2.5">
               @for (variant of product()!.variants; track variant.id) {
                 @if (!variant.attributes?.['size'] && getVariantColor(variant); as color) {
                   <!-- Color swatch variant (color-only, no size) -->
                   <button
-                    class="relative h-10 w-10 rounded-full border-2 transition-all"
+                    class="relative h-12 w-12 rounded-full border-2 transition-all"
                     [class]="variant.id === selectedVariant()?.id
                       ? 'border-primary ring-2 ring-primary/30 scale-110'
                       : 'border-border hover:border-primary/50'"
                     [style.background-color]="color"
                     [disabled]="!variant.isActive || variant.stock <= 0"
+                    [attr.aria-label]="formatVariantLabel(variant)"
                     [title]="formatVariantLabel(variant)"
                     (click)="selectVariant(variant)">
                     @if (!variant.isActive || variant.stock <= 0) {
@@ -117,7 +119,7 @@
                 } @else {
                   <!-- Text variant (color + size) -->
                   <button
-                    class="rounded-md border px-3 py-2 text-sm transition-colors"
+                    class="rounded-lg border min-h-11 px-4 py-2.5 text-sm transition-colors"
                     [class]="variant.id === selectedVariant()?.id
                       ? 'border-primary bg-primary text-primary-foreground font-medium'
                       : 'border-border text-foreground hover:border-primary/50'"
@@ -179,16 +181,18 @@
           @if (cartQty() > 0) {
             <!-- Already in cart — show quantity controls -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <div class="flex items-center justify-center gap-2 rounded-md border border-primary">
-                <button hlmBtn variant="ghost" size="icon"
+              <div class="flex items-center justify-center rounded-lg border border-primary">
+                <button hlmBtn variant="ghost" size="icon" class="h-11 w-11"
+                  aria-label="Decrease quantity"
                   (click)="updateCartQty(cartQty() - 1)">
-                  <ng-icon hlmIcon size="xs" name="lucideMinus" />
+                  <ng-icon hlmIcon size="sm" name="lucideMinus" />
                 </button>
-                <span class="w-8 text-center text-sm font-bold text-primary">{{ cartQty() }}</span>
-                <button hlmBtn variant="ghost" size="icon"
+                <span class="w-10 text-center text-base font-bold text-primary">{{ cartQty() }}</span>
+                <button hlmBtn variant="ghost" size="icon" class="h-11 w-11"
+                  aria-label="Increase quantity"
                   (click)="updateCartQty(cartQty() + 1)"
                   [disabled]="cartQty() >= selectedVariant()!.stock">
-                  <ng-icon hlmIcon size="xs" name="lucidePlus" />
+                  <ng-icon hlmIcon size="sm" name="lucidePlus" />
                 </button>
               </div>
               <span class="text-sm text-muted-foreground">{{ 'store.in_cart' | translate }}</span>
@@ -196,21 +200,23 @@
           } @else {
             <!-- Not in cart — show add button with quantity picker -->
             <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
-              <div class="flex items-center justify-center gap-2 rounded-md border border-border">
-                <button hlmBtn variant="ghost" size="icon"
+              <div class="flex items-center justify-center rounded-lg border border-border">
+                <button hlmBtn variant="ghost" size="icon" class="h-11 w-11"
+                  aria-label="Decrease quantity"
                   (click)="decrementQty()"
                   [disabled]="quantity() <= 1">
-                  <ng-icon hlmIcon size="xs" name="lucideMinus" />
+                  <ng-icon hlmIcon size="sm" name="lucideMinus" />
                 </button>
-                <span class="w-8 text-center text-sm font-medium">{{ quantity() }}</span>
-                <button hlmBtn variant="ghost" size="icon"
+                <span class="w-10 text-center text-base font-semibold">{{ quantity() }}</span>
+                <button hlmBtn variant="ghost" size="icon" class="h-11 w-11"
+                  aria-label="Increase quantity"
                   (click)="incrementQty()"
                   [disabled]="quantity() >= selectedVariant()!.stock">
-                  <ng-icon hlmIcon size="xs" name="lucidePlus" />
+                  <ng-icon hlmIcon size="sm" name="lucidePlus" />
                 </button>
               </div>
 
-              <button hlmBtn class="flex-1"
+              <button hlmBtn class="flex-1 h-11"
                 [disabled]="selectedVariant()!.stock <= 0"
                 (click)="addToCart()">
                 <ng-icon hlmIcon size="sm" name="lucideShoppingCart" class="me-2" />
@@ -233,18 +239,21 @@
       (keydown.arrowRight)="lightboxNext($event)"
       (keydown.arrowLeft)="lightboxPrev($event)">
       <!-- Close button -->
-      <button class="absolute top-4 inset-e-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+      <button class="absolute top-4 inset-e-4 z-10 rounded-full bg-white/15 p-3 text-white hover:bg-white/25 active:bg-white/30 transition-colors"
+        aria-label="Close fullscreen"
         (click)="closeLightbox()">
         <ng-icon hlmIcon size="sm" name="lucideX" />
       </button>
 
       <!-- Nav arrows -->
       @if (galleryImages().length > 1) {
-        <button class="absolute inset-s-2 sm:inset-s-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+        <button class="absolute inset-s-2 sm:inset-s-4 z-10 rounded-full bg-white/15 p-3 text-white hover:bg-white/25 active:bg-white/30 transition-colors"
+          aria-label="Previous image"
           (click)="lightboxPrev($event)">
           <ng-icon hlmIcon size="sm" name="lucideChevronLeft" class="rtl:rotate-180" />
         </button>
-        <button class="absolute inset-e-2 sm:inset-e-4 z-10 rounded-full bg-white/10 p-2 text-white hover:bg-white/20 transition-colors"
+        <button class="absolute inset-e-2 sm:inset-e-4 z-10 rounded-full bg-white/15 p-3 text-white hover:bg-white/25 active:bg-white/30 transition-colors"
+          aria-label="Next image"
           (click)="lightboxNext($event)">
           <ng-icon hlmIcon size="sm" name="lucideChevronRight" class="rtl:rotate-180" />
         </button>

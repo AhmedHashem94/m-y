@@ -1,20 +1,22 @@
 <!-- Hero Section -->
-<section class="bg-gradient-to-b from-primary/10 to-background py-8 sm:py-12 px-4 text-center">
-  <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-2">{{ 'store.hero_title' | translate }}</h1>
-  <p class="text-muted-foreground text-sm sm:text-base md:text-lg mb-6 sm:mb-8">{{ 'store.hero_subtitle' | translate }}</p>
+<section class="bg-gradient-to-b from-primary/8 to-background py-6 sm:py-10 px-4 text-center">
+  <h1 class="text-2xl sm:text-3xl md:text-4xl font-bold text-foreground mb-1">{{ 'store.hero_title' | translate }}</h1>
+  <p class="text-muted-foreground text-sm sm:text-base mb-5 sm:mb-6">{{ 'store.hero_subtitle' | translate }}</p>
   <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3">
-    <button hlmBtn
+    <button hlmBtn size="sm"
       [variant]="genderFilter() === 'BOY' ? 'default' : 'outline'"
+      class="rounded-full px-5!"
       (click)="setGender('BOY')">
       {{ 'store.boys_collection' | translate }}
     </button>
-    <button hlmBtn
+    <button hlmBtn size="sm"
       [variant]="genderFilter() === 'GIRL' ? 'default' : 'outline'"
+      class="rounded-full px-5!"
       (click)="setGender('GIRL')">
       {{ 'store.girls_collection' | translate }}
     </button>
     @if (genderFilter()) {
-      <button hlmBtn variant="ghost" (click)="setGender(null)">
+      <button hlmBtn variant="ghost" size="sm" class="rounded-full" (click)="setGender(null)">
         {{ 'store.all_products' | translate }}
       </button>
     }
@@ -22,11 +24,11 @@
 </section>
 
 <!-- Filter Bar -->
-<section class="container mx-auto px-4 py-6">
-  <div class="flex flex-row flex-wrap items-center gap-3 mb-6">
+<section class="container mx-auto px-4 pt-4 pb-2">
+  <div class="flex flex-row flex-wrap items-center gap-3 mb-4">
     <!-- Category Filter -->
     <brn-select hlm [value]="categoryFilter()" (valueChange)="setCategoryFilter($event)" [placeholder]="'store.all_categories' | translate">
-      <hlm-select-trigger class="w-40 sm:w-45">
+      <hlm-select-trigger class="w-40 sm:w-45 h-9">
         <hlm-select-value />
       </hlm-select-trigger>
       <hlm-select-content hlmSelectContent>
@@ -52,33 +54,36 @@
     -->
 
     <!-- Results count -->
-    <span class="text-sm text-muted-foreground sm:ms-auto text-center sm:text-end">
+    <span class="text-xs text-muted-foreground/70 sm:ms-auto text-center sm:text-end">
       {{ filteredProducts().length }} {{ 'store.items_count' | translate }}
     </span>
   </div>
 
   <!-- Product Grid -->
   @if (loading()) {
-    <div class="flex items-center justify-center py-20">
-      <p class="text-muted-foreground">{{ 'common.loading' | translate }}</p>
+    <div class="flex items-center justify-center py-16">
+      <div class="flex flex-col items-center gap-3">
+        <div class="h-8 w-8 animate-spin rounded-full border-2 border-primary border-t-transparent"></div>
+        <p class="text-sm text-muted-foreground/70">{{ 'common.loading' | translate }}</p>
+      </div>
     </div>
   } @else if (filteredProducts().length === 0) {
-    <div class="flex flex-col items-center justify-center py-20 gap-2">
-      <p class="text-lg font-medium text-muted-foreground">{{ 'store.no_products' | translate }}</p>
-      <p class="text-sm text-muted-foreground">{{ 'store.try_different_filter' | translate }}</p>
+    <div class="flex flex-col items-center justify-center py-16 gap-2">
+      <p class="text-base font-medium text-muted-foreground">{{ 'store.no_products' | translate }}</p>
+      <p class="text-sm text-muted-foreground/60">{{ 'store.try_different_filter' | translate }}</p>
     </div>
   } @else {
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       @for (product of filteredProducts(); track product.id) {
         <a [routerLink]="['/store/product', product.id]" class="group block">
-          <div class="overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 transition-shadow hover:shadow-lg">
+          <div class="overflow-hidden rounded-xl bg-card ring-1 ring-foreground/8 transition-all duration-300 hover:shadow-md hover:-translate-y-0.5">
             <!-- Product Image -->
             <div class="relative aspect-[3/4] overflow-hidden bg-muted">
               @if (getProductImage(product); as imgUrl) {
                 <img
                   [src]="imgUrl"
                   [alt]="isAr() ? product.nameAr : product.name"
-                  class="h-full w-full object-cover transition-transform group-hover:scale-105"
+                  class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
                   [class.grayscale]="isOutOfStock(product)"
                   [class.opacity-60]="isOutOfStock(product)"
                   loading="lazy"
@@ -97,32 +102,32 @@
                 </div>
               }
               <!-- Gender badge -->
-              <span class="absolute top-2 start-2 rounded-full px-2 py-0.5 text-xs font-medium"
+              <span class="absolute top-1.5 start-1.5 rounded-full px-1.5 py-0.5 text-[10px] font-semibold backdrop-blur-sm"
                 [class]="product.gender === 'BOY'
-                  ? 'bg-boy/40 text-boy-dark'
-                  : 'bg-girl/30 text-girl-accent'">
+                  ? 'bg-boy/50 text-boy-dark'
+                  : 'bg-girl/40 text-girl-accent'">
                 {{ 'gender.' + product.gender | translate }}
               </span>
               <!-- Discount badge -->
               @if (!isOutOfStock(product) && getDiscountPercent(product); as discount) {
-                <span class="absolute top-2 inset-e-2 rounded-full bg-destructive px-2 py-0.5 text-xs font-bold text-destructive-foreground">
-                  {{ discount }}% {{ 'store.off' | translate }}
+                <span class="absolute top-1.5 inset-e-1.5 rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-bold text-destructive-foreground">
+                  {{ discount }}%-
                 </span>
               }
             </div>
             <!-- Info -->
-            <div class="px-2.5 py-2 space-y-1">
-              <h3 class="font-semibold text-sm text-foreground line-clamp-1">
+            <div class="px-2.5 pt-2 pb-1.5">
+              <h3 class="font-semibold text-[13px] text-foreground line-clamp-1 mb-1">
                 {{ isAr() ? product.nameAr : product.name }}
               </h3>
               @if (product.variants?.length) {
-                <div class="flex flex-wrap items-center gap-1.5">
+                <div class="flex flex-wrap items-baseline gap-1.5">
                   <span class="text-sm font-bold text-primary">
                     {{ getMinPrice(product) }} {{ 'common.egp' | translate }}
                   </span>
                   @if (getCompareAtPrice(product); as compareAt) {
-                    <span class="text-xs text-muted-foreground line-through">
-                      {{ compareAt }} {{ 'common.egp' | translate }}
+                    <span class="text-[11px] text-muted-foreground/60 line-through">
+                      {{ compareAt }}
                     </span>
                   }
                 </div>
@@ -130,7 +135,7 @@
             </div>
             <!-- Order Now -->
             <div class="px-2.5 pb-2.5">
-              <span class="block w-full rounded-lg bg-primary py-1.5 text-center text-xs font-semibold text-primary-foreground transition-colors group-hover:bg-primary/90">
+              <span class="block w-full rounded-lg bg-primary py-1.5 text-center text-xs font-semibold text-primary-foreground transition-all duration-200 group-hover:bg-primary/85 group-hover:shadow-sm">
                 {{ 'store.order_now' | translate }}
               </span>
             </div>
