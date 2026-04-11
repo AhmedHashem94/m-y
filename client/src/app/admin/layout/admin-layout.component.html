@@ -1,0 +1,99 @@
+<div class="flex min-h-screen">
+  <!-- Mobile overlay -->
+  @if (sidebarOpen) {
+    <div
+      class="fixed inset-0 z-40 bg-black/50 lg:hidden"
+      (click)="sidebarOpen = false"
+    ></div>
+  }
+
+  <!-- Sidebar -->
+  <aside
+    class="fixed inset-y-0 start-0 z-50 w-64 border-e bg-card p-4 flex flex-col transition-transform duration-200 lg:static lg:translate-x-0"
+    [class.max-lg:-translate-x-full]="!sidebarOpen && isLtr"
+    [class.max-lg:translate-x-full]="!sidebarOpen && !isLtr"
+  >
+    <div class="flex items-center justify-between mb-6">
+      <a routerLink="/admin/dashboard" class="flex items-center">
+        <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-10 w-auto" />
+      </a>
+      <button hlmBtn variant="ghost" size="icon" class="lg:hidden" (click)="sidebarOpen = false">
+        <ng-icon hlmIcon size="sm" name="lucideX" />
+      </button>
+    </div>
+    <nav class="flex flex-col gap-2 flex-1">
+      <a
+        routerLink="/admin/dashboard"
+        routerLinkActive="bg-primary/10 text-primary"
+        hlmBtn
+        variant="ghost"
+        class="justify-start"
+        (click)="sidebarOpen = false"
+      >
+        {{ 'admin.dashboard' | translate }}
+      </a>
+      <a
+        routerLink="/admin/companies"
+        routerLinkActive="bg-primary/10 text-primary"
+        hlmBtn
+        variant="ghost"
+        class="justify-start"
+        (click)="sidebarOpen = false"
+      >
+        {{ 'admin.companies' | translate }}
+      </a>
+      <a
+        routerLink="/admin/products"
+        routerLinkActive="bg-primary/10 text-primary"
+        hlmBtn
+        variant="ghost"
+        class="justify-start"
+        (click)="sidebarOpen = false"
+      >
+        {{ 'admin.products' | translate }}
+      </a>
+      <a
+        routerLink="/admin/orders"
+        routerLinkActive="bg-primary/10 text-primary"
+        hlmBtn
+        variant="ghost"
+        class="justify-start"
+        (click)="sidebarOpen = false"
+      >
+        {{ 'admin.orders' | translate }}
+      </a>
+    </nav>
+    <div class="flex flex-col gap-2 border-t pt-4">
+      <a
+        routerLink="/store"
+        hlmBtn
+        variant="outline"
+        class="justify-start"
+      >
+        {{ 'admin.back_to_store' | translate }}
+      </a>
+      <button
+        hlmBtn
+        variant="ghost"
+        class="justify-start text-destructive hover:text-destructive"
+        (click)="logout()"
+      >
+        {{ 'nav.logout' | translate }}
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main content -->
+  <div class="flex-1 flex flex-col min-w-0">
+    <!-- Mobile top bar -->
+    <div class="sticky top-0 z-30 flex items-center gap-3 border-b bg-background px-4 py-3 lg:hidden">
+      <button hlmBtn variant="ghost" size="icon" (click)="sidebarOpen = true">
+        <ng-icon hlmIcon size="sm" name="lucideMenu" />
+      </button>
+      <img src="icons/logo-wide.svg" alt="M&Y Store" class="h-7 w-auto" />
+    </div>
+    <main class="flex-1 p-4 md:p-6">
+      <router-outlet />
+    </main>
+  </div>
+</div>
