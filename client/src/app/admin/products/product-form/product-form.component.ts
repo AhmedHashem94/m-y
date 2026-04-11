@@ -105,6 +105,24 @@ export class ProductFormComponent {
     return !!control && control.invalid;
   }
 
+  // --- Auto-translate Arabic → English ---
+
+  autoTranslate(arField: string, enField: string) {
+    const arValue = this.form.get(arField)?.value?.trim();
+    const enControl = this.form.get(enField);
+    if (!arValue) return;
+
+    this.http.get<{ translatedText: string }>(
+      `/api/translate?q=${encodeURIComponent(arValue)}&from=ar&to=en`
+    ).subscribe({
+      next: (res) => {
+        if (res.translatedText) {
+          enControl?.setValue(res.translatedText);
+        }
+      },
+    });
+  }
+
   // --- Total stock (computed from all size entries across all colors) ---
 
   totalStock = computed(() => {

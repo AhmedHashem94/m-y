@@ -67,7 +67,8 @@
     "off": "خصم",
     "you_save": "وفّرت",
     "only_left": "باقي {{count}} فقط!",
-    "tap_to_zoom": "اضغط للتكبير"
+    "tap_to_zoom": "اضغط للتكبير",
+    "order_now": "اطلب الآن"
   },
   "cart": {
     "title": "سلة التسوق",

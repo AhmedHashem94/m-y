@@ -140,7 +140,7 @@ import { LanguageService } from '../../services/language.service';
                   </h3>
                   <!-- Price -->
                   @if (product.variants?.length) {
-                    <div class="flex flex-wrap items-center gap-1.5">
+                    <div class="flex flex-wrap items-center gap-1.5 mb-2">
                       <span class="text-sm font-bold text-primary">
                         {{ getMinPrice(product) }} {{ 'common.egp' | translate }}
                       </span>
@@ -151,6 +151,10 @@ import { LanguageService } from '../../services/language.service';
                       }
                     </div>
                   }
+                  <!-- Order Now -->
+                  <span class="block w-full rounded-md bg-primary py-1.5 text-center text-xs font-medium text-primary-foreground">
+                    {{ 'store.order_now' | translate }}
+                  </span>
                 </div>
               </section>
             </a>

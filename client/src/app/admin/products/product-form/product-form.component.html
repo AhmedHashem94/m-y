@@ -75,6 +75,24 @@
         }
       </div>
 
+      <!-- Name AR -->
+      <div class="flex flex-col gap-2" id="field-nameAr">
+        <label hlmLabel for="nameAr">{{ 'admin.name_ar' | translate }}</label>
+        <input hlmInput id="nameAr" formControlName="nameAr"
+          [class.border-destructive]="showError('nameAr')"
+          (blur)="autoTranslate('nameAr', 'name')" />
+        @if (showError('nameAr')) {
+          <span class="text-xs text-destructive flex items-center gap-1">
+            <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+            @if (form.controls.nameAr.errors?.['required']) {
+              {{ 'admin.validation.required' | translate }}
+            } @else {
+              {{ 'admin.validation.name_ar_pattern' | translate }}
+            }
+          </span>
+        }
+      </div>
+
       <!-- Name EN -->
       <div class="flex flex-col gap-2" id="field-name">
         <label hlmLabel for="name">{{ 'admin.name_en' | translate }}</label>
@@ -92,19 +110,16 @@
         }
       </div>
 
-      <!-- Name AR -->
-      <div class="flex flex-col gap-2" id="field-nameAr">
-        <label hlmLabel for="nameAr">{{ 'admin.name_ar' | translate }}</label>
-        <input hlmInput id="nameAr" formControlName="nameAr"
-          [class.border-destructive]="showError('nameAr')" />
-        @if (showError('nameAr')) {
+      <!-- Description AR -->
+      <div class="flex flex-col gap-2 md:col-span-2" id="field-descriptionAr">
+        <label hlmLabel for="descriptionAr">{{ 'admin.description_ar' | translate }}</label>
+        <textarea hlmInput id="descriptionAr" formControlName="descriptionAr" rows="3"
+          class="min-h-20 resize-y" [class.border-destructive]="showError('descriptionAr')"
+          (blur)="autoTranslate('descriptionAr', 'description')"></textarea>
+        @if (showError('descriptionAr')) {
           <span class="text-xs text-destructive flex items-center gap-1">
             <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-            @if (form.controls.nameAr.errors?.['required']) {
-              {{ 'admin.validation.required' | translate }}
-            } @else {
-              {{ 'admin.validation.name_ar_pattern' | translate }}
-            }
+            {{ 'admin.validation.desc_ar_pattern' | translate }}
           </span>
         }
       </div>
@@ -118,19 +133,6 @@
           <span class="text-xs text-destructive flex items-center gap-1">
             <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
             {{ 'admin.validation.desc_en_pattern' | translate }}
-          </span>
-        }
-      </div>
-
-      <!-- Description AR -->
-      <div class="flex flex-col gap-2 md:col-span-2" id="field-descriptionAr">
-        <label hlmLabel for="descriptionAr">{{ 'admin.description_ar' | translate }}</label>
-        <textarea hlmInput id="descriptionAr" formControlName="descriptionAr" rows="3"
-          class="min-h-20 resize-y" [class.border-destructive]="showError('descriptionAr')"></textarea>
-        @if (showError('descriptionAr')) {
-          <span class="text-xs text-destructive flex items-center gap-1">
-            <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
-            {{ 'admin.validation.desc_ar_pattern' | translate }}
           </span>
         }
       </div>

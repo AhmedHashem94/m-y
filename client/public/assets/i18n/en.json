@@ -67,7 +67,8 @@
     "off": "OFF",
     "you_save": "You save",
     "only_left": "Only {{count}} left!",
-    "tap_to_zoom": "Tap to zoom"
+    "tap_to_zoom": "Tap to zoom",
+    "order_now": "Order Now"
   },
   "cart": {
     "title": "Shopping Cart",
