@@ -71,7 +71,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
       @for (product of filteredProducts(); track product.id) {
         <a [routerLink]="['/store/product', product.id]" class="group block">
-          <section hlmCard class="overflow-hidden transition-shadow hover:shadow-lg">
+          <div class="overflow-hidden rounded-xl bg-card shadow-xs ring-1 ring-foreground/10 transition-shadow hover:shadow-lg">
             <!-- Product Image -->
             <div class="relative aspect-[3/4] overflow-hidden bg-muted">
               @if (getProductImage(product); as imgUrl) {
@@ -110,12 +110,11 @@
                 </span>
               }
             </div>
-            <div class="p-2 pt-1.5 flex flex-col gap-1">
-              <!-- Name -->
+            <!-- Info -->
+            <div class="px-2.5 py-2 space-y-1">
               <h3 class="font-semibold text-sm text-foreground line-clamp-1">
                 {{ isAr() ? product.nameAr : product.name }}
               </h3>
-              <!-- Price -->
               @if (product.variants?.length) {
                 <div class="flex flex-wrap items-center gap-1.5">
                   <span class="text-sm font-bold text-primary">
@@ -128,12 +127,14 @@
                   }
                 </div>
               }
-              <!-- Order Now -->
-              <span class="block w-full rounded-md bg-primary py-1 text-center text-xs font-medium text-primary-foreground mt-0.5">
+            </div>
+            <!-- Order Now -->
+            <div class="px-2.5 pb-2.5">
+              <span class="block w-full rounded-lg bg-primary py-1.5 text-center text-xs font-semibold text-primary-foreground transition-colors group-hover:bg-primary/90">
                 {{ 'store.order_now' | translate }}
               </span>
             </div>
-          </section>
+          </div>
         </a>
       }
     </div>
