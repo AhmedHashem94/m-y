@@ -8,6 +8,8 @@ import {
   Body,
   Query,
   UseGuards,
+  BadRequestException,
+  InternalServerErrorException,
 } from '@nestjs/common';
 import { UserRole, ProductStatus } from '@mamy/shared-models';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
@@ -54,9 +56,17 @@ export class ProductsController {
   @Post()
   @UseGuards(JwtAuthGuard, RolesGuard)
   @Roles(UserRole.ADMIN)
-  create(@Body() dto: CreateProductDto) {
+  async create(@Body() dto: CreateProductDto) {
     const { variants, ...product } = dto;
-    return this.productsService.create(product, variants || []);
+    try {
+      return await this.productsService.create(product, variants || []);
+    } catch (err: any) {
+      const msg = err?.message || 'Failed to create product';
+      if (msg.includes('duplicate') || msg.includes('unique')) {
+        throw new BadRequestException(msg);
+      }
+      throw new InternalServerErrorException(msg);
+    }
   }
 
   @Patch(':id')

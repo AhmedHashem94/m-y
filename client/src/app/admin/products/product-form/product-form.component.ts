@@ -395,6 +395,8 @@ export class ProductFormComponent {
   }
 
   private submitForm() {
+    if (this.saving()) return;
+
     this.submitted.set(true);
     this.form.markAllAsTouched();
 

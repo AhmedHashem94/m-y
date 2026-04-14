@@ -102,6 +102,8 @@ export class ProductsService {
           .select('*');
 
       if (variantError) {
+        // Roll back: delete the orphaned product so it doesn't appear without variants
+        await this.supabase.from('products').delete().eq('id', product.id);
         throw new Error(variantError.message);
       }
 
