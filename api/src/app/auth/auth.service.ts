@@ -7,7 +7,7 @@ import { UserRole } from '@mamy/shared-models';
 
 export interface JwtPayload {
   sub: string;
-  email: string;
+  username: string;
   role: UserRole;
 }
 
@@ -23,8 +23,8 @@ export class AuthService {
 
     const { data: user, error } = await client
       .from('users')
-      .select('id, name, email, password, role')
-      .eq('email', dto.email)
+      .select('id, name, username, password, role')
+      .eq('username', dto.username)
       .single();
 
     if (error || !user) {
@@ -41,10 +41,10 @@ export class AuthService {
     return { user: userWithoutPassword, token };
   }
 
-  private signToken(user: { id: string; email: string; role: UserRole }) {
+  private signToken(user: { id: string; username: string; role: UserRole }) {
     const payload: JwtPayload = {
       sub: user.id,
-      email: user.email,
+      username: user.username,
       role: user.role,
     };
     return this.jwtService.sign(payload);

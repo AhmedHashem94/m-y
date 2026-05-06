@@ -11,14 +11,14 @@
     <div hlmCardContent>
       <form (ngSubmit)="onSubmit()" class="flex flex-col gap-4">
         <div class="flex flex-col gap-2">
-          <label hlmLabel for="email">{{ 'auth.email' | translate }}</label>
+          <label hlmLabel for="username">{{ 'auth.username' | translate }}</label>
           <input
             hlmInput
-            id="email"
-            type="email"
-            placeholder="email@example.com"
-            [(ngModel)]="email"
-            name="email"
+            id="username"
+            type="text"
+            autocomplete="username"
+            [(ngModel)]="username"
+            name="username"
             required
             dir="ltr"
           />

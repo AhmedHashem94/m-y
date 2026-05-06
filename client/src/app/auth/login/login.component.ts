@@ -26,7 +26,7 @@ export class LoginComponent {
   private readonly router = inject(Router);
   private readonly translate = inject(TranslateService);
 
-  email = '';
+  username = '';
   password = '';
   loading = signal(false);
   error = signal('');
@@ -35,7 +35,7 @@ export class LoginComponent {
     this.loading.set(true);
     this.error.set('');
 
-    this.auth.login(this.email, this.password).subscribe({
+    this.auth.login(this.username, this.password).subscribe({
       next: () => {
         this.loading.set(false);
         this.router.navigate(['/admin']);
