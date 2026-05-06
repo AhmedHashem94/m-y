@@ -18,6 +18,7 @@
     "login": "تسجيل الدخول",
     "register": "إنشاء حساب",
     "email": "البريد الإلكتروني",
+    "username": "اسم المستخدم",
     "password": "كلمة المرور",
     "name": "الاسم",
     "submit_login": "دخول",
@@ -29,7 +30,7 @@
     "loading": "جارٍ التحميل...",
     "login_failed": "فشل تسجيل الدخول",
     "register_failed": "فشل إنشاء الحساب",
-    "enter_credentials": "أدخل بريدك الإلكتروني وكلمة المرور",
+    "enter_credentials": "أدخل اسم المستخدم وكلمة المرور",
     "create_account_desc": "أنشئ حسابك للبدء"
   },
   "store": {

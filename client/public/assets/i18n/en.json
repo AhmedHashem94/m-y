@@ -18,6 +18,7 @@
     "login": "Login",
     "register": "Register",
     "email": "Email",
+    "username": "Username",
     "password": "Password",
     "name": "Name",
     "submit_login": "Login",
@@ -29,7 +30,7 @@
     "loading": "Loading...",
     "login_failed": "Login failed",
     "register_failed": "Registration failed",
-    "enter_credentials": "Enter your email and password",
+    "enter_credentials": "Enter your username and password",
     "create_account_desc": "Create your account to get started"
   },
   "store": {

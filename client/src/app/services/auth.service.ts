@@ -7,7 +7,7 @@ import { UserRole } from '@mamy/shared-models';
 interface AuthUser {
   id: string;
   name: string;
-  email: string;
+  username: string;
   role: UserRole;
 }
 
@@ -32,9 +32,9 @@ export class AuthService {
     () => this.currentUser()?.role === UserRole.ADMIN
   );
 
-  login(email: string, password: string) {
+  login(username: string, password: string) {
     return this.http
-      .post<AuthResponse>('/api/auth/login', { email, password })
+      .post<AuthResponse>('/api/auth/login', { username, password })
       .pipe(tap((res) => this.setSession(res)));
   }
 
