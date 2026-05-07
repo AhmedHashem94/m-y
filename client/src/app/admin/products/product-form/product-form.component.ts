@@ -74,7 +74,7 @@ export class ProductFormComponent {
 
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
-  availableSizes = ['2', '4', '6', '8', '10', '12', '14', '16', '18'];
+  availableSizes = Array.from({ length: 20 }, (_, i) => String(i + 1));
   colorPalette = COLOR_PALETTE;
 
   getColorLabel(key: string): string {
