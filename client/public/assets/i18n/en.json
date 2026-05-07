@@ -209,6 +209,7 @@
       "category_required": "Please select a category",
       "gender_required": "Please select a collection",
       "sku_required": "SKU is required",
+      "duplicate_sku": "This SKU is already used in another size",
       "variant_required": "At least one variant is required",
       "fix_errors": "Please fix the errors highlighted above"
     }

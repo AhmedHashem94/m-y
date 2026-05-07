@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
 import { SupabaseService } from '../supabase';
 import { SupabaseClient } from '@supabase/supabase-js';
 import { IProduct, IProductVariant, ProductStatus } from '@mamy/shared-models';
@@ -46,6 +46,34 @@ export class ProductsService {
     return (data || []).map((row) => this.mapProduct(row));
   }
 
+  // SKU with the highest trailing integer across all variants. Used by the
+  // admin form to seed the next product's first SKU as bump(highest).
+  // We sort numerically (not by created_at) because rows created in the same
+  // transaction share a timestamp, and we want the largest value regardless.
+  async findLastSku(): Promise<{ sku: string | null }> {
+    const { data, error } = await this.supabase
+      .from('product_variants')
+      .select('sku');
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    let bestSku: string | null = null;
+    let bestNum = -1;
+    for (const row of data || []) {
+      const sku = String(row.sku ?? '');
+      const m = sku.match(/(\d+)(\D*)$/);
+      if (!m) continue;
+      const n = parseInt(m[1], 10);
+      if (n > bestNum) {
+        bestNum = n;
+        bestSku = sku;
+      }
+    }
+    return { sku: bestSku };
+  }
+
   async findOne(id: string): Promise<IProduct> {
     const { data: productRow, error: productError } = await this.supabase
       .from('products')
@@ -77,6 +105,8 @@ export class ProductsService {
     dto: CreateProductDto,
     variants: CreateVariantDto[]
   ): Promise<IProduct> {
+    this.assertVariantSkusUnique(variants);
+
     const { data: productRow, error: productError } = await this.supabase
       .from('products')
       .insert(this.toProductRow(dto))
@@ -102,7 +132,9 @@ export class ProductsService {
           .select('*');
 
       if (variantError) {
-        throw new Error(variantError.message);
+        // Roll back the product so we don't leave an orphan.
+        await this.supabase.from('products').delete().eq('id', product.id);
+        this.throwVariantError(variantError);
       }
 
       product.variants = (insertedVariants || []).map((row) =>
@@ -134,6 +166,8 @@ export class ProductsService {
 
     // Sync variants if provided
     if (variants !== undefined) {
+      this.assertVariantSkusUnique(variants as { sku?: string }[]);
+
       const { data: existingRows } = await this.supabase
         .from('product_variants')
         .select('id')
@@ -144,7 +178,7 @@ export class ProductsService {
         variants.filter((v: any) => v.id).map((v: any) => v.id)
       );
 
-      // Delete removed variants
+      // Delete removed variants first so a freed-up SKU can be re-used in this same request.
       const toDelete = [...existingIds].filter((eid) => !incomingIds.has(eid));
       if (toDelete.length > 0) {
         await this.supabase
@@ -153,16 +187,20 @@ export class ProductsService {
           .in('id', toDelete);
       }
 
-      // Update existing or insert new variants
+      // Update existing rows first (a same-SKU update on an existing row should not fight a sibling insert).
       const variantResults: IProductVariant[] = [];
+      const toInsert: any[] = [];
       for (const v of variants as any[]) {
         if (v.id && existingIds.has(v.id)) {
           const updated = await this.updateVariant(v.id, v);
           variantResults.push(updated);
         } else {
-          const created = await this.addVariant(id, v);
-          variantResults.push(created);
+          toInsert.push(v);
         }
+      }
+      for (const v of toInsert) {
+        const created = await this.addVariant(id, v);
+        variantResults.push(created);
       }
       product.variants = variantResults;
     }
@@ -234,7 +272,7 @@ export class ProductsService {
       .single();
 
     if (error || !data) {
-      throw new Error(error?.message || 'Failed to create variant');
+      this.throwVariantError(error, dto.sku);
     }
 
     return this.mapVariant(data);
@@ -254,6 +292,9 @@ export class ProductsService {
       .single();
 
     if (error || !data) {
+      if (error && this.isUniqueViolation(error)) {
+        this.throwVariantError(error, dto.sku);
+      }
       throw new NotFoundException(`Variant with id ${variantId} not found`);
     }
 
@@ -268,6 +309,44 @@ export class ProductsService {
 
     if (error) {
       throw new Error(error.message);
+    }
+  }
+
+  // ── Error helpers ──
+
+  private isUniqueViolation(error: { code?: string; message?: string } | null): boolean {
+    if (!error) return false;
+    return (
+      error.code === '23505' ||
+      /duplicate key value violates unique constraint/i.test(error.message || '')
+    );
+  }
+
+  private throwVariantError(
+    error: { code?: string; message?: string } | null,
+    sku?: string
+  ): never {
+    if (this.isUniqueViolation(error)) {
+      throw new ConflictException(
+        sku
+          ? `SKU "${sku}" already exists. Each variant SKU must be unique.`
+          : 'A variant with this SKU already exists. Each variant SKU must be unique.'
+      );
+    }
+    throw new Error(error?.message || 'Failed to save variant');
+  }
+
+  private assertVariantSkusUnique(variants: { sku?: string }[]): void {
+    const seen = new Set<string>();
+    for (const v of variants) {
+      const sku = (v.sku || '').trim();
+      if (!sku) continue;
+      if (seen.has(sku)) {
+        throw new ConflictException(
+          `Duplicate SKU "${sku}" in this product. Each variant must have a unique SKU.`
+        );
+      }
+      seen.add(sku);
     }
   }
 

@@ -72,6 +72,10 @@ export class ProductFormComponent {
   uploadingColor = signal(-1);
   isDraggingColor = signal(-1);
 
+  // Seed for the first size's SKU on a new product: bumpSku(lastSkuFromDB).
+  // Empty string until the lookup resolves; null means lookup returned no rows.
+  private nextSkuSeed: string | null = null;
+
   categories = Object.values(ProductCategory);
   genders = Object.values(ProductGender);
   availableSizes = Array.from({ length: 20 }, (_, i) => String(i + 1));
@@ -120,6 +124,74 @@ export class ProductFormComponent {
     return !!control && control.invalid;
   }
 
+  hasDuplicateSku(colorIndex: number, sizeIndex: number): boolean {
+    const control = this.getSizesArray(colorIndex).at(sizeIndex)?.get('sku');
+    return !!control?.errors?.['duplicateSku'];
+  }
+
+  // Walk every sku across every color×size and tag duplicates.
+  private refreshDuplicateSkuErrors(): void {
+    const seen = new Map<string, AbstractControl[]>();
+    for (let ci = 0; ci < this.colorGroupsArray.length; ci++) {
+      const sizes = this.getSizesArray(ci);
+      for (let si = 0; si < sizes.length; si++) {
+        const ctrl = sizes.at(si).get('sku');
+        if (!ctrl) continue;
+        const key = String(ctrl.value || '').trim().toLowerCase();
+        if (!key) {
+          this.clearDuplicateError(ctrl);
+          continue;
+        }
+        const bucket = seen.get(key) ?? [];
+        bucket.push(ctrl);
+        seen.set(key, bucket);
+      }
+    }
+    for (const bucket of seen.values()) {
+      if (bucket.length > 1) {
+        for (const ctrl of bucket) this.setDuplicateError(ctrl);
+      } else {
+        this.clearDuplicateError(bucket[0]);
+      }
+    }
+  }
+
+  private setDuplicateError(ctrl: AbstractControl): void {
+    const errors = { ...(ctrl.errors || {}), duplicateSku: true };
+    ctrl.setErrors(errors);
+  }
+
+  private clearDuplicateError(ctrl: AbstractControl): void {
+    if (!ctrl.errors?.['duplicateSku']) return;
+    const errors = { ...ctrl.errors };
+    delete errors['duplicateSku'];
+    ctrl.setErrors(Object.keys(errors).length ? errors : null);
+  }
+
+  private collectAllSkus(): Set<string> {
+    const all = new Set<string>();
+    for (let ci = 0; ci < this.colorGroupsArray.length; ci++) {
+      const sizes = this.getSizesArray(ci);
+      for (let si = 0; si < sizes.length; si++) {
+        const v = String(sizes.at(si).get('sku')?.value || '').trim().toLowerCase();
+        if (v) all.add(v);
+      }
+    }
+    return all;
+  }
+
+  // bumpSku, but skipping any SKUs already in use elsewhere in this form.
+  private nextUniqueSku(base: string): string {
+    if (!base) return '';
+    const used = this.collectAllSkus();
+    let next = this.bumpSku(base);
+    let guard = 0;
+    while (next && used.has(next.trim().toLowerCase()) && guard++ < 1000) {
+      next = this.bumpSku(next);
+    }
+    return next;
+  }
+
   // --- Auto-translate Arabic → English ---
 
   autoTranslate(arField: string, enField: string) {
@@ -154,12 +226,21 @@ export class ProductFormComponent {
   // --- Constructor ---
 
   constructor() {
+    this.colorGroupsArray.valueChanges.subscribe(() => this.refreshDuplicateSkuErrors());
+
     afterNextRender(() => {
       this.http.get<ICompany[]>('/api/companies').subscribe({
         next: (data) => this.companies.set(data),
       });
 
       const id = this.route.snapshot.paramMap.get('id');
+      if (!id) {
+        this.http.get<{ sku: string | null }>('/api/products/last-sku').subscribe({
+          next: (res) => {
+            this.nextSkuSeed = res.sku ? this.bumpSku(res.sku) : null;
+          },
+        });
+      }
       if (id) {
         this.isEditMode.set(true);
         this.productId = id;
@@ -375,7 +456,48 @@ export class ProductFormComponent {
   }
 
   addSizeEntry(colorIndex: number) {
-    this.getSizesArray(colorIndex).push(this.createSizeEntry());
+    const sizes = this.getSizesArray(colorIndex);
+    const prevSameColor = sizes.length > 0 ? sizes.at(sizes.length - 1) : null;
+    const lastSkuCtrl = this.findLastSkuAcrossForm();
+    const prevSku = String(lastSkuCtrl?.get('sku')?.value ?? '');
+    const prevStock = Number(prevSameColor?.get('stock')?.value ?? 0);
+
+    let sku = '';
+    if (prevSku) {
+      sku = this.nextUniqueSku(prevSku);
+    } else if (this.nextSkuSeed) {
+      // First size of a brand-new product: seed = bump(last SKU in DB).
+      sku = this.nextSkuSeed;
+    }
+
+    const entry = this.createSizeEntry();
+    entry.patchValue({ stock: prevStock, sku });
+    sizes.push(entry);
+  }
+
+  // Find the size entry whose SKU should seed the next bump — the most recent
+  // non-empty sku in the form (across all colors), so increments stay monotonic.
+  private findLastSkuAcrossForm(): AbstractControl | null {
+    let last: AbstractControl | null = null;
+    for (let ci = 0; ci < this.colorGroupsArray.length; ci++) {
+      const sizes = this.getSizesArray(ci);
+      for (let si = 0; si < sizes.length; si++) {
+        const ctrl = sizes.at(si);
+        if (String(ctrl.get('sku')?.value || '').trim()) last = ctrl;
+      }
+    }
+    return last;
+  }
+
+  private bumpSku(sku: string): string {
+    if (!sku) return '';
+    const m = sku.match(/^(.*?)(\d+)(\D*)$/);
+    if (m) {
+      const [, head, num, tail] = m;
+      const next = String(Number(num) + 1).padStart(num.length, '0');
+      return `${head}${next}${tail}`;
+    }
+    return `${sku}-2`;
   }
 
   removeSizeEntry(colorIndex: number, sizeIndex: number) {
@@ -397,6 +519,7 @@ export class ProductFormComponent {
   private submitForm() {
     this.submitted.set(true);
     this.form.markAllAsTouched();
+    this.refreshDuplicateSkuErrors();
 
     const hasAnySizes = this.colorGroupsArray.controls.some(
       (cg) => (cg.get('sizes') as FormArray).length > 0
