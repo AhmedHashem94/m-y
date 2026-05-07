@@ -46,6 +46,13 @@ export class ProductsController {
     return this.productsService.findAll({ gender, category, companyId, status });
   }
 
+  @Get('last-sku')
+  @UseGuards(JwtAuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN)
+  findLastSku() {
+    return this.productsService.findLastSku();
+  }
+
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.productsService.findOne(id);

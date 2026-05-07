@@ -327,7 +327,13 @@
                           }
                           <input hlmInput formControlName="sku" dir="ltr"
                             class="h-9"
-                            [class.border-destructive]="showSizeError(ci, si, 'sku')" />
+                            [class.border-destructive]="showSizeError(ci, si, 'sku') || hasDuplicateSku(ci, si)" />
+                          @if (hasDuplicateSku(ci, si)) {
+                            <span class="text-[10px] text-destructive flex items-center gap-1">
+                              <ng-icon hlmIcon size="xs" name="lucideAlertCircle" />
+                              {{ 'admin.validation.duplicate_sku' | translate }}
+                            </span>
+                          }
                         </div>
 
                         <!-- Delete size -->
